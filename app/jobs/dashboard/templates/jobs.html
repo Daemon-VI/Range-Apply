@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card" style="margin-bottom: 20px;">
+    <form method="GET" action="/dashboard/jobs" style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <input type="text" name="q" placeholder="Search title, company, location..." value="{{ search_q }}" style="flex: 1; min-width: 200px;">
+        <input type="text" name="company" placeholder="Company..." value="{{ company_filter }}" style="width: 150px;">
+        <select name="source">
+            <option value="">All Sources</option>
+            <option value="GREENHOUSE" {% if source_filter == 'GREENHOUSE' %}selected{% endif %}>Greenhouse</option>
+            <option value="LEVER" {% if source_filter == 'LEVER' %}selected{% endif %}>Lever</option>
+            <option value="ASHBY" {% if source_filter == 'ASHBY' %}selected{% endif %}>Ashby</option>
+        </select>
+        <select name="employment_type">
+            <option value="">All Types</option>
+            <option value="INTERNSHIP" {% if emp_filter == 'INTERNSHIP' %}selected{% endif %}>Internship</option>
+            <option value="FULL_TIME" {% if emp_filter == 'FULL_TIME' %}selected{% endif %}>Full-Time</option>
+            <option value="CONTRACT" {% if emp_filter == 'CONTRACT' %}selected{% endif %}>Contract</option>
+        </select>
+        <button type="submit">Filter</button>
+    </form>
+</div>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h2 style="font-size: 18px;">Discovered Jobs ({{ jobs|length }})</h2>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Company</th>
+                <th>Match</th>
+                <th>Priority</th>
+                <th>Source</th>
+                <th>Location</th>
+                <th>Type</th>
+                <th>Grad Requirement</th>
+                <th>Last Seen</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job, match in jobs_with_matches %}
+            <tr>
+                <td><a href="/dashboard/jobs/{{ job.id }}">{{ job.title }}</a></td>
+                <td><strong>{{ job.company }}</strong></td>
+                <td>
+                    {% if match %}
+                        <strong>{{ match.fit_score }}</strong> 
+                        <br><span style="font-size: 11px;">{{ match.match_type }}</span>
+                    {% else %}
+                        <span style="color: #999;">Unscored</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if match %}
+                        <span class="badge {% if match.priority == 'P0' %}badge-purple{% elif match.priority == 'P1' %}badge-green{% elif match.priority == 'P2' %}badge-orange{% else %}badge-gray{% endif %}">{{ match.priority }}</span>
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td><span class="badge badge-blue">{{ job.source }}</span></td>
+                <td>{{ job.location or "—" }}</td>
+                <td><span class="badge badge-orange">{{ job.employment_type }}</span></td>
+                <td>
+                    {% if job.graduation_requirement and job.graduation_requirement.get('exact_years') %}
+                        <span class="badge badge-green">{{ job.graduation_requirement['exact_years']|join(', ') }}</span>
+                    {% elif job.graduation_year_requirement %}
+                        <span class="badge badge-green">{{ job.graduation_year_requirement }}</span>
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td style="color: var(--text-muted); font-size: 12px;">{{ job.last_seen_at.strftime('%Y-%m-%d') }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="9" style="text-align: center; color: var(--text-muted);">No jobs match your search criteria.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

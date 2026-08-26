@@ -1,0 +1,100 @@
+# ================================
+# Environment / Secrets
+# ================================
+.env
+.env.*
+!.env.example
+
+credentials.json
+*.pem
+*.key
+
+# ================================
+# Python
+# ================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# ================================
+# Virtual Environments
+# ================================
+.venv/
+venv/
+ENV/
+env/
+
+# ================================
+# Build / Packaging
+# ================================
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ================================
+# Testing
+# ================================
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# ================================
+# IDE / Editor
+# ================================
+.idea/
+.vscode/
+.cursor/
+*.swp
+*.swo
+*~
+
+# ================================
+# Database
+# ================================
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# ================================
+# Local Data
+# ================================
+data/local/
+browser_profiles/
+cookies/
+
+# ================================
+# Logs
+# ================================
+*.log
+logs/
+
+# ================================
+# OS
+# ================================
+.DS_Store
+Thumbs.db
+
+# ================================
+# Personal Information
+# ================================
+*CAREER_CONTEXT*
+*Career Context*

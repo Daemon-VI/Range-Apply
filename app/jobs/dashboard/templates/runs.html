@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h2 style="font-size: 18px;">Discovery Runs History</h2>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Source</th>
+                <th>Board / Identifier</th>
+                <th>Started</th>
+                <th>Discovered</th>
+                <th>New</th>
+                <th>Updated</th>
+                <th>Duplicates</th>
+                <th>Failed</th>
+                <th>Status</th>
+                <th>Duration</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for run in runs %}
+            <tr>
+                <td><span class="badge badge-blue">{{ run.source }}</span></td>
+                <td><strong>{{ run.source_identifier }}</strong></td>
+                <td>{{ run.started_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                <td>{{ run.candidates_discovered }}</td>
+                <td style="color: var(--accent-green); font-weight: 600;">+{{ run.jobs_new }}</td>
+                <td>{{ run.jobs_updated }}</td>
+                <td>{{ run.jobs_duplicate }}</td>
+                <td>{{ run.jobs_failed }}</td>
+                <td>
+                    {% if run.status == 'completed' %}
+                        <span class="badge badge-green">completed</span>
+                    {% else %}
+                        <span class="badge badge-orange">{{ run.status }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ run.duration_seconds }}s</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="10" style="text-align: center; color: var(--text-muted);">No runs recorded yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

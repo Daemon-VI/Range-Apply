@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card" style="margin-bottom: 24px;">
+    <h2>Career Brain Profile</h2>
+    <p>Manage your verified skills and projects. Adding a skill will automatically update your job match intelligence.</p>
+    
+    <div style="margin-top: 20px;">
+        <h3>Add New Skill</h3>
+        <form method="POST" action="/dashboard/profile/skill" style="display: flex; gap: 12px; margin-top: 12px;">
+            <input type="text" name="skill_name" placeholder="Skill name (e.g. Kubernetes)" required style="flex: 1; max-width: 300px;">
+            <button type="submit" style="background: var(--accent-green);">Add Skill</button>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom: 24px;">
+    <h3>Verified Skills ({{ skills|length }})</h3>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;">
+        {% for skill in skills %}
+            <span class="badge {% if skill.is_verified %}badge-green{% else %}badge-orange{% endif %}">{{ skill.name }}</span>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="card">
+    <h3>Projects ({{ projects|length }})</h3>
+    <ul style="margin-top: 12px; list-style-type: none; padding: 0;">
+        {% for project in projects %}
+            <li style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
+                <div style="font-weight: 600; font-size: 16px;">{{ project.name }}</div>
+                <div style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">{{ project.description }}</div>
+                <div style="margin-top: 8px;">
+                    {% for tech in project.technologies %}
+                        <span class="badge badge-blue">{{ tech }}</span>
+                    {% endfor %}
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

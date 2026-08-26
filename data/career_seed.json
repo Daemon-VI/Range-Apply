@@ -1,0 +1,323 @@
+{
+  "profile": {
+    "name": "Ribhu Siripurapu",
+    "email": null,
+    "phone": null,
+    "location": "Hyderabad, India",
+    "work_authorization": null,
+    "degree": "B.Tech — Computer Science and Engineering (Data Science)",
+    "branch": "Computer Science and Engineering (Data Science)",
+    "college": "Mahatma Gandhi Institute of Technology (MGIT), Hyderabad, India",
+    "graduation_year": 2027,
+    "current_academic_status": "3rd year undergraduate engineering student",
+    "cgpa": 8.52,
+    "backlogs": "No active backlogs",
+    "github": null,
+    "linkedin": null,
+    "portfolio": null,
+    "positioning_statement": "Engineering student building production-oriented software, backend, AI/ML and distributed systems, with hands-on experience across APIs, databases, caching, concurrency, machine learning, and full-stack systems.",
+    "long_term_goal": "Become a production-grade software/AI systems engineer capable of designing and building scalable, reliable, distributed, production-oriented systems."
+  },
+  "skills": [
+    {"id": "skill-python", "name": "Python", "category": "Programming", "evidence": "Multiple projects", "projects": ["plant-disease", "stock-predictor", "careeros", "healthcare-tb"], "verification_status": "VERIFIED", "resume_relevance": "high", "notes": "Primary ML/backend language"},
+    {"id": "skill-go", "name": "Go", "category": "Programming", "evidence": "Ticket Engine", "projects": ["ticket-engine"], "verification_status": "VERIFIED", "resume_relevance": "high", "notes": "Particularly relevant to Ticket Engine project"},
+    {"id": "skill-java", "name": "Java", "category": "Programming", "evidence": "Academic/coursework", "projects": [], "verification_status": "UNVERIFIED", "resume_relevance": "medium", "notes": "Listed in context; confirm depth"},
+    {"id": "skill-sql", "name": "SQL", "category": "Programming", "evidence": "Ticket Engine, databases", "projects": ["ticket-engine"], "verification_status": "VERIFIED", "resume_relevance": "high", "notes": ""},
+    {"id": "skill-fastapi", "name": "FastAPI", "category": "Backend", "evidence": "Stock Predictor, CareerOS", "projects": ["stock-predictor", "careeros"], "verification_status": "VERIFIED", "resume_relevance": "high", "notes": ""},
+    {"id": "skill-redis", "name": "Redis", "category": "Backend", "evidence": "Ticket Engine", "projects": ["ticket-engine"], "verification_status": "VERIFIED", "resume_relevance": "high", "notes": "Caching, queues, atomic ops"},
+    {"id": "skill-mysql", "name": "MySQL", "category": "Backend", "evidence": "Ticket Engine", "projects": ["ticket-engine"], "verification_status": "VERIFIED", "resume_relevance": "high", "notes": ""},
+    {"id": "skill-react", "name": "React", "category": "Frontend", "evidence": "Ticket Engine, Stock Predictor", "projects": ["ticket-engine", "stock-predictor"], "verification_status": "VERIFIED", "resume_relevance": "medium-high", "notes": ""},
+    {"id": "skill-typescript", "name": "TypeScript", "category": "Frontend", "evidence": "Ticket Engine", "projects": ["ticket-engine"], "verification_status": "VERIFIED", "resume_relevance": "medium-high", "notes": ""},
+    {"id": "skill-docker", "name": "Docker", "category": "DevOps", "evidence": "Ticket Engine", "projects": ["ticket-engine"], "verification_status": "VERIFIED", "resume_relevance": "high", "notes": ""},
+    {"id": "skill-tensorflow", "name": "TensorFlow/Keras", "category": "AI/ML", "evidence": "Plant Disease, Healthcare CV", "projects": ["plant-disease", "healthcare-tb", "healthcare-dr"], "verification_status": "VERIFIED", "resume_relevance": "high", "notes": ""},
+    {"id": "skill-lstm", "name": "LSTMs", "category": "AI/ML", "evidence": "Stock Predictor", "projects": ["stock-predictor"], "verification_status": "VERIFIED", "resume_relevance": "high", "notes": ""},
+    {"id": "skill-dsa", "name": "DSA / Problem Solving", "category": "Other", "evidence": "Ongoing practice", "projects": [], "verification_status": "VERIFIED", "resume_relevance": "high", "notes": "Active development area"}
+  ],
+  "projects": [
+    {
+      "id": "ticket-engine",
+      "name": "Ticket Engine",
+      "status": "Active",
+      "summary": "High-concurrency ticket booking system with atomic allocation, Redis queues, and load-tested performance.",
+      "problem": "Traditional ticket booking systems fail under high concurrent load, leading to race conditions and overselling.",
+      "solution": "Distributed ticket allocation using Redis for atomic operations with MySQL persistence.",
+      "technologies": ["Go", "Redis", "MySQL", "React", "TypeScript", "Docker", "Docker Compose", "k6"],
+      "primary_domain": "Backend / Distributed Systems",
+      "relevant_roles": ["Backend Engineer", "Software Engineer", "SDE", "Product Engineer", "Distributed Systems Engineer"],
+      "features": ["User login", "Queue simulation", "Real-time dashboard", "Ticket/seat visualization", "Atomic ticket allocation"],
+      "metrics": [
+        {"name": "Concurrent users (simulated)", "value": "10,000", "verification_status": "UNVERIFIED"},
+        {"name": "Throughput", "value": "~3,000 requests/sec", "verification_status": "UNVERIFIED"},
+        {"name": "Average latency", "value": "~120 ms", "verification_status": "UNVERIFIED"},
+        {"name": "P95 latency", "value": "< 250 ms", "verification_status": "UNVERIFIED"},
+        {"name": "Duplicate bookings", "value": "0", "verification_status": "UNVERIFIED"}
+      ],
+      "technical_concepts": ["concurrency", "atomic operations", "distributed coordination", "caching", "queues", "load testing", "race-condition prevention"],
+      "resume_worthy_facts": [
+        "Designed high-concurrency ticket booking system",
+        "Implemented atomic ticket allocation using Redis",
+        "Built Go API with Redis worker pipeline and MySQL persistence"
+      ],
+      "verified_claims": ["Architecture and technology stack", "Engineering concepts demonstrated", "Load testing performed"],
+      "unverified_claims": ["Exact benchmark numbers (project-reported)"],
+      "documentation_path": "docs/projects/TICKET_ENGINE.md"
+    },
+    {
+      "id": "plant-disease",
+      "name": "Plant Disease Detection",
+      "status": "UNKNOWN",
+      "summary": "Image-based plant disease classification using deep learning and computer vision.",
+      "technologies": ["Python", "TensorFlow", "Keras", "Streamlit", "Computer Vision"],
+      "primary_domain": "AI/ML / Computer Vision",
+      "relevant_roles": ["ML Engineer", "AI Engineer", "Computer Vision Engineer"],
+      "features": ["Image upload and classification", "Multiple plant disease categories"],
+      "metrics": [
+        {"name": "Model accuracy", "value": "UNKNOWN", "verification_status": "UNVERIFIED"},
+        {"name": "Dataset size", "value": "UNKNOWN", "verification_status": "UNVERIFIED"}
+      ],
+      "technical_concepts": ["CNNs", "image classification", "deep learning"],
+      "resume_worthy_facts": ["Built image-based plant disease classification system"],
+      "verified_claims": ["Technology stack", "General project scope"],
+      "unverified_claims": ["Dataset size", "Model accuracy", "Number of disease categories"],
+      "documentation_path": "docs/projects/PLANT_DISEASE.md"
+    },
+    {
+      "id": "stock-predictor",
+      "name": "Stock Market Predictor",
+      "status": "UNKNOWN",
+      "summary": "LSTM-based stock market prediction with FastAPI backend and React frontend.",
+      "technologies": ["Python", "LSTM", "FastAPI", "React", "yfinance"],
+      "primary_domain": "AI/ML / Time Series",
+      "relevant_roles": ["ML Engineer", "Full Stack Engineer", "AI Engineer"],
+      "features": ["Historical market data retrieval", "LSTM prediction", "REST API", "React visualization"],
+      "metrics": [
+        {"name": "Prediction accuracy", "value": "UNVERIFIED", "verification_status": "UNVERIFIED"}
+      ],
+      "technical_concepts": ["LSTM", "time-series modeling", "model serving", "API integration"],
+      "resume_worthy_facts": ["Built LSTM-based stock prediction system with FastAPI and React"],
+      "verified_claims": ["Architecture and technology stack", "LSTM-based approach"],
+      "unverified_claims": ["Prediction accuracy figures"],
+      "documentation_path": "docs/projects/STOCK_PREDICTOR.md"
+    },
+    {
+      "id": "careeros",
+      "name": "CareerOS",
+      "status": "In Development (Phase 1)",
+      "summary": "Autonomous Career Operating System for job discovery, matching, resume tailoring, and application automation.",
+      "technologies": ["Python", "FastAPI", "PostgreSQL", "Redis", "Pydantic"],
+      "primary_domain": "Agentic Systems / Career Tech",
+      "relevant_roles": ["Software Engineer", "SDE", "AI Engineer", "Product Engineer", "Backend Engineer"],
+      "features": ["Career Brain foundation", "Structured career data", "Truth validation", "REST API"],
+      "metrics": [],
+      "technical_concepts": ["agentic systems", "structured data management", "truth validation", "typed API design"],
+      "resume_worthy_facts": ["Building autonomous career operating system with Career Brain foundation"],
+      "verified_claims": ["Phase 1 implementation", "Planned architecture"],
+      "unverified_claims": ["Future phase timelines"],
+      "documentation_path": "docs/projects/CAREEROS.md"
+    },
+    {
+      "id": "healthcare-tb",
+      "name": "TB Detection",
+      "status": "UNKNOWN",
+      "summary": "Medical image classification for tuberculosis detection using deep learning.",
+      "technologies": ["TensorFlow", "Keras", "Computer Vision"],
+      "primary_domain": "AI/ML / Healthcare Imaging",
+      "relevant_roles": ["ML Engineer", "AI Engineer"],
+      "features": ["TB detection from medical images"],
+      "metrics": [],
+      "technical_concepts": ["deep learning", "medical imaging", "image classification"],
+      "resume_worthy_facts": ["Built medical image classification system for TB detection"],
+      "verified_claims": ["Project existence", "Technology areas"],
+      "unverified_claims": ["Dataset sizes", "Model accuracy", "Clinical validation"],
+      "documentation_path": "docs/projects/HEALTHCARE_CV.md"
+    },
+    {
+      "id": "healthcare-dr",
+      "name": "Diabetic Retinopathy Detection",
+      "status": "UNKNOWN",
+      "summary": "Medical image classification for diabetic retinopathy detection.",
+      "technologies": ["TensorFlow", "Keras", "Computer Vision"],
+      "primary_domain": "AI/ML / Healthcare Imaging",
+      "relevant_roles": ["ML Engineer", "AI Engineer"],
+      "features": ["Diabetic retinopathy detection from retinal images"],
+      "metrics": [],
+      "technical_concepts": ["deep learning", "medical imaging", "image classification"],
+      "resume_worthy_facts": ["Built diabetic retinopathy detection system"],
+      "verified_claims": ["Project existence", "Technology areas"],
+      "unverified_claims": ["Dataset sizes", "Model accuracy"],
+      "documentation_path": "docs/projects/HEALTHCARE_CV.md"
+    }
+  ],
+  "experience": [
+    {
+      "id": "exp-ticket-engine",
+      "organization": "Personal Project",
+      "role": "Full-stack / Backend Engineer",
+      "start_date": null,
+      "end_date": null,
+      "is_employment": false,
+      "responsibilities": [
+        "Designed high-concurrency ticket booking architecture",
+        "Implemented atomic ticket allocation via Redis",
+        "Built Go API, worker pipeline, and React dashboard",
+        "Conducted load testing"
+      ],
+      "technologies": ["Go", "Redis", "MySQL", "React", "TypeScript", "Docker", "k6"],
+      "achievements": ["Project-reported zero duplicate bookings during load test"],
+      "verified_claims": ["Architecture design", "Technology stack", "Engineering concepts"],
+      "verification_status": "VERIFIED",
+      "notes": "Project-based experience, not employment"
+    },
+    {
+      "id": "exp-careeros",
+      "organization": "Personal Project",
+      "role": "Lead Developer",
+      "start_date": "2026",
+      "end_date": null,
+      "is_employment": false,
+      "responsibilities": ["Building CareerOS autonomous career system", "Career Brain design and implementation"],
+      "technologies": ["Python", "FastAPI", "PostgreSQL", "Pydantic"],
+      "achievements": ["Phase 1 Career Brain foundation"],
+      "verified_claims": ["Current development status"],
+      "verification_status": "VERIFIED",
+      "notes": "Project-based experience, not employment"
+    }
+  ],
+  "achievements": [
+    {
+      "id": "ach-cgpa",
+      "title": "CGPA 8.52/10",
+      "category": "academic",
+      "description": "MGIT, B.Tech CSE (Data Science)",
+      "verification_status": "VERIFIED",
+      "notes": ""
+    },
+    {
+      "id": "ach-no-backlogs",
+      "title": "No active backlogs",
+      "category": "academic",
+      "description": "Current academic standing",
+      "verification_status": "VERIFIED",
+      "notes": ""
+    },
+    {
+      "id": "ach-hackathons",
+      "title": "Hackathon/Competition achievements",
+      "category": "competition",
+      "description": "TODO: User confirmation required",
+      "verification_status": "NEEDS_REVIEW",
+      "notes": "No specific details in canonical context"
+    }
+  ],
+  "preferences": {
+    "target_roles_tier1": [
+      "Software Engineer",
+      "Software Development Engineer",
+      "Backend Engineer",
+      "Product Engineer",
+      "AI/ML Engineer",
+      "Machine Learning Engineer",
+      "Applied AI Engineer"
+    ],
+    "target_roles_tier2": [
+      "Full Stack Engineer",
+      "Data/ML Engineering",
+      "Systems-oriented engineering",
+      "Platform/Infrastructure engineering"
+    ],
+    "target_roles_lower_priority": [
+      "Generic IT/support roles",
+      "Low-signal technology roles"
+    ],
+    "target_domains": [
+      "Product Engineering",
+      "Backend / Distributed Systems",
+      "Production AI/ML"
+    ],
+    "preferred_locations": [],
+    "remote_preference": null,
+    "hybrid_preference": null,
+    "internship_preference": true,
+    "full_time_preference": true,
+    "compensation_target": "₹30–40+ LPA (long-term)",
+    "target_companies": [],
+    "excluded_companies": [],
+    "minimum_match_score": null,
+    "graduation_eligibility": 2027
+  },
+  "facts": [
+    {
+      "id": "fact-name",
+      "category": "identity",
+      "statement": "Name is Ribhu Siripurapu",
+      "source": "RIBHU_CAREER_CONTEXT.md",
+      "verification_status": "VERIFIED",
+      "confidence": 1.0,
+      "allowed_for_resume": true,
+      "allowed_for_application": true
+    },
+    {
+      "id": "fact-education",
+      "category": "education",
+      "statement": "B.Tech CSE (Data Science) at MGIT, Hyderabad, graduating 2027, CGPA 8.52/10",
+      "source": "RIBHU_CAREER_CONTEXT.md",
+      "verification_status": "VERIFIED",
+      "confidence": 1.0,
+      "allowed_for_resume": true,
+      "allowed_for_application": true
+    },
+    {
+      "id": "fact-ticket-engine-arch",
+      "category": "project",
+      "statement": "Ticket Engine uses Go API → Redis → Worker → MySQL architecture with atomic ticket allocation",
+      "source": "RIBHU_CAREER_CONTEXT.md",
+      "verification_status": "VERIFIED",
+      "confidence": 1.0,
+      "allowed_for_resume": true,
+      "allowed_for_application": true,
+      "related_entity_id": "ticket-engine"
+    },
+    {
+      "id": "fact-ticket-engine-throughput",
+      "category": "metric",
+      "statement": "Ticket Engine achieved ~3,000 requests/sec under load test",
+      "source": "RIBHU_CAREER_CONTEXT.md (project-reported)",
+      "verification_status": "UNVERIFIED",
+      "confidence": 0.7,
+      "allowed_for_resume": false,
+      "allowed_for_application": false,
+      "related_entity_id": "ticket-engine"
+    },
+    {
+      "id": "fact-plant-disease-accuracy",
+      "category": "metric",
+      "statement": "Plant Disease Detection model accuracy",
+      "source": "RIBHU_CAREER_CONTEXT.md",
+      "verification_status": "UNVERIFIED",
+      "confidence": 0.0,
+      "allowed_for_resume": false,
+      "allowed_for_application": false,
+      "related_entity_id": "plant-disease"
+    },
+    {
+      "id": "fact-inferred-location",
+      "category": "identity",
+      "statement": "Located in Hyderabad, India",
+      "source": "Inferred from college location",
+      "verification_status": "INFERRED",
+      "confidence": 0.8,
+      "allowed_for_resume": false,
+      "allowed_for_application": false
+    },
+    {
+      "id": "fact-github",
+      "category": "identity",
+      "statement": "GitHub profile URL",
+      "source": "RIBHU_CAREER_CONTEXT.md",
+      "verification_status": "NEEDS_REVIEW",
+      "confidence": 0.0,
+      "allowed_for_resume": false,
+      "allowed_for_application": false
+    }
+  ]
+}

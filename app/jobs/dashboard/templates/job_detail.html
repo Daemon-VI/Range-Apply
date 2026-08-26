@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="margin-bottom: 16px;">
+    <a href="/dashboard/jobs">← Back to Jobs</a>
+</div>
+
+<div class="card" style="margin-bottom: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+        <div>
+            <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">{{ job.title }}</h1>
+            <div style="font-size: 16px; color: var(--accent); font-weight: 600;">{{ job.company }}</div>
+        </div>
+        <div style="text-align: right;">
+            <a href="{{ job.source_url }}" target="_blank" style="margin-right: 12px;"><button type="button">View Source ↗</button></a>
+            {% if job.application_url %}
+            <a href="{{ job.application_url }}" target="_blank"><button type="button" style="background: var(--accent-green);">Apply ↗</button></a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if match %}
+    <div style="background: rgba(46, 204, 113, 0.1); border-left: 4px solid var(--accent-green); padding: 16px; margin-bottom: 24px; border-radius: 4px;">
+        <h3 style="margin-top: 0; font-size: 18px; color: var(--accent-green);">Intelligence: {{ match.match_type }}</h3>
+        <div style="display: flex; gap: 16px; margin-bottom: 12px;">
+            <div><strong>Score:</strong> {{ match.fit_score }}/100</div>
+            <div><strong>Priority:</strong> {{ match.priority }}</div>
+            <div><strong>Eligibility:</strong> {{ match.eligibility_status }}</div>
+            <div><strong>Confidence:</strong> {{ match.confidence }}</div>
+        </div>
+        {% if match.explanation %}
+        <p style="margin-bottom: 12px; font-size: 15px; line-height: 1.5;">{{ match.explanation }}</p>
+        {% endif %}
+        
+        {% if match.strengths %}
+        <div style="margin-bottom: 8px;">
+            <strong>Strengths:</strong>
+            {% for s in match.strengths %}
+                <span class="badge badge-green">{{ s }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% if match.gaps %}
+        <div>
+            <strong>Gaps:</strong>
+            {% for g in match.gaps %}
+                <span class="badge badge-orange">{{ g }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px;">
+        <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 6px;">
+            <div class="stat-label">Location</div>
+            <div style="font-weight: 600; margin-top: 4px;">{{ job.location or "Not specified" }}</div>
+        </div>
+        <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 6px;">
+            <div class="stat-label">Workplace</div>
+            <div style="font-weight: 600; margin-top: 4px;">{{ job.remote_type }}</div>
+        </div>
+        <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 6px;">
+            <div class="stat-label">Employment Type</div>
+            <div style="font-weight: 600; margin-top: 4px;">{{ job.employment_type }}</div>
+        </div>
+        <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 6px;">
+            <div class="stat-label">Salary</div>
+            <div style="font-weight: 600; margin-top: 4px;">{{ job.salary_text or "—" }}</div>
+        </div>
+        <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 6px;">
+            <div class="stat-label">Graduation Req</div>
+            <div style="font-weight: 600; margin-top: 4px; color: var(--accent-green);">
+                {% if job.graduation_requirement and job.graduation_requirement.get('original_text') %}
+                    {{ job.graduation_requirement['original_text'] }}
+                {% else %}
+                    —
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if job.required_skills %}
+    <div style="margin-bottom: 20px;">
+        <div class="stat-label" style="margin-bottom: 8px;">Extracted Skills & Technologies</div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            {% for skill in job.required_skills %}
+                <span class="badge badge-blue">{{ skill }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div style="border-top: 1px solid var(--border); padding-top: 20px; margin-top: 20px;">
+        <h3 style="font-size: 16px; margin-bottom: 12px;">Job Description</h3>
+        <div style="color: var(--text-muted); font-size: 14px; white-space: pre-wrap; line-height: 1.7; background: #0f172a; padding: 16px; border-radius: 6px; max-height: 400px; overflow-y: auto;">{{ job.description }}</div>
+    </div>
+</div>
+
+<div class="grid" style="grid-template-columns: 1fr 1fr; gap: 16px;">
+    <div class="card">
+        <h3 style="font-size: 16px; margin-bottom: 12px;">Source Provenance ({{ job.source_references|length }})</h3>
+        <table>
+            <thead><tr><th>Source</th><th>Job ID</th><th>Last Seen</th></tr></thead>
+            <tbody>
+                {% for ref in job.source_references %}
+                <tr>
+                    <td><span class="badge badge-blue">{{ ref.source }}</span></td>
+                    <td><code>{{ ref.source_job_id }}</code></td>
+                    <td>{{ ref.last_seen_at.strftime('%Y-%m-%d') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="card">
+        <h3 style="font-size: 16px; margin-bottom: 12px;">Version History ({{ job.versions|length }})</h3>
+        <table>
+            <thead><tr><th>Version Hash</th><th>Changes</th><th>Date</th></tr></thead>
+            <tbody>
+                {% for ver in job.versions %}
+                <tr>
+                    <td><code>{{ ver.content_hash[:10] }}</code></td>
+                    <td>{{ ver.changes_summary }}</td>
+                    <td>{{ ver.created_at.strftime('%Y-%m-%d') }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">No version changes recorded.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
