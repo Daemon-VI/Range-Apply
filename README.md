@@ -1,4 +1,4 @@
-# RangeApply (CareerOS)
+# RangeApply
 
 AI-assisted career platform focused on job discovery, job intelligence, and stepwise automation toward autonomous applications.
 
