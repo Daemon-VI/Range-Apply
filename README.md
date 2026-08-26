@@ -72,20 +72,22 @@ Engineering approach: deterministic-first ingestion with explicit provenance and
 
 ```mermaid
 flowchart TD
-    U[User / Operator] --> API[FastAPI App]
-    API --> V1[Phase 1: Career Brain APIs]
-    API --> V2[Phase 2: Job Discovery APIs]
-    API --> V3[Phase 3: Match APIs - partial]
-    API --> DBDash[Dashboard Views]
+    User[User Operator] --> API[FastAPI App]
 
-    V2 --> Sources[Source Adapters: Greenhouse / Lever / Ashby]
-    Sources --> Norm[Normalization + Deterministic Extraction]
-    Norm --> LLM[LLM Fallback (optional)]
-    LLM --> Dedup[Deduplication + Versioning]
-    Dedup --> SQL[(SQLite/PostgreSQL via SQLAlchemy)]
+    API --> Phase1[Phase 1 Career Brain APIs]
+    API --> Phase2[Phase 2 Job Discovery APIs]
+    API --> Phase3[Phase 3 Match APIs Partial]
+    API --> Dashboard[Dashboard Views]
+    API --> Database[SQLite PostgreSQL via SQLAlchemy]
 
-    V3 --> Match[Eligibility + Requirement + Scoring Services]
-    Match --> SQL
+    Phase2 --> Sources[Source Adapters Greenhouse Lever Ashby]
+    Sources --> Normalization[Normalization and Deterministic Extraction]
+    Normalization --> LLMFallback[LLM Fallback Optional]
+    LLMFallback --> Dedup[Deduplication and Versioning]
+    Dedup --> Database
+
+    Phase3 --> MatchServices[Eligibility Requirement Scoring Services]
+    MatchServices --> Database
 ```
 
 ## 7) Technology Stack
