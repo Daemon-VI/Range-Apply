@@ -5,6 +5,8 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+from app.core.timeutils import utc_now
+
 from app.models.enums import FactCategory, VerificationStatus
 
 
@@ -18,8 +20,8 @@ class CareerFact(BaseModel):
     allowed_for_resume: bool = False
     allowed_for_application: bool = False
     related_entity_id: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
+    updated_at: datetime = Field(default_factory=utc_now)
 
     def model_post_init(self, __context: object) -> None:
         if self.verification_status == VerificationStatus.VERIFIED:

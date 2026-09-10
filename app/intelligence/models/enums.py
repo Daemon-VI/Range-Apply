@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class RequirementCategory(str, Enum):
     ELIGIBILITY = "ELIGIBILITY"
     EDUCATION = "EDUCATION"
@@ -44,9 +45,16 @@ class ConfidenceLevel(str, Enum):
     UNKNOWN = "UNKNOWN"
 
 class EligibilityStatus(str, Enum):
+    """Hard-gate outcome.
+
+    UNCERTAIN is a real state, not a rounding of ELIGIBLE: an ambiguous or
+    unstated requirement must never be silently treated as satisfied.
+    """
+
     ELIGIBLE = "ELIGIBLE"
-    INELIGIBLE = "INELIGIBLE"
+    LIKELY_ELIGIBLE = "LIKELY_ELIGIBLE"
     UNCERTAIN = "UNCERTAIN"
+    INELIGIBLE = "INELIGIBLE"
 
 class MatchType(str, Enum):
     CORE_MATCH = "CORE_MATCH"

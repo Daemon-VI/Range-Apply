@@ -17,6 +17,13 @@ dependencies = [
     "sqlalchemy>=2.0.36",
     "httpx>=0.27.0",
     "jinja2>=3.1.0",
+    # Required by app/career/dashboard/views.py -> fastapi.Form(...).
+    # Without it `from app.main import app` raises RuntimeError at import time.
+    "python-multipart>=0.0.9",
+    # Alembic is the authoritative schema mechanism (see docs/DEVELOPMENT.md).
+    # It is a runtime dependency, not a dev convenience: the app refuses to
+    # create its own schema and requires `alembic upgrade head`.
+    "alembic>=1.13.0",
 ]
 
 [project.optional-dependencies]
@@ -25,6 +32,14 @@ firecrawl = [
 ]
 llm = [
     "google-genai>=1.0.0",
+]
+# Optional CPU-only semantic matching (Phase 3). Deliberately NOT a default
+# dependency: the deterministic matcher must work with zero extra installs.
+semantic = [
+    "sentence-transformers>=3.0.0",
+]
+postgres = [
+    "psycopg[binary]>=3.2.0",
 ]
 dev = [
     "pytest>=8.3.0",

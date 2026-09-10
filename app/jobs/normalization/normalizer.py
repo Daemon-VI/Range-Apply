@@ -3,9 +3,9 @@
 import hashlib
 import logging
 import re
-from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
+from app.core.timeutils import utc_now
 from app.jobs.extraction.deterministic import (
     clean_html,
     extract_bullets_and_sections,
@@ -17,7 +17,7 @@ from app.jobs.extraction.deterministic import (
     extract_skills_and_technologies,
 )
 from app.jobs.models.enums import JobStatus, ProcessingStatus
-from app.jobs.models.job import GraduationRequirement, NormalizedJob
+from app.jobs.models.job import NormalizedJob
 from app.jobs.models.raw_job import RawJob
 
 logger = logging.getLogger(__name__)
@@ -41,6 +41,35 @@ def compute_canonical_key(company: str, normalized_title: str, location: Optiona
     norm_loc = (location or "").lower().strip()
     raw_key = f"{norm_comp}|{norm_tit}|{norm_loc}"
     return hashlib.sha256(raw_key.encode("utf-8")).hexdigest()
+
+
+# Board slugs are lowercase and punctuation-free; title-casing them alone
+# produced "Acme" for a company that calls itself "ACME Inc". Known acronyms and
+# suffixes are preserved so the canonical key is stable across sources.
+_COMPANY_ACRONYMS = {"ai", "api", "io", "hq", "ibm", "aws", "gcp", "ml", "hr", "it", "us", "uk"}
+_COMPANY_SUFFIXES = {"inc", "llc", "ltd", "gmbh", "bv", "plc", "corp", "co"}
+
+
+def normalize_company(raw_company: str) -> str:
+    """Normalize a company name or board slug into a stable display form."""
+    cleaned = re.sub(r"[_\-]+", " ", str(raw_company or "").strip())
+    cleaned = re.sub(r"\s+", " ", cleaned)
+    if not cleaned:
+        return "Unknown Company"
+
+    words = []
+    for word in cleaned.split(" "):
+        lowered = word.lower().strip(".,")
+        if lowered in _COMPANY_ACRONYMS:
+            words.append(lowered.upper())
+        elif lowered in _COMPANY_SUFFIXES:
+            words.append(lowered.capitalize())
+        elif any(ch.isupper() for ch in word[1:]):
+            # Already deliberately cased (e.g. "GitLab", "OpenAI") - keep as-is.
+            words.append(word)
+        else:
+            words.append(word.capitalize())
+    return " ".join(words)
 
 
 def normalize_title(raw_title: str, company: Optional[str] = None) -> str:
@@ -85,8 +114,13 @@ class JobNormalizer:
 
     def normalize(self, raw_job: RawJob, company_name: Optional[str] = None) -> NormalizedJob:
         """Converts a RawJob into a NormalizedJob using deterministic extraction."""
-        company = company_name or raw_job.raw_metadata.get("board_token") or raw_job.raw_metadata.get("company_slug") or raw_job.raw_metadata.get("board_name") or "Unknown Company"
-        company = str(company).title()
+        source_identifier = (
+            raw_job.raw_metadata.get("board_token")
+            or raw_job.raw_metadata.get("company_slug")
+            or raw_job.raw_metadata.get("board_name")
+        )
+        company = company_name or source_identifier or "Unknown Company"
+        company = normalize_company(company)
 
         clean_title = normalize_title(raw_job.raw_title, company)
         primary_location, locations = normalize_location(raw_job.raw_location)
@@ -109,6 +143,7 @@ class JobNormalizer:
             canonical_key=canonical_key,
             source=raw_job.source,
             source_job_id=raw_job.source_job_id,
+            source_identifier=source_identifier,
             company=company,
             title=clean_title,
             original_title=raw_job.raw_title,
@@ -129,6 +164,9 @@ class JobNormalizer:
             salary_text=salary,
             application_url=apply_url,
             source_url=raw_job.source_url,
+            posted_at=raw_job.source_posted_at,
+            source_updated_at=raw_job.source_updated_at,
+            deadline=raw_job.source_deadline,
             first_seen_at=raw_job.discovered_at,
             last_seen_at=raw_job.retrieved_at or raw_job.discovered_at,
             content_hash=content_hash,
@@ -136,7 +174,7 @@ class JobNormalizer:
             job_status=JobStatus.ACTIVE,
             extraction_metadata={
                 "method": raw_job.extraction_method or "deterministic",
-                "extracted_at": datetime.utcnow().isoformat(),
+                "extracted_at": utc_now().isoformat(),
             },
             metadata=raw_job.raw_metadata,
         )

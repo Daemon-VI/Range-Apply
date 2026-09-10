@@ -5,6 +5,7 @@ from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
+from app.core.timeutils import utc_now
 from app.jobs.models.enums import (
     EmploymentType,
     ExperienceLevel,
@@ -34,6 +35,10 @@ class NormalizedJob(BaseModel):
     )
     source: JobSourceType
     source_job_id: str
+    source_identifier: Optional[str] = Field(
+        default=None,
+        description="Board token / company slug this job was discovered under",
+    )
     company: str
     title: str
     original_title: str
@@ -56,9 +61,12 @@ class NormalizedJob(BaseModel):
     application_url: Optional[str] = None
     source_url: str
     posted_at: Optional[datetime] = None
+    source_updated_at: Optional[datetime] = Field(
+        default=None, description="Last-modified timestamp reported by the source"
+    )
     deadline: Optional[datetime] = None
-    first_seen_at: datetime = Field(default_factory=datetime.utcnow)
-    last_seen_at: datetime = Field(default_factory=datetime.utcnow)
+    first_seen_at: datetime = Field(default_factory=utc_now)
+    last_seen_at: datetime = Field(default_factory=utc_now)
     content_hash: str = ""
     processing_status: ProcessingStatus = ProcessingStatus.DISCOVERED
     job_status: JobStatus = JobStatus.UNKNOWN

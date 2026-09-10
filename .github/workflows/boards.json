@@ -1,0 +1,20 @@
+{
+  "_comment": "Boards driven by the scheduled discovery workflow (discovery.yml). Each entry is POSTed as one target to /api/v2/discovery/run-batch. 'source' must be one of GREENHOUSE / LEVER / ASHBY; 'identifier' is the board token/company slug used by that ATS's public API; 'company_name' is an optional display name. These are illustrative public boards - replace them with the companies you actually want to track.",
+  "targets": [
+    {
+      "source": "GREENHOUSE",
+      "identifier": "stripe",
+      "company_name": "Stripe"
+    },
+    {
+      "source": "LEVER",
+      "identifier": "netflix",
+      "company_name": "Netflix"
+    },
+    {
+      "source": "ASHBY",
+      "identifier": "ramp",
+      "company_name": "Ramp"
+    }
+  ]
+}

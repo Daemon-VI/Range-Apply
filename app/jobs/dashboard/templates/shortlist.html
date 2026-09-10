@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}Shortlist — CareerOS Discovery Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    .filters-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .row-ineligible td { opacity: 0.5; text-decoration: line-through; }
+    .row-ineligible td a { color: var(--text-muted); }
+    .row-uncertain { box-shadow: inset 3px 0 0 var(--accent-orange); }
+    .warn-marker { color: var(--accent-orange); font-weight: 700; font-size: 11px; margin-left: 6px; white-space: nowrap; }
+    .badge-red { background: rgba(248, 113, 113, 0.15); color: #f87171; }
+    .badge-gray { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); }
+    .empty-state { text-align: center; padding: 48px 20px; color: var(--text-muted); }
+    .empty-state h2 { color: var(--text-main); margin-bottom: 8px; font-size: 20px; }
+    .empty-state code { background: #0f172a; padding: 2px 6px; border-radius: 4px; color: var(--accent); }
+    .pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 13px; color: var(--text-muted); }
+    .reason-chip { display: inline-block; margin: 1px 3px 1px 0; }
+</style>
+
+<div class="card" style="margin-bottom: 20px;">
+    <form method="GET" action="/dashboard/shortlist" class="filters-form">
+        <select name="sort">
+            <option value="score" {% if filters.sort == 'score' %}selected{% endif %}>Sort: Fit score</option>
+            <option value="posted" {% if filters.sort == 'posted' %}selected{% endif %}>Sort: Posted date</option>
+            <option value="company" {% if filters.sort == 'company' %}selected{% endif %}>Sort: Company</option>
+            <option value="priority" {% if filters.sort == 'priority' %}selected{% endif %}>Sort: Priority</option>
+        </select>
+        <select name="order">
+            <option value="desc" {% if filters.order == 'desc' %}selected{% endif %}>Descending</option>
+            <option value="asc" {% if filters.order == 'asc' %}selected{% endif %}>Ascending</option>
+        </select>
+        <select name="eligibility">
+            <option value="">Any eligibility</option>
+            <option value="ELIGIBLE" {% if filters.eligibility == 'ELIGIBLE' %}selected{% endif %}>Eligible</option>
+            <option value="LIKELY_ELIGIBLE" {% if filters.eligibility == 'LIKELY_ELIGIBLE' %}selected{% endif %}>Likely eligible</option>
+            <option value="UNCERTAIN" {% if filters.eligibility == 'UNCERTAIN' %}selected{% endif %}>Uncertain</option>
+            <option value="INELIGIBLE" {% if filters.eligibility == 'INELIGIBLE' %}selected{% endif %}>Ineligible</option>
+        </select>
+        <select name="priority">
+            <option value="">Any priority</option>
+            <option value="P0" {% if filters.priority == 'P0' %}selected{% endif %}>P0</option>
+            <option value="P1" {% if filters.priority == 'P1' %}selected{% endif %}>P1</option>
+            <option value="P2" {% if filters.priority == 'P2' %}selected{% endif %}>P2</option>
+            <option value="P3" {% if filters.priority == 'P3' %}selected{% endif %}>P3</option>
+        </select>
+        <input type="number" name="min_score" min="0" max="100" placeholder="Min score" value="{{ filters.min_score or '' }}" style="width: 100px;">
+        <input type="text" name="company" placeholder="Company..." value="{{ filters.company }}" style="width: 160px;">
+        <input type="number" name="limit" min="1" max="200" value="{{ filters.limit }}" title="Rows per page" style="width: 80px;">
+        <button type="submit">Apply</button>
+    </form>
+</div>
+
+{% if not run_exists %}
+<div class="card empty-state">
+    <h2>No match run yet</h2>
+    <p>The shortlist is built from persisted matches, and no match run has ever completed.</p>
+    <p style="margin-top: 12px;">
+        Trigger one with <code>POST /api/v3/matches/recalculate</code>, then reload this page.
+    </p>
+</div>
+{% else %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h2 style="font-size: 18px;">Shortlist ({{ total }})</h2>
+        {% if run_id %}<span style="font-size: 12px; color: var(--text-muted);">Run <code>{{ run_id[:8] }}</code></span>{% endif %}
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Company</th>
+                <th>Location</th>
+                <th>Source</th>
+                <th>Eligibility</th>
+                <th>Fit Score</th>
+                <th>Priority</th>
+                <th>Top Reasons</th>
+                <th>Major Gaps</th>
+                <th>Posted</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            {% set match = item.match %}
+            {% set job = item.job %}
+            <tr class="{% if match.eligibility_status == 'INELIGIBLE' %}row-ineligible{% elif item.has_uncertainty %}row-uncertain{% endif %}">
+                <td><a href="/dashboard/shortlist/{{ job.id }}">{{ job.title }}</a></td>
+                <td><strong>{{ job.company }}</strong></td>
+                <td>{{ job.location or "—" }}</td>
+                <td><span class="badge badge-blue">{{ job.source }}</span></td>
+                <td>
+                    {% if match.eligibility_status == 'INELIGIBLE' %}
+                        <span class="badge badge-red">INELIGIBLE</span>
+                    {% elif match.eligibility_status in ('ELIGIBLE', 'LIKELY_ELIGIBLE') %}
+                        <span class="badge badge-green">{{ match.eligibility_status }}</span>
+                    {% else %}
+                        <span class="badge badge-orange">{{ match.eligibility_status }}</span>
+                    {% endif %}
+                    {% if item.has_uncertainty %}<span class="warn-marker" title="Uncertain — open the match for details">⚠ uncertain</span>{% endif %}
+                </td>
+                <td><strong>{{ match.fit_score }}</strong></td>
+                <td><span class="badge badge-purple">{{ match.priority }}</span></td>
+                <td>
+                    {% for s in match.strengths[:3] %}<span class="badge badge-green reason-chip">{{ s }}</span>{% endfor %}
+                    {% if not match.strengths %}<span style="color: var(--text-muted);">—</span>{% endif %}
+                </td>
+                <td>
+                    {% for g in match.gaps[:3] %}<span class="badge badge-orange reason-chip">{{ g }}</span>{% endfor %}
+                    {% if not match.gaps %}<span style="color: var(--text-muted);">—</span>{% endif %}
+                </td>
+                <td style="color: var(--text-muted); font-size: 12px;" {% if item.freshness_title %}title="{{ item.freshness_title }}"{% endif %}>
+                    {{ item.freshness_label }}
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="10" style="text-align: center; color: var(--text-muted);">No matches found for the current filters.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="pagination">
+        <span>Showing {{ items|length }} of {{ total }}</span>
+        <span>
+            {% if has_prev %}<a href="{{ prev_url }}">← Prev</a>{% endif %}
+            {% if has_prev and has_next %}&nbsp;·&nbsp;{% endif %}
+            {% if has_next %}<a href="{{ next_url }}">Next →</a>{% endif %}
+        </span>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

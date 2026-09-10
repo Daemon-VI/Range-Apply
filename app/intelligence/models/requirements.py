@@ -1,12 +1,15 @@
 from typing import List, Optional
+
 from pydantic import BaseModel, Field
+
 from app.intelligence.models.enums import (
+    ConfidenceLevel,
+    EvidenceStrength,
+    MatchStatus,
     RequirementCategory,
     Strictness,
-    MatchStatus,
-    EvidenceStrength,
-    ConfidenceLevel,
 )
+
 
 class StructuredRequirement(BaseModel):
     """A single normalized requirement extracted from a job description."""
@@ -28,3 +31,7 @@ class RequirementAssessment(BaseModel):
     confidence: ConfidenceLevel
     impact: str = Field(description="Impact on overall fit score")
     explanation: str = Field(description="Human-readable explanation of why this was matched or missing")
+    # Filled in by the scoring engine so a persisted assessment shows exactly
+    # how much it moved the score.
+    weight: float = Field(default=0.0, description="Weight this requirement carried")
+    contribution: float = Field(default=0.0, description="Points it actually contributed")

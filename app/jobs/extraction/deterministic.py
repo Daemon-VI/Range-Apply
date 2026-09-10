@@ -1,11 +1,11 @@
 """Deterministic extraction layer for job postings."""
 
+import html
 import re
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 from app.jobs.models.enums import EmploymentType, ExperienceLevel, RemoteType
 from app.jobs.models.job import GraduationRequirement
-from app.jobs.models.raw_job import RawJob
 
 # Canonical tech & skills vocabulary (extensible dictionary)
 CANONICAL_SKILLS_AND_TECH = {
@@ -89,8 +89,12 @@ def clean_html(html_text: str) -> str:
     clean = re.sub(r"<(br|/p|/li|/div|/h[1-6])[^>]*>", "\n", clean, flags=re.IGNORECASE)
     # Strip remaining tags
     clean = re.sub(r"<[^>]+>", " ", clean)
-    # Decode basic entities
-    clean = clean.replace("&amp;", "&").replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", '"').replace("&#39;", "'").replace("&nbsp;", " ")
+    # Decode the full HTML entity set (named and numeric), not a hand-picked
+    # few: leftovers like &#8217; used to survive into descriptions AND into the
+    # content hash, producing phantom "job updated" versions.
+    clean = html.unescape(clean)
+    # Normalize non-breaking spaces that unescape turns into U+00A0.
+    clean = clean.replace(" ", " ")
     return clean
 
 

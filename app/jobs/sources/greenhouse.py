@@ -1,30 +1,24 @@
 """Greenhouse job source adapter using the public unauthenticated Job Board API."""
 
 import logging
-from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
-import httpx
-
+from app.core.timeutils import parse_timestamp, utc_now
 from app.jobs.models.enums import JobSourceType
 from app.jobs.models.raw_job import RawJob
-from app.jobs.sources.base import JobSource, SourceError
+from app.jobs.sources.base import JobSource
 
 logger = logging.getLogger(__name__)
 
 
 class GreenhouseSource(JobSource):
     """Fetches job listings from Greenhouse's public JSON API.
-    
+
     Endpoint: https://boards-api.greenhouse.io/v1/boards/{board_token}/jobs?content=true
     Zero authentication required, free tier compliant, structured JSON with full HTML JD.
     """
 
     BASE_URL = "https://boards-api.greenhouse.io/v1/boards"
-
-    def __init__(self, timeout: float = 15.0, client: Optional[httpx.AsyncClient] = None):
-        self.timeout = timeout
-        self._client = client
 
     @property
     def source_type(self) -> JobSourceType:
@@ -32,7 +26,7 @@ class GreenhouseSource(JobSource):
 
     async def discover(self, identifier: str, **kwargs) -> List[RawJob]:
         """Discovers all open jobs on a Greenhouse job board.
-        
+
         Args:
             identifier: The Greenhouse board token (e.g. 'stripe', 'cloudflare', 'figma').
         """
@@ -40,43 +34,11 @@ class GreenhouseSource(JobSource):
         url = f"{self.BASE_URL}/{board_token}/jobs?content=true"
         discovered_url = f"https://boards.greenhouse.io/{board_token}"
 
-        should_close_client = False
-        client = self._client
-        if client is None:
-            client = httpx.AsyncClient(timeout=self.timeout)
-            should_close_client = True
-
-        try:
-            response = await client.get(url)
-            if response.status_code == 404:
-                raise SourceError(
-                    f"Greenhouse board not found: '{board_token}'",
-                    source=self.source_type,
-                    identifier=board_token,
-                    status_code=404,
-                )
-            response.raise_for_status()
-            data = response.json()
-        except httpx.HTTPStatusError as e:
-            raise SourceError(
-                f"Greenhouse HTTP error {e.response.status_code} for board '{board_token}': {e}",
-                source=self.source_type,
-                identifier=board_token,
-                status_code=e.response.status_code,
-            ) from e
-        except httpx.RequestError as e:
-            raise SourceError(
-                f"Greenhouse request failed for board '{board_token}': {e}",
-                source=self.source_type,
-                identifier=board_token,
-            ) from e
-        finally:
-            if should_close_client:
-                await client.aclose()
+        data = await self.fetch_json(url, board_token)
 
         raw_jobs: List[RawJob] = []
-        jobs_list = data.get("jobs", [])
-        retrieved_at = datetime.utcnow()
+        jobs_list = data.get("jobs", []) if isinstance(data, dict) else []
+        retrieved_at = utc_now()
 
         for item in jobs_list:
             job_id = str(item.get("id", ""))
@@ -97,6 +59,14 @@ class GreenhouseSource(JobSource):
             elif isinstance(location_raw, str):
                 location_str = location_raw
 
+            # Greenhouse exposes `first_published` on most boards and always
+            # `updated_at`. Fall back to updated_at only for the posted date,
+            # never invent one.
+            posted_at = parse_timestamp(item.get("first_published")) or parse_timestamp(
+                item.get("updated_at")
+            )
+            updated_at = parse_timestamp(item.get("updated_at"))
+
             raw_job = RawJob(
                 source=self.source_type,
                 source_job_id=job_id,
@@ -106,11 +76,14 @@ class GreenhouseSource(JobSource):
                 raw_content=content,
                 content_type="html",
                 raw_location=location_str,
+                source_posted_at=posted_at,
+                source_updated_at=updated_at,
                 raw_metadata={
                     "board_token": board_token,
                     "departments": item.get("departments", []),
                     "offices": item.get("offices", []),
                     "updated_at": item.get("updated_at"),
+                    "first_published": item.get("first_published"),
                     "requisition_id": item.get("requisition_id"),
                     "metadata": item.get("metadata", []),
                 },

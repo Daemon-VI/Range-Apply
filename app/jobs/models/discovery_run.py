@@ -5,6 +5,8 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
+from app.core.timeutils import utc_now
+
 from app.jobs.models.enums import JobSourceType
 
 
@@ -16,7 +18,7 @@ class DiscoveryRun(BaseModel):
     source_identifier: str = Field(
         description="Board token, company slug, or URL that was discovered"
     )
-    started_at: datetime = Field(default_factory=datetime.utcnow)
+    started_at: datetime = Field(default_factory=utc_now)
     completed_at: Optional[datetime] = None
     candidates_discovered: int = 0
     pages_fetched: int = 0

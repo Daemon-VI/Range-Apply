@@ -22,7 +22,22 @@ def override_get_db():
         db.close()
 
 
-app.dependency_overrides[get_db] = override_get_db
+@pytest.fixture(scope="module", autouse=True)
+def _override_db():
+    """Scope the override to this module.
+
+    Setting `app.dependency_overrides` at import time leaked this module's
+    database into every other test module, so results depended on collection
+    order. The previous override is captured and restored.
+    """
+    previous = app.dependency_overrides.get(get_db)
+    app.dependency_overrides[get_db] = override_get_db
+    yield
+    if previous is None:
+        app.dependency_overrides.pop(get_db, None)
+    else:
+        app.dependency_overrides[get_db] = previous
+
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -114,18 +129,26 @@ def test_get_job_stats(client):
 
 
 def test_dashboard_views(client):
-    res_overview = client.get("/dashboard/")
+    # The dashboard renders personal career data, so it is behind the shared
+    # key. A browser cannot set a header on a navigation, hence ?key=.
+    from tests.conftest import TEST_API_KEY
+
+    auth = {"key": TEST_API_KEY}
+
+    assert client.get("/dashboard/").status_code == 401
+
+    res_overview = client.get("/dashboard/", params=auth)
     assert res_overview.status_code == 200
     assert "CareerOS Discovery" in res_overview.text
 
-    res_jobs = client.get("/dashboard/jobs")
+    res_jobs = client.get("/dashboard/jobs", params=auth)
     assert res_jobs.status_code == 200
     assert "Discovered Jobs" in res_jobs.text
 
-    res_detail = client.get("/dashboard/jobs/test-job-uuid-1")
+    res_detail = client.get("/dashboard/jobs/test-job-uuid-1", params=auth)
     assert res_detail.status_code == 200
     assert "Software Engineer" in res_detail.text
 
-    res_runs = client.get("/dashboard/runs")
+    res_runs = client.get("/dashboard/runs", params=auth)
     assert res_runs.status_code == 200
     assert "Discovery Runs" in res_runs.text
