@@ -1,8 +1,12 @@
-from typing import List, Dict, Optional, Any
 from datetime import datetime
+from typing import Any, Dict, List
+
 from pydantic import BaseModel, Field
-from app.intelligence.models.enums import EligibilityStatus, ConfidenceLevel, MatchType
+
+from app.core.timeutils import utc_now
+from app.intelligence.models.enums import ConfidenceLevel, EligibilityStatus, MatchType
 from app.intelligence.models.requirements import RequirementAssessment
+
 
 class EligibilityResult(BaseModel):
     """Result of hard-gate eligibility analysis."""
@@ -17,7 +21,7 @@ class MatchRunInfo(BaseModel):
     career_brain_version: str
     policy_version: str
     engine_version: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=utc_now)
 
 class JobMatch(BaseModel):
     """Aggregate root containing the full intelligence result for a job."""
@@ -29,7 +33,7 @@ class JobMatch(BaseModel):
     eligibility: EligibilityResult
     
     fit_score: int = Field(ge=0, le=100)
-    priority: str = Field(description="P0, P1, P2, P3, IGNORE")
+    priority: str = Field(description="P0, P1, P2, REVIEW, IGNORE")
     match_type: MatchType
     confidence: ConfidenceLevel
     

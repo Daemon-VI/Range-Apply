@@ -3,15 +3,23 @@
 import logging
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Response, status
 from pydantic import BaseModel, Field
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.database import get_db
-from app.jobs.database.models import DiscoveryRunRow, JobRow, JobVersionRow, SourceReferenceRow
-from app.jobs.models.enums import EmploymentType, JobSourceType, JobStatus, ProcessingStatus, RemoteType
+from app.database import get_db, get_session_factory
+from app.jobs.database.models import DiscoveryRunRow, JobRow
+from app.jobs.models.enums import (
+    EmploymentType,
+    JobSourceType,
+    JobStatus,
+    ProcessingStatus,
+    RemoteType,
+)
+from app.jobs.normalization.urls import escape_like
 from app.jobs.pipeline.discovery_service import JobDiscoveryService
+from app.security import require_api_key
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +32,23 @@ class DiscoveryRunRequest(BaseModel):
     source: JobSourceType
     identifier: str = Field(description="Board token, company slug, or URL identifier (e.g. 'stripe', 'ramp')")
     company_name: Optional[str] = Field(default=None, description="Optional company display name")
+
+
+class DiscoveryTarget(BaseModel):
+    source: JobSourceType
+    identifier: str
+    company_name: Optional[str] = None
+
+
+class DiscoveryBatchRequest(BaseModel):
+    targets: List[DiscoveryTarget] = Field(min_length=1, max_length=50)
+
+
+class DiscoveryAcceptedResponse(BaseModel):
+    status: str = "accepted"
+    detail: str
+    targets: int
+    poll_url: str = "/api/v2/discovery/runs"
 
 
 class SourceReferenceResponse(BaseModel):
@@ -71,7 +96,9 @@ class JobDetailResponse(BaseModel):
     application_url: Optional[str] = None
     source_url: str
     posted_at: Optional[Any] = None
+    source_updated_at: Optional[Any] = None
     deadline: Optional[Any] = None
+    closed_at: Optional[Any] = None
     first_seen_at: Any
     last_seen_at: Any
     content_hash: str
@@ -100,9 +127,11 @@ class DiscoveryRunResponse(BaseModel):
     jobs_updated: int
     jobs_duplicate: int
     jobs_failed: int
+    jobs_closed: int = 0
     errors: List[str] = []
     duration_seconds: Optional[float] = None
     status: str
+    trigger: Optional[str] = None
 
 
 # --- API Endpoints ---
@@ -117,19 +146,25 @@ def list_jobs(
     job_status: Optional[JobStatus] = None,
     processing_status: Optional[ProcessingStatus] = None,
     search: Optional[str] = None,
+    sort: str = Query(
+        default="last_seen",
+        pattern="^(last_seen|posted|first_seen|company|title)$",
+        description="Sort key; 'posted' orders by source posting date (freshness).",
+    ),
+    order: str = Query(default="desc", pattern="^(asc|desc)$"),
     limit: int = Query(default=50, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
 ):
-    """Lists normalized jobs with optional filters and pagination."""
+    """Lists normalized jobs with optional filters, sorting and pagination."""
     query = db.query(JobRow)
 
     if source:
         query = query.filter(JobRow.source == source.value)
     if company:
-        query = query.filter(JobRow.company.ilike(f"%{company}%"))
+        query = query.filter(JobRow.company.ilike(f"%{escape_like(company)}%", escape="\\"))
     if location:
-        query = query.filter(JobRow.location.ilike(f"%{location}%"))
+        query = query.filter(JobRow.location.ilike(f"%{escape_like(location)}%", escape="\\"))
     if employment_type:
         query = query.filter(JobRow.employment_type == employment_type.value)
     if remote_type:
@@ -139,14 +174,31 @@ def list_jobs(
     if processing_status:
         query = query.filter(JobRow.processing_status == processing_status.value)
     if search:
+        # Escaped: an unescaped '_' or '%' from user input would silently widen
+        # the match to any character.
+        pattern = f"%{escape_like(search)}%"
         query = query.filter(
-            (JobRow.title.ilike(f"%{search}%"))
-            | (JobRow.company.ilike(f"%{search}%"))
-            | (JobRow.description.ilike(f"%{search}%"))
+            (JobRow.title.ilike(pattern, escape="\\"))
+            | (JobRow.company.ilike(pattern, escape="\\"))
+            | (JobRow.description.ilike(pattern, escape="\\"))
         )
 
     total = query.count()
-    rows = query.order_by(JobRow.last_seen_at.desc()).offset(offset).limit(limit).all()
+
+    sort_columns = {
+        "last_seen": JobRow.last_seen_at,
+        "posted": JobRow.posted_at,
+        "first_seen": JobRow.first_seen_at,
+        "company": JobRow.company,
+        "title": JobRow.title,
+    }
+    column = sort_columns[sort]
+    rows = (
+        query.order_by(column.desc() if order == "desc" else column.asc())
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
 
     items = []
     for r in rows:
@@ -166,8 +218,11 @@ def list_jobs(
             "salary_text": r.salary_text,
             "source_url": r.source_url,
             "application_url": r.application_url,
+            "posted_at": r.posted_at.isoformat() if r.posted_at else None,
+            "source_updated_at": r.source_updated_at.isoformat() if r.source_updated_at else None,
             "first_seen_at": r.first_seen_at.isoformat() if r.first_seen_at else None,
             "last_seen_at": r.last_seen_at.isoformat() if r.last_seen_at else None,
+            "closed_at": r.closed_at.isoformat() if r.closed_at else None,
             "processing_status": r.processing_status,
             "job_status": r.job_status,
         })
@@ -209,7 +264,9 @@ def get_job_detail(job_id: str, db: Session = Depends(get_db)):
         application_url=job.application_url,
         source_url=job.source_url,
         posted_at=job.posted_at,
+        source_updated_at=job.source_updated_at,
         deadline=job.deadline,
+        closed_at=job.closed_at,
         first_seen_at=job.first_seen_at,
         last_seen_at=job.last_seen_at,
         content_hash=job.content_hash,
@@ -273,67 +330,139 @@ def get_job_stats(db: Session = Depends(get_db)):
     }
 
 
+def _run_response(r: DiscoveryRunRow) -> DiscoveryRunResponse:
+    return DiscoveryRunResponse(
+        id=r.id,
+        source=r.source,
+        source_identifier=r.source_identifier,
+        started_at=r.started_at,
+        completed_at=r.completed_at,
+        candidates_discovered=r.candidates_discovered or 0,
+        pages_fetched=r.pages_fetched or 0,
+        jobs_new=r.jobs_new or 0,
+        jobs_updated=r.jobs_updated or 0,
+        jobs_duplicate=r.jobs_duplicate or 0,
+        jobs_failed=r.jobs_failed or 0,
+        jobs_closed=r.jobs_closed or 0,
+        errors=r.errors or [],
+        duration_seconds=r.duration_seconds,
+        status=r.status,
+        trigger=r.trigger,
+    )
+
+
 @router.get("/discovery/runs", response_model=List[DiscoveryRunResponse])
 def list_discovery_runs(
+    source: Optional[JobSourceType] = None,
+    run_status: Optional[str] = Query(default=None, alias="status"),
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
 ):
     """Lists discovery execution history."""
+    query = db.query(DiscoveryRunRow)
+    if source:
+        query = query.filter(DiscoveryRunRow.source == source.value)
+    if run_status:
+        query = query.filter(DiscoveryRunRow.status == run_status)
+
     runs = (
-        db.query(DiscoveryRunRow)
-        .order_by(DiscoveryRunRow.started_at.desc())
-        .offset(offset)
-        .limit(limit)
-        .all()
+        query.order_by(DiscoveryRunRow.started_at.desc()).offset(offset).limit(limit).all()
     )
-    return [
-        DiscoveryRunResponse(
-            id=r.id,
-            source=r.source,
-            source_identifier=r.source_identifier,
-            started_at=r.started_at,
-            completed_at=r.completed_at,
-            candidates_discovered=r.candidates_discovered,
-            pages_fetched=r.pages_fetched,
-            jobs_new=r.jobs_new,
-            jobs_updated=r.jobs_updated,
-            jobs_duplicate=r.jobs_duplicate,
-            jobs_failed=r.jobs_failed,
-            errors=r.errors or [],
-            duration_seconds=r.duration_seconds,
-            status=r.status,
+    return [_run_response(r) for r in runs]
+
+
+@router.get("/discovery/runs/{run_id}", response_model=DiscoveryRunResponse)
+def get_discovery_run(run_id: str, db: Session = Depends(get_db)):
+    """Retrieves a single discovery run, for polling a backgrounded run."""
+    run = db.query(DiscoveryRunRow).filter_by(id=run_id).first()
+    if not run:
+        raise HTTPException(status_code=404, detail=f"Discovery run not found: {run_id}")
+    return _run_response(run)
+
+
+async def _execute_discovery(targets: List[dict], trigger: str) -> None:
+    """Background entry point: owns its own session, never raises into the app."""
+    service = JobDiscoveryService()
+    try:
+        await service.run_many(
+            targets=targets, session_factory=get_session_factory(), trigger=trigger
         )
-        for r in runs
-    ]
+    except Exception:  # noqa: BLE001 - a background failure must not kill the worker
+        logger.exception("Background discovery execution failed")
 
 
-@router.post("/discovery/run", response_model=DiscoveryRunResponse)
+@router.post(
+    "/discovery/run",
+    response_model=None,
+    status_code=status.HTTP_202_ACCEPTED,
+    dependencies=[Depends(require_api_key)],
+)
 async def trigger_discovery_run(
     request: DiscoveryRunRequest,
+    background_tasks: BackgroundTasks,
+    response: Response,
+    wait: bool = Query(
+        default=False,
+        description="Run synchronously and return the finished run. Only for small boards.",
+    ),
     db: Session = Depends(get_db),
 ):
-    """Manually triggers a discovery run for a given source and identifier."""
-    service = JobDiscoveryService()
-    run_row = await service.run_discovery(
-        db=db,
-        source_type=request.source,
-        identifier=request.identifier,
-        company_name=request.company_name,
+    """Triggers a discovery run for a given source and identifier.
+
+    By default the run is executed **in the background** and the response
+    returns immediately: a large board takes minutes, and holding an HTTP
+    connection open for that long ties up a worker and hides the outcome behind
+    a client timeout. Poll ``/api/v2/discovery/runs`` for progress.
+    """
+    target = {
+        "source": request.source,
+        "identifier": request.identifier,
+        "company_name": request.company_name,
+    }
+
+    if wait:
+        # A synchronous run has already finished, so 202 Accepted would be a lie.
+        response.status_code = status.HTTP_200_OK
+        service = JobDiscoveryService()
+        run_row = await service.run_discovery(
+            db=db,
+            source_type=request.source,
+            identifier=request.identifier,
+            company_name=request.company_name,
+            trigger="manual",
+        )
+        return _run_response(run_row)
+
+    background_tasks.add_task(_execute_discovery, [target], "manual")
+    return DiscoveryAcceptedResponse(
+        detail=f"Discovery scheduled for {request.source.value}:{request.identifier}",
+        targets=1,
     )
-    return DiscoveryRunResponse(
-        id=run_row.id,
-        source=run_row.source,
-        source_identifier=run_row.source_identifier,
-        started_at=run_row.started_at,
-        completed_at=run_row.completed_at,
-        candidates_discovered=run_row.candidates_discovered,
-        pages_fetched=run_row.pages_fetched,
-        jobs_new=run_row.jobs_new,
-        jobs_updated=run_row.jobs_updated,
-        jobs_duplicate=run_row.jobs_duplicate,
-        jobs_failed=run_row.jobs_failed,
-        errors=run_row.errors or [],
-        duration_seconds=run_row.duration_seconds,
-        status=run_row.status,
+
+
+@router.post(
+    "/discovery/run-batch",
+    response_model=DiscoveryAcceptedResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+    dependencies=[Depends(require_api_key)],
+)
+async def trigger_discovery_batch(
+    request: DiscoveryBatchRequest,
+    background_tasks: BackgroundTasks,
+    trigger: str = Query(default="scheduled", max_length=32),
+):
+    """Schedules several boards in one call, for the GitHub Actions cron job.
+
+    Targets run with a bounded concurrency cap and per-source rate limiting;
+    one failing board does not affect the others.
+    """
+    targets = [
+        {"source": t.source, "identifier": t.identifier, "company_name": t.company_name}
+        for t in request.targets
+    ]
+    background_tasks.add_task(_execute_discovery, targets, trigger)
+    return DiscoveryAcceptedResponse(
+        detail=f"Discovery scheduled for {len(targets)} target(s)",
+        targets=len(targets),
     )

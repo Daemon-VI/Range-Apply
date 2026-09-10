@@ -98,3 +98,11 @@ Thumbs.db
 # ================================
 *CAREER_CONTEXT*
 *Career Context*
+# Local dev artifacts
+.venv/
+.cache/
+*.db
+*.db-wal
+*.db-shm
+.migrate_tmp.db
+test_api_runner.db

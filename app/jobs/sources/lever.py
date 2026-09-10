@@ -1,30 +1,24 @@
 """Lever job source adapter using the public unauthenticated Postings API."""
 
 import logging
-from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import List
 
-import httpx
-
+from app.core.timeutils import parse_timestamp, utc_now
 from app.jobs.models.enums import JobSourceType
 from app.jobs.models.raw_job import RawJob
-from app.jobs.sources.base import JobSource, SourceError
+from app.jobs.sources.base import JobSource
 
 logger = logging.getLogger(__name__)
 
 
 class LeverSource(JobSource):
     """Fetches job listings from Lever's public JSON API.
-    
+
     Endpoint: https://api.lever.co/v0/postings/{company_slug}?mode=json
     Zero authentication required, free tier compliant, structured JSON with full HTML JD.
     """
 
     BASE_URL = "https://api.lever.co/v0/postings"
-
-    def __init__(self, timeout: float = 15.0, client: Optional[httpx.AsyncClient] = None):
-        self.timeout = timeout
-        self._client = client
 
     @property
     def source_type(self) -> JobSourceType:
@@ -32,7 +26,7 @@ class LeverSource(JobSource):
 
     async def discover(self, identifier: str, **kwargs) -> List[RawJob]:
         """Discovers all open jobs on a Lever postings board.
-        
+
         Args:
             identifier: The company slug (e.g. 'leverdemo', 'netflix', 'palantir').
         """
@@ -40,45 +34,13 @@ class LeverSource(JobSource):
         url = f"{self.BASE_URL}/{company_slug}?mode=json"
         discovered_url = f"https://jobs.lever.co/{company_slug}"
 
-        should_close_client = False
-        client = self._client
-        if client is None:
-            client = httpx.AsyncClient(timeout=self.timeout)
-            should_close_client = True
-
-        try:
-            response = await client.get(url)
-            if response.status_code == 404:
-                raise SourceError(
-                    f"Lever board not found for slug: '{company_slug}'",
-                    source=self.source_type,
-                    identifier=company_slug,
-                    status_code=404,
-                )
-            response.raise_for_status()
-            data = response.json()
-        except httpx.HTTPStatusError as e:
-            raise SourceError(
-                f"Lever HTTP error {e.response.status_code} for slug '{company_slug}': {e}",
-                source=self.source_type,
-                identifier=company_slug,
-                status_code=e.response.status_code,
-            ) from e
-        except httpx.RequestError as e:
-            raise SourceError(
-                f"Lever request failed for slug '{company_slug}': {e}",
-                source=self.source_type,
-                identifier=company_slug,
-            ) from e
-        finally:
-            if should_close_client:
-                await client.aclose()
+        data = await self.fetch_json(url, company_slug)
 
         if not isinstance(data, list):
             data = []
 
         raw_jobs: List[RawJob] = []
-        retrieved_at = datetime.utcnow()
+        retrieved_at = utc_now()
 
         for item in data:
             job_id = str(item.get("id", ""))
@@ -96,6 +58,10 @@ class LeverSource(JobSource):
             categories = item.get("categories", {})
             location_str = categories.get("location") if isinstance(categories, dict) else None
 
+            # Lever reports `createdAt` as epoch milliseconds.
+            posted_at = parse_timestamp(item.get("createdAt"))
+            updated_at = parse_timestamp(item.get("updatedAt"))
+
             raw_job = RawJob(
                 source=self.source_type,
                 source_job_id=job_id,
@@ -105,11 +71,15 @@ class LeverSource(JobSource):
                 raw_content=content,
                 content_type=content_type,
                 raw_location=location_str,
+                source_posted_at=posted_at,
+                source_updated_at=updated_at,
                 raw_metadata={
                     "company_slug": company_slug,
                     "categories": categories,
                     "workplaceType": item.get("workplaceType"),
-                    "commitment": categories.get("commitment") if isinstance(categories, dict) else None,
+                    "commitment": categories.get("commitment")
+                    if isinstance(categories, dict)
+                    else None,
                     "apply_url": apply_url,
                     "salaryRange": item.get("salaryRange"),
                     "createdAt": item.get("createdAt"),

@@ -1,0 +1,76 @@
+# Free-tier scheduled job discovery.
+#
+# This workflow is the entire "scheduler" for CareerOS discovery: it replaces
+# what would otherwise be a paid cron service or a Redis/Celery-backed queue
+# worker. GitHub Actions gives every public repo (and a generous free minutes
+# allowance on private repos) scheduled workflows at no cost, so discovery
+# runs on a timer without provisioning or paying for anything extra.
+#
+# It only talks to the already-deployed CareerOS API over HTTPS — it does not
+# run the app itself. Configure two repository secrets before enabling this:
+#   CAREEROS_BASE_URL  e.g. https://your-deployment.example.com
+#   CAREEROS_API_KEY   the same value as the deployment's API_KEY env var
+#
+# The board list lives in the checked-in .github/workflows/boards.json so it
+# can be reviewed and changed via a normal pull request, same as code.
+
+name: Scheduled Discovery
+
+on:
+  schedule:
+    # Twice a day. Adjust to taste - this is a plain cron trigger, no
+    # infrastructure to scale, so the cost of running more often is only
+    # Actions minutes and the target boards' rate limits.
+    - cron: "17 4,16 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  run-discovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate required secrets are set
+        run: |
+          if [ -z "${{ secrets.CAREEROS_BASE_URL }}" ] || [ -z "${{ secrets.CAREEROS_API_KEY }}" ]; then
+            echo "::error::CAREEROS_BASE_URL and/or CAREEROS_API_KEY repository secrets are not set."
+            exit 1
+          fi
+
+      - name: Build discovery batch payload from boards.json
+        run: |
+          jq '{targets: .targets}' .github/workflows/boards.json > /tmp/discovery-payload.json
+          echo "Payload:"
+          cat /tmp/discovery-payload.json
+
+      - name: Trigger discovery run-batch
+        env:
+          BASE_URL: ${{ secrets.CAREEROS_BASE_URL }}
+          API_KEY: ${{ secrets.CAREEROS_API_KEY }}
+        run: |
+          # -f (--fail) makes curl exit non-zero on a non-2xx response, which
+          # fails this step and the job. run-batch always answers 202 and
+          # schedules the actual work in the background on the server, so
+          # this call returns quickly even though ingestion keeps running
+          # after the workflow finishes.
+          curl -sS -f \
+            -X POST "${BASE_URL%/}/api/v2/discovery/run-batch?trigger=scheduled" \
+            -H "X-API-Key: ${API_KEY}" \
+            -H "Content-Type: application/json" \
+            --data @/tmp/discovery-payload.json
+
+      - name: Recalculate matches for changed jobs
+        env:
+          BASE_URL: ${{ secrets.CAREEROS_BASE_URL }}
+          API_KEY: ${{ secrets.CAREEROS_API_KEY }}
+        run: |
+          # Optional but cheap: only_stale=true rescopes this to jobs whose
+          # content changed since the last match run, so a scheduled run that
+          # discovered nothing new triggers no extra scoring work.
+          curl -sS -f \
+            -X POST "${BASE_URL%/}/api/v3/matches/recalculate" \
+            -H "X-API-Key: ${API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{"only_stale": true}'

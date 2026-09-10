@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Match Detail — CareerOS Discovery Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    .badge-red { background: rgba(248, 113, 113, 0.15); color: #f87171; }
+    .warn-marker { color: var(--accent-orange); font-weight: 700; margin-left: 6px; }
+    .reason-list { margin: 4px 0 0 18px; font-size: 13px; line-height: 1.6; }
+    .reason-list.eligible { color: var(--accent-green); }
+    .reason-list.blocking { color: #f87171; }
+    .reason-list.uncertain { color: var(--accent-orange); }
+    .component-bar-track { background: rgba(255, 255, 255, 0.06); border-radius: 4px; height: 8px; width: 120px; overflow: hidden; }
+    .component-bar-fill { background: var(--accent); height: 100%; }
+    .explanation-box { background: #0f172a; padding: 16px; border-radius: 6px; margin-bottom: 20px; white-space: pre-wrap; line-height: 1.6; font-size: 14px; }
+</style>
+
+<div style="margin-bottom: 16px;">
+    <a href="/dashboard/shortlist">← Back to Shortlist</a>
+    &nbsp;·&nbsp;
+    <a href="/dashboard/jobs/{{ job.id }}">Full job record →</a>
+</div>
+
+<div class="card" style="margin-bottom: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+        <div>
+            <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">{{ job.title }}</h1>
+            <div style="font-size: 16px; color: var(--accent); font-weight: 600;">{{ job.company }}</div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;" {% if freshness_title %}title="{{ freshness_title }}"{% endif %}>
+                {{ job.location or "Location unknown" }} · Posted {{ freshness_label }}
+            </div>
+        </div>
+        <div style="text-align: right;">
+            <a href="{{ job.source_url }}" target="_blank" style="margin-right: 12px;"><button type="button">View Source ↗</button></a>
+            {% if job.application_url %}
+            <a href="{{ job.application_url }}" target="_blank"><button type="button" style="background: var(--accent-green);">Apply ↗</button></a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 16px;">
+        <div>
+            <strong>Eligibility:</strong>
+            {% if match.eligibility_status == 'INELIGIBLE' %}
+                <span class="badge badge-red">INELIGIBLE</span>
+            {% elif match.eligibility_status in ('ELIGIBLE', 'LIKELY_ELIGIBLE') %}
+                <span class="badge badge-green">{{ match.eligibility_status }}</span>
+            {% else %}
+                <span class="badge badge-orange">{{ match.eligibility_status }}</span>
+            {% endif %}
+            {% if has_uncertainty %}<span class="warn-marker">⚠ uncertain</span>{% endif %}
+        </div>
+        <div><strong>Fit Score:</strong> {{ match.fit_score }}/100</div>
+        <div><strong>Priority:</strong> <span class="badge badge-purple">{{ match.priority }}</span></div>
+        <div><strong>Match Type:</strong> {{ match.match_type }}</div>
+        <div><strong>Confidence:</strong> {{ match.confidence }}</div>
+    </div>
+
+    {% if match.explanation %}
+    <div>
+        <div class="stat-label" style="margin-bottom: 8px;">Explanation</div>
+        <div class="explanation-box">{{ match.explanation }}</div>
+    </div>
+    {% endif %}
+
+    <div class="grid" style="grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px;">
+        <div>
+            <div class="stat-label" style="margin-bottom: 6px;">Eligibility Reasons</div>
+            {% if match.eligibility_reasons %}
+            <ul class="reason-list eligible">{% for r in match.eligibility_reasons %}<li>{{ r }}</li>{% endfor %}</ul>
+            {% else %}<span style="color: var(--text-muted); font-size: 13px;">None</span>{% endif %}
+        </div>
+        <div>
+            <div class="stat-label" style="margin-bottom: 6px;">Blocking Reasons</div>
+            {% if match.blocking_reasons %}
+            <ul class="reason-list blocking">{% for r in match.blocking_reasons %}<li>{{ r }}</li>{% endfor %}</ul>
+            {% else %}<span style="color: var(--text-muted); font-size: 13px;">None</span>{% endif %}
+        </div>
+        <div>
+            <div class="stat-label" style="margin-bottom: 6px;">Uncertainties</div>
+            {% if match.uncertainties %}
+            <ul class="reason-list uncertain">{% for r in match.uncertainties %}<li>{{ r }}</li>{% endfor %}</ul>
+            {% else %}<span style="color: var(--text-muted); font-size: 13px;">None</span>{% endif %}
+        </div>
+    </div>
+
+    {% if match.component_scores %}
+    <div>
+        <div class="stat-label" style="margin-bottom: 8px;">Component Score Breakdown</div>
+        <table>
+            <thead><tr><th>Component</th><th>Score</th><th></th></tr></thead>
+            <tbody>
+                {% for name, value in match.component_scores.items() %}
+                <tr>
+                    <td>{{ name }}</td>
+                    <td>{{ "%.0f"|format(value * 100) }}%</td>
+                    <td><div class="component-bar-track"><div class="component-bar-fill" style="width: {{ [value * 100, 100]|min }}%;"></div></div></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h3 style="font-size: 16px; margin-bottom: 12px;">Requirement Assessments ({{ assessments|length }})</h3>
+    <div style="overflow-x: auto;">
+    <table>
+        <thead>
+            <tr>
+                <th>Requirement</th>
+                <th>Category</th>
+                <th>Strictness</th>
+                <th>Status</th>
+                <th>Evidence Strength</th>
+                <th>Weight</th>
+                <th>Contribution</th>
+                <th>Explanation</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for a in assessments %}
+            <tr>
+                <td>{{ a.requirement_original_text or a.requirement_name }}</td>
+                <td><span class="badge badge-blue">{{ a.requirement_category }}</span></td>
+                <td>{{ a.requirement_strictness }}</td>
+                <td>
+                    {% if a.status == 'MATCHED' %}<span class="badge badge-green">{{ a.status }}</span>
+                    {% elif a.status == 'MISSING' %}<span class="badge badge-red">{{ a.status }}</span>
+                    {% else %}<span class="badge badge-orange">{{ a.status }}</span>{% endif %}
+                </td>
+                <td>{{ a.evidence_strength }}</td>
+                <td>{{ "%.2f"|format(a.weight or 0) }}</td>
+                <td>{{ "%.2f"|format(a.contribution or 0) }}</td>
+                <td style="color: var(--text-muted); max-width: 320px;">{{ a.explanation or "—" }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" style="text-align: center; color: var(--text-muted);">No requirement assessments recorded.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+{% endblock %}

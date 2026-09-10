@@ -1,8 +1,10 @@
 import uuid
 from typing import List
-from app.jobs.models.job import NormalizedJob
+
+from app.intelligence.models.enums import ConfidenceLevel, RequirementCategory, Strictness
 from app.intelligence.models.requirements import StructuredRequirement
-from app.intelligence.models.enums import RequirementCategory, Strictness, ConfidenceLevel
+from app.jobs.models.job import NormalizedJob
+
 
 class RequirementInterpreter:
     """Parses NormalizedJob into StructuredRequirement objects."""

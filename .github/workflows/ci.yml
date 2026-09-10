@@ -1,0 +1,88 @@
+# Continuous integration: lint + the test suite against both supported
+# databases. Nothing here costs anything beyond GitHub Actions' free minutes
+# (public repos: unlimited; private repos: a monthly free allowance) — no
+# paid CI service, no hosted database.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dev dependencies
+        run: pip install -e ".[dev]"
+
+      - name: ruff check
+        run: ruff check app tests
+
+  test-sqlite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      # No separate `alembic upgrade head` step: tests/conftest.py points
+      # DATABASE_URL at a throwaway per-process SQLite file and runs
+      # `alembic upgrade head` against it at import time, before any test
+      # collects. Running pytest is what exercises the migrations here.
+      - name: Run tests (SQLite)
+        run: pytest -q
+
+  test-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # The PRD requires PostgreSQL support; this job is what actually proves
+    # the schema and queries work against it, not just against SQLite.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: careeros
+          POSTGRES_PASSWORD: careeros
+          POSTGRES_DB: careeros_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U careeros"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://careeros:careeros@localhost:5432/careeros_test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies (with postgres driver)
+        run: pip install -e ".[dev,postgres]"
+
+      # Same note as the SQLite job: tests/conftest.py owns running
+      # `alembic upgrade head` before tests execute. It currently repoints
+      # DATABASE_URL at a per-process SQLite file unconditionally as test
+      # isolation, so this job's DATABASE_URL mainly documents and exercises
+      # the intended PostgreSQL configuration path (dependency install,
+      # service container, connection string) end to end.
+      - name: Run tests (PostgreSQL)
+        run: pytest -q

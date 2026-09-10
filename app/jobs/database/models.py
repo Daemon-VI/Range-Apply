@@ -1,7 +1,6 @@
 """SQLAlchemy ORM models for the jobs domain."""
 
 import uuid
-from datetime import datetime
 
 from sqlalchemy import (
     Column,
@@ -18,6 +17,8 @@ from sqlalchemy.orm import declarative_base, relationship
 
 # JSON type works for PostgreSQL (stores as native JSON/JSONB) and SQLite (stores as serialized JSON text)
 from sqlalchemy.types import JSON
+
+from app.core.timeutils import db_now
 
 Base = declarative_base()
 
@@ -56,17 +57,26 @@ class JobRow(Base):
     salary_text = Column(String(256))
     application_url = Column(String(1024))
     source_url = Column(String(1024), nullable=False)
+    # Canonical, exact-comparison identity keys (see jobs/normalization/urls.py).
+    # Indexed because deduplication looks them up once per ingested job.
+    normalized_source_url = Column(String(1024), index=True)
+    normalized_application_url = Column(String(1024), index=True)
+    # Board token / company slug this job was discovered under. Scopes the
+    # stale-job sweep so ingesting one board cannot close another board's jobs.
+    source_identifier = Column(String(256), index=True)
     posted_at = Column(DateTime)
+    source_updated_at = Column(DateTime)
     deadline = Column(DateTime)
-    first_seen_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    last_seen_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    closed_at = Column(DateTime)
+    first_seen_at = Column(DateTime, nullable=False, default=db_now)
+    last_seen_at = Column(DateTime, nullable=False, default=db_now)
     content_hash = Column(String(64), nullable=False, index=True)
     processing_status = Column(String(32), nullable=False, default="DISCOVERED", index=True)
     job_status = Column(String(32), nullable=False, default="UNKNOWN", index=True)
     extraction_metadata = Column(JSON, default=dict)
     metadata_ = Column("metadata", JSON, default=dict)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=db_now)
+    updated_at = Column(DateTime, default=db_now, onupdate=db_now)
 
     # Relationships
     source_references = relationship(
@@ -93,8 +103,8 @@ class SourceReferenceRow(Base):
     source_job_id = Column(String(256), nullable=False)
     source_url = Column(String(1024), nullable=False)
     application_url = Column(String(1024))
-    first_seen_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    last_seen_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    first_seen_at = Column(DateTime, nullable=False, default=db_now)
+    last_seen_at = Column(DateTime, nullable=False, default=db_now)
     metadata_ = Column("metadata", JSON, default=dict)
 
     job = relationship("JobRow", back_populates="source_references")
@@ -115,7 +125,7 @@ class JobVersionRow(Base):
     title = Column(String(512))
     description = Column(Text)
     changes_summary = Column(String(512))
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=db_now)
 
     job = relationship("JobRow", back_populates="versions")
 
@@ -128,7 +138,7 @@ class DiscoveryRunRow(Base):
     id = Column(String(36), primary_key=True, default=_uuid)
     source = Column(String(32), nullable=False, index=True)
     source_identifier = Column(String(256), nullable=False)
-    started_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    started_at = Column(DateTime, nullable=False, default=db_now)
     completed_at = Column(DateTime)
     candidates_discovered = Column(Integer, default=0)
     pages_fetched = Column(Integer, default=0)
@@ -136,6 +146,8 @@ class DiscoveryRunRow(Base):
     jobs_updated = Column(Integer, default=0)
     jobs_duplicate = Column(Integer, default=0)
     jobs_failed = Column(Integer, default=0)
+    jobs_closed = Column(Integer, default=0)
     errors = Column(JSON, default=list)
+    trigger = Column(String(32), default="manual")
     duration_seconds = Column(Float)
     status = Column(String(32), nullable=False, default="running")
