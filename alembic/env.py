@@ -7,6 +7,9 @@ from alembic import context
 from app.config import settings
 from app.jobs.database.models import Base
 import app.intelligence.database.models  # noqa: F401
+import app.tailoring.database.models  # noqa: F401
+import app.application.database.models  # noqa: F401
+import app.application.killswitch  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
