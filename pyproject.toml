@@ -41,6 +41,12 @@ semantic = [
 postgres = [
     "psycopg[binary]>=3.2.0",
 ]
+# Playwright is free/open-source; this extra is only needed for a REAL
+# (non-dry-run) application submission - the app imports and runs fine
+# without it installed.
+browser = [
+    "playwright>=1.40.0",
+]
 dev = [
     "pytest>=8.3.0",
     "pytest-asyncio>=0.24.0",

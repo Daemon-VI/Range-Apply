@@ -18,6 +18,7 @@ from app.api.routes import (
     projects,
     skills,
 )
+from app.application.api.routes import router as applications_v5_router
 from app.career.dashboard.views import router as career_dashboard_router
 from app.config import settings
 from app.database import SchemaNotReadyError, get_session_factory, verify_schema
@@ -26,6 +27,7 @@ from app.jobs.api.routes import router as jobs_v2_router
 from app.jobs.dashboard.views import router as dashboard_router
 from app.jobs.pipeline.run_recovery import reconcile_stale_runs
 from app.security import DASHBOARD_COOKIE, login_response, require_dashboard_auth
+from app.tailoring.api.routes import router as tailoring_v4_router
 
 logging.basicConfig(
     level=settings.log_level,
@@ -139,6 +141,13 @@ app.include_router(jobs_v2_router)
 
 # Phase 3 Intelligence Routes
 app.include_router(matches_v3_router)
+
+# Phase 4 Tailoring Routes
+app.include_router(tailoring_v4_router)
+
+# Phase 5 Application Engine Routes (submission defaults to dry_run=True;
+# the kill switch and approval gate live inside the engine, not just the API)
+app.include_router(applications_v5_router)
 
 # Phase 2/3 Internal Dashboard.
 # Auth is applied at include time rather than per route, so every current and
