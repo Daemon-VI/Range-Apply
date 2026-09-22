@@ -1,42 +1,302 @@
 {% extends "base.html" %}
+{% block title %}CareerOS — Career Brain{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="/desktop/static/careeros.css">
+{% endblock %}
+{% block body_attrs %} class="cos-light"{% endblock %}
+
+{% macro evidence_table(nodes, label) %}
+<div class="table-wrap"><table class="table-compact">
+    <caption class="sr-only">{{ label }}</caption>
+    <thead><tr><th scope="col">Evidence</th><th scope="col">Grade</th><th scope="col">Verification</th><th scope="col">Provenance</th><th scope="col">v</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
+    <tbody>
+    {% for node in nodes %}
+        {% set grade = grade_for(node) %}
+        <tr>
+            <td>
+                <div class="strong">{{ node.label }}</div>
+                {% if node.claim != node.label %}<span class="sub">{{ node.claim }}</span>{% endif %}
+                <span class="sub"><code>{{ node.key }}</code></span>
+            </td>
+            <td><span class="badge {{ grade_badge(grade) }}">{{ grade.value }}</span></td>
+            <td>
+                {% if node.status == 'REMOVED' %}
+                    <span class="badge badge-muted">REMOVED</span>
+                {% else %}
+                <form method="POST" action="/dashboard/profile/evidence/{{ node.key }}/status">
+                    <label class="sr-only" for="vs-{{ node.key }}">Verification status of {{ node.label }}</label>
+                    <select id="vs-{{ node.key }}" name="verification_status" onchange="this.form.submit()">
+                        {% for s in statuses %}<option value="{{ s }}" {% if s == node.verification_status %}selected{% endif %}>{{ s }}</option>{% endfor %}
+                    </select>
+                    <noscript><button type="submit" class="sm">Save</button></noscript>
+                </form>
+                {% endif %}
+            </td>
+            <td class="small muted">
+                {{ node.source_type }}{% if node.source_ref %}<br>{{ node.source_ref }}{% endif %}
+                {% if node.verified_by %}<br>verified by {{ node.verified_by }}{% endif %}
+            </td>
+            <td>{{ node.version }}</td>
+            <td>
+                {% if node.status == 'REMOVED' %}
+                    <form method="POST" action="/dashboard/profile/evidence/{{ node.key }}/restore"><button type="submit" class="sm">Restore</button></form>
+                {% else %}
+                    <form method="POST" action="/dashboard/profile/evidence/{{ node.key }}/remove" onsubmit="return confirm('Remove this evidence? It stops backing any application claim (it can be restored).')"><button type="submit" class="danger sm">Remove</button></form>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table></div>
+{% endmacro %}
 
 {% block content %}
-<div class="card" style="margin-bottom: 24px;">
-    <h2>Career Brain Profile</h2>
-    <p>Manage your verified skills and projects. Adding a skill will automatically update your job match intelligence.</p>
-    
-    <div style="margin-top: 20px;">
-        <h3>Add New Skill</h3>
-        <form method="POST" action="/dashboard/profile/skill" style="display: flex; gap: 12px; margin-top: 12px;">
-            <input type="text" name="skill_name" placeholder="Skill name (e.g. Kubernetes)" required style="flex: 1; max-width: 300px;">
-            <button type="submit" style="background: var(--accent-green);">Add Skill</button>
+{% set by_kind = dict(sections) %}
+{% if notice %}
+<div class="note {% if notice.startswith('error:') %}danger{% else %}ok{% endif %}" role="alert">
+    {% if notice.startswith('error:') %}
+        <strong>Not applied:</strong> {{ notice.split(':', 2)[2] }} <span class="badge badge-orange">{{ notice.split(':', 2)[1] }}</span>
+    {% else %}
+        Saved: <span class="badge badge-green">{{ notice }}</span>
+    {% endif %}
+</div>
+{% endif %}
+
+<div class="page-head">
+    <div>
+        <div class="eyebrow">Prepare</div>
+        <h1>Career Brain</h1>
+        <p>Everything CareerOS knows about you. Applications only use what is recorded here; nothing about you is invented, and only CONFIRMED evidence can back a claim.</p>
+    </div>
+    <div class="actions"><a class="btn secondary" href="/desktop/">Back to control center</a></div>
+</div>
+
+<div class="grid">
+    <div class="card"><div class="stat"><span class="stat-label">Evidence nodes</span><span class="stat-value">{{ sections|map(attribute=1)|map('length')|sum }}</span></div></div>
+    <div class="card"><div class="stat"><span class="stat-label">Verified skills</span><span class="stat-value">{{ summary.verified_skills_count }} / {{ summary.skills_count }}</span></div></div>
+    <div class="card"><div class="stat"><span class="stat-label">Projects</span><span class="stat-value">{{ summary.projects_count }}</span></div></div>
+    <div class="card"><div class="stat"><span class="stat-label">Needs review</span><span class="stat-value">{{ summary.needs_review_count }}</span></div></div>
+</div>
+
+<nav class="jump-nav" aria-label="Career Brain sections">
+    <a href="#profile">Profile</a><a href="#work-authorization">Work authorization</a><a href="#education">Education</a><a href="#experience">Experience</a><a href="#skills">Skills</a><a href="#target-roles">Target roles</a><a href="#location-preference">Locations</a><a href="#answer-bank">Answer bank</a><a href="#evidence">Evidence</a><a href="#positioning">Positioning</a><a href="#history">History</a>
+</nav>
+
+<form method="POST" action="/dashboard/profile/details">
+<section class="card mb-4" id="profile" aria-labelledby="profile-title">
+    <div class="card-head">
+        <div><h2 id="profile-title">Profile</h2><p>{{ profile.name }}{% if profile.degree %} · {{ profile.degree }}{% endif %}{% if profile.college %} · {{ profile.college }}{% endif %}{% if profile.graduation_year %} · graduating {{ profile.graduation_year }}{% endif %}</p></div>
+    </div>
+    <div class="form-grid">
+        <label class="field"><span>Email</span><input name="email" type="email" autocomplete="email" value="{{ profile.email or '' }}"></label>
+        <label class="field"><span>Phone</span><input name="phone" autocomplete="tel" value="{{ profile.phone or '' }}"></label>
+        <label class="field"><span>Location</span><input name="location" value="{{ profile.location or '' }}"></label>
+        <label class="field"><span>GitHub URL</span><input name="github" value="{{ profile.github or '' }}"></label>
+        <label class="field"><span>LinkedIn URL</span><input name="linkedin" value="{{ profile.linkedin or '' }}"></label>
+        <label class="field"><span>Portfolio URL</span><input name="portfolio" value="{{ profile.portfolio or '' }}"></label>
+        <label class="field full"><span>Positioning statement</span><input name="positioning_statement" value="{{ profile.positioning_statement }}"></label>
+    </div>
+    <p class="hint mt-3">Identity fields are copied verbatim into applications and are never generated.</p>
+</section>
+
+<section class="card mb-4 {% if not profile.work_authorization %}tone-warn{% endif %}" id="work-authorization" aria-labelledby="wa-title">
+    <div class="card-head">
+        <h2 id="wa-title">Work authorization</h2>
+        {% if profile.work_authorization %}<span class="badge badge-green">recorded</span>{% else %}<span class="badge badge-orange">NEEDS USER INPUT</span>{% endif %}
+    </div>
+    <label class="field"><span>Work authorization (as you would state it to an employer)</span><input name="work_authorization" placeholder="e.g. Indian citizen, authorized to work in India" value="{{ profile.work_authorization or '' }}"></label>
+    <p class="hint mt-2">Never inferred from your location. Employers that ask about it get exactly this answer, or CareerOS stops and asks you.</p>
+    <div class="actions mt-3"><button type="submit" class="primary">Save profile</button><span class="hint">Saves Profile and Work authorization together.</span></div>
+</section>
+</form>
+
+<section class="card mb-4" id="education" aria-labelledby="edu-title">
+    <div class="card-head"><h2 id="edu-title">Education</h2></div>
+    <dl class="kv">
+        <dt>Degree</dt><dd>{{ profile.degree or '—' }}{% if profile.branch %} · {{ profile.branch }}{% endif %}</dd>
+        <dt>College</dt><dd>{{ profile.college or '—' }}</dd>
+        <dt>Graduation</dt><dd>{{ profile.graduation_year or '—' }}{% if profile.current_academic_status %} · {{ profile.current_academic_status }}{% endif %}</dd>
+        {% if profile.cgpa is not none %}<dt>CGPA</dt><dd>{{ profile.cgpa }}</dd>{% endif %}
+        {% if profile.backlogs is not none %}<dt>Backlogs</dt><dd>{{ profile.backlogs }}</dd>{% endif %}
+    </dl>
+    {% if by_kind.get('EDUCATION') %}<div class="section-title">Education evidence</div>{{ evidence_table(by_kind['EDUCATION'], 'Education evidence') }}{% endif %}
+    <p class="hint mt-2">Education details come from your imported profile.</p>
+</section>
+
+<section class="card mb-4" id="experience" aria-labelledby="exp-title">
+    <div class="card-head"><h2 id="exp-title">Experience</h2><p>{{ (by_kind.get('EXPERIENCE') or [])|length }} role(s)</p></div>
+    {% if by_kind.get('EXPERIENCE') %}{{ evidence_table(by_kind['EXPERIENCE'], 'Experience') }}{% else %}<div class="empty compact">No experience recorded. Add it under Evidence with kind EXPERIENCE.</div>{% endif %}
+    {% if by_kind.get('RESPONSIBILITY') %}<div class="section-title">Responsibilities</div>{{ evidence_table(by_kind['RESPONSIBILITY'], 'Responsibilities') }}{% endif %}
+</section>
+
+<section class="card mb-4" id="skills" aria-labelledby="skills-title">
+    <div class="card-head"><h2 id="skills-title">Skills</h2><p>{{ summary.verified_skills_count }} of {{ summary.skills_count }} verified</p></div>
+    <form method="POST" action="/dashboard/profile/skill" class="row mb-3">
+        <label class="field" style="flex:1 1 260px"><span>Quick add a skill (saved as UNVERIFIED)</span><input name="skill_name" required placeholder="e.g. Kubernetes"></label>
+        <button type="submit" class="secondary">Add skill</button>
+    </form>
+    {% if by_kind.get('SKILL') %}{{ evidence_table(by_kind['SKILL'], 'Skills') }}{% else %}<div class="empty compact">No skills recorded yet.</div>{% endif %}
+</section>
+
+<section class="card mb-4" id="target-roles" aria-labelledby="roles-title">
+    <div class="card-head"><h2 id="roles-title">Target roles</h2><p>Role relevance compares each job with these families.</p></div>
+    {% if preferences and preferences.all_target_roles %}
+    <dl class="kv">
+        <dt>Tier 1</dt><dd>{% for r in preferences.target_roles_tier1 %}<span class="tag">{{ r }}</span> {% else %}<span class="muted">—</span>{% endfor %}</dd>
+        <dt>Tier 2</dt><dd>{% for r in preferences.target_roles_tier2 %}<span class="tag">{{ r }}</span> {% else %}<span class="muted">—</span>{% endfor %}</dd>
+        <dt>Lower priority</dt><dd>{% for r in preferences.target_roles_lower_priority %}<span class="tag">{{ r }}</span> {% else %}<span class="muted">—</span>{% endfor %}</dd>
+        <dt>Unrelated roles</dt><dd>{% if preferences.role_include_unrelated %}<span class="badge badge-orange">included</span>{% else %}<span class="badge badge-muted">not admitted</span>{% endif %}</dd>
+    </dl>
+    {% else %}
+    <div class="empty compact"><span class="badge badge-orange">NEEDS USER INPUT</span> No target roles are recorded, so role relevance is not assessed.</div>
+    {% endif %}
+    <form method="POST" action="/dashboard/profile/target-roles" class="mt-3" id="target-roles-form">
+        <div class="form-grid">
+            <label class="field"><span>Tier 1 (comma-separated)</span><input name="tier1" placeholder="e.g. Backend Engineer, Software Engineer" value="{{ preferences.target_roles_tier1|join(', ') }}"></label>
+            <label class="field"><span>Tier 2</span><input name="tier2" placeholder="e.g. Platform Engineer" value="{{ preferences.target_roles_tier2|join(', ') }}"></label>
+            <label class="field"><span>Lower priority</span><input name="lower_priority" placeholder="e.g. Data Engineer" value="{{ preferences.target_roles_lower_priority|join(', ') }}"></label>
+        </div>
+        <label class="check mt-2"><input type="checkbox" name="include_unrelated" {% if preferences.role_include_unrelated %}checked{% endif %}> Admit roles outside every target-role family</label>
+        <div class="actions"><button type="submit" class="primary">Save target roles</button></div>
+    </form>
+    <p class="hint mt-2">Saved on your preferences. Existing opportunities keep the relevance they were scored with until matching is re-run (Desktop → Opportunities → Re-run matching); applications already created are not changed.</p>
+</section>
+
+{% set country = geography.target.country if geography.active else 'the target country' %}
+<section class="card mb-4" id="location-preference" aria-labelledby="loc-title">
+    <div class="card-head"><h2 id="loc-title">Job location preference</h2></div>
+    <p class="hint">Where discovery, eligibility and admission look for jobs. Leave Primary empty to use your profile location. The next discovery, match and scheduler runs use it.</p>
+    <form method="POST" action="/dashboard/profile/location-preference" class="mt-3">
+        <div class="form-grid">
+            <label class="field"><span>Primary</span><input name="location_primary" placeholder="{{ profile.location or 'City, State, Country' }}" value="{{ preferences.location_primary or '' }}"></label>
+            <label class="field"><span>Also consider (comma-separated)</span><input name="also_consider" placeholder="e.g. Bengaluru, Pune" value="{{ preferences.preferred_locations|join(', ') }}"></label>
+        </div>
+        <fieldset class="mt-3">
+            <legend>Include</legend>
+            <div class="stack-sm">
+                <label class="check"><input type="checkbox" name="include_country_remote" {% if preferences.location_include_country_remote %}checked{% endif %}> Include {{ country }} Remote</label><br>
+                <label class="check"><input type="checkbox" name="include_other_cities" {% if preferences.location_include_other_cities %}checked{% endif %}> Other cities in {{ country }}</label><br>
+                <label class="check"><input type="checkbox" name="allow_international" {% if preferences.location_allow_international %}checked{% endif %}> Allow international opportunities</label><br>
+                <label class="check"><input type="checkbox" name="include_unconfirmed" {% if preferences.location_include_unconfirmed %}checked{% endif %}> Keep roles with no stated location or only "Remote" (marked UNCERTAIN)</label>
+            </div>
+        </fieldset>
+        <div class="actions"><button type="submit" class="primary">Save location preference</button></div>
+    </form>
+    <p class="hint mt-3">
+        Current target: {% if geography.active %}<strong>{{ geography.target.label }}</strong> (from {{ geography.source }}){% else %}<span class="badge badge-orange">none</span> — set a primary location or your profile location{% endif %}.
+        {% if not profile.work_authorization %}Work authorization: <span class="badge badge-orange">NEEDS USER INPUT</span> — never inferred from your location.{% endif %}
+    </p>
+</section>
+
+<section class="card mb-4" id="answer-bank" aria-labelledby="ab-title">
+    <div class="card-head"><h2 id="ab-title">Answer bank ({{ answers|length }})</h2><p>Approved answers are reused verbatim for matching questions with no model call.</p></div>
+    {% if answers %}
+    <div class="table-wrap"><table class="table-compact">
+        <thead><tr><th scope="col">Question</th><th scope="col">Answer</th><th scope="col">Category</th><th scope="col">Evidence</th><th scope="col">Status</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
+        <tbody>
+        {% for a in answers %}
+            <tr>
+                <td class="strong">{{ a.question }}</td>
+                <td>{{ a.answer }}</td>
+                <td class="small">{{ a.category }}</td>
+                <td>{% for k in a.evidence_keys %}<code>{{ k }}</code> {% endfor %}</td>
+                <td><span class="badge {% if a.status == 'APPROVED' %}badge-green{% elif a.status == 'DRAFT' %}badge-orange{% else %}badge-muted{% endif %}">{{ a.status }}</span></td>
+                <td><div class="actions">
+                    {% if a.status != 'APPROVED' %}<form method="POST" action="/dashboard/profile/answers/{{ a.id }}/approve"><button type="submit" class="primary sm">Approve</button></form>{% endif %}
+                    <form method="POST" action="/dashboard/profile/answers/{{ a.id }}/delete" onsubmit="return confirm('Delete this answer from the bank?')"><button type="submit" class="danger sm">Delete</button></form>
+                </div></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table></div>
+    {% else %}
+    <div class="empty compact">No answers yet. Answers you save from an application (with “save to answer bank”) appear here.</div>
+    {% endif %}
+    <details class="panel">
+        <summary>Add a draft answer</summary>
+        <form method="POST" action="/dashboard/profile/answers" class="form-grid mt-3">
+            <label class="field"><span>Category</span><input name="category" placeholder="e.g. work_authorization" required></label>
+            <label class="field full"><span>Question as employers ask it</span><input name="question" required></label>
+            <label class="field full"><span>Your answer</span><input name="answer" required></label>
+            <label class="field"><span>Evidence keys (optional)</span><input name="evidence_keys"></label>
+            <div><button type="submit" class="secondary">Add draft answer</button></div>
         </form>
-    </div>
-</div>
+    </details>
+</section>
 
-<div class="card" style="margin-bottom: 24px;">
-    <h3>Verified Skills ({{ skills|length }})</h3>
-    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;">
-        {% for skill in skills %}
-            <span class="badge {% if skill.is_verified %}badge-green{% else %}badge-orange{% endif %}">{{ skill.name }}</span>
-        {% endfor %}
-    </div>
-</div>
+<section class="card mb-4" id="evidence" aria-labelledby="ev-title">
+    <div class="card-head"><h2 id="ev-title">Evidence</h2><p>Every claim with its grade and provenance.</p></div>
+    <details class="panel mb-4">
+        <summary>Add evidence</summary>
+        <form method="POST" action="/dashboard/profile/evidence" class="form-grid mt-3">
+            <label class="field"><span>Kind</span><select name="kind">{% for k in kinds %}<option value="{{ k }}">{{ k }}</option>{% endfor %}</select></label>
+            <label class="field"><span>Label</span><input name="label" placeholder="e.g. Kubernetes" required></label>
+            <label class="field full"><span>Claim (full sentence, optional)</span><input name="claim"></label>
+            <label class="field"><span>Verification</span><select name="verification_status">{% for s in statuses %}<option value="{{ s }}" {% if s == 'UNVERIFIED' %}selected{% endif %}>{{ s }}</option>{% endfor %}</select></label>
+            <label class="field"><span>Source type</span><select name="source_type">{% for s in source_types %}<option value="{{ s }}">{{ s }}</option>{% endfor %}</select></label>
+            <label class="field"><span>Source reference</span><input name="source_ref" placeholder="URL, file, note"></label>
+            <div><button type="submit" class="primary">Add evidence</button></div>
+        </form>
+        <p class="hint mt-2">Only CONFIRMED evidence can back an application claim. Inferred or extracted claims cannot be created as VERIFIED; confirm them explicitly afterwards.</p>
+    </details>
+    {% for kind, nodes in sections if kind not in ['SKILL', 'EXPERIENCE', 'EDUCATION', 'RESPONSIBILITY'] %}
+    <div class="section-title">{{ kind|replace('_', ' ') }} ({{ nodes|length }})</div>
+    {{ evidence_table(nodes, kind) }}
+    {% endfor %}
+    <p class="mt-3 small">
+        {% if show_removed %}<a href="/dashboard/profile/">Hide removed evidence</a>{% else %}<a href="/dashboard/profile/?show_removed=true">Show removed evidence</a>{% endif %}
+    </p>
+</section>
 
-<div class="card">
-    <h3>Projects ({{ projects|length }})</h3>
-    <ul style="margin-top: 12px; list-style-type: none; padding: 0;">
-        {% for project in projects %}
-            <li style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border);">
-                <div style="font-weight: 600; font-size: 16px;">{{ project.name }}</div>
-                <div style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">{{ project.description }}</div>
-                <div style="margin-top: 8px;">
-                    {% for tech in project.technologies %}
-                        <span class="badge badge-blue">{{ tech }}</span>
-                    {% endfor %}
-                </div>
-            </li>
+<section class="card mb-4" id="positioning" aria-labelledby="pos-title">
+    <div class="card-head"><h2 id="pos-title">Positioning variants ({{ variants|length }})</h2><p>A variant selects, orders and frames existing evidence for a role family. It cannot add facts.</p></div>
+    {% if variants %}
+    <div class="table-wrap"><table class="table-compact">
+        <thead><tr><th scope="col">Role family</th><th scope="col">Name</th><th scope="col">Headline</th><th scope="col">Evidence</th><th scope="col">Active</th><th scope="col">v</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
+        <tbody>
+        {% for v in variants %}
+            <tr>
+                <td class="strong">{{ v.role_family }}</td>
+                <td>{{ v.name }}</td>
+                <td>{{ v.headline }}</td>
+                <td>{% for e in v.evidence %}<code>{{ e.node.key }}</code>{% if not loop.last %}, {% endif %}{% endfor %}</td>
+                <td>{% if v.is_active %}<span class="badge badge-green">yes</span>{% else %}<span class="badge badge-orange">no</span>{% endif %}</td>
+                <td>{{ v.version }}</td>
+                <td><form method="POST" action="/dashboard/profile/positioning/{{ v.id }}/delete" onsubmit="return confirm('Delete this positioning variant?')"><button type="submit" class="danger sm">Delete</button></form></td>
+            </tr>
         {% endfor %}
-    </ul>
-</div>
+        </tbody>
+    </table></div>
+    {% endif %}
+    <details class="panel">
+        <summary>Add a variant</summary>
+        <form method="POST" action="/dashboard/profile/positioning" class="form-grid mt-3">
+            <label class="field"><span>Role family</span><input name="role_family" placeholder="e.g. Backend Engineer" required></label>
+            <label class="field"><span>Headline</span><input name="headline"></label>
+            <label class="field full"><span>Summary</span><input name="summary"></label>
+            <label class="field full"><span>Evidence keys, comma-separated</span><input name="evidence_keys"></label>
+            <div><button type="submit" class="secondary">Add variant</button></div>
+        </form>
+    </details>
+</section>
+
+<section class="card" id="history" aria-labelledby="hist-title">
+    <div class="card-head"><h2 id="hist-title">Recent changes</h2></div>
+    <div class="table-wrap"><table class="table-compact">
+        <thead><tr><th scope="col">When</th><th scope="col">Entity</th><th scope="col">Action</th><th scope="col">Actor</th><th scope="col">Summary</th></tr></thead>
+        <tbody>
+        {% for e in audit %}
+            <tr>
+                <td class="nowrap">{{ e.created_at.strftime('%Y-%m-%d %H:%M') if e.created_at else '' }}</td>
+                <td><code>{{ e.entity_type }}/{{ e.entity_id }}</code></td>
+                <td><span class="badge badge-blue">{{ e.action }}</span></td>
+                <td>{{ e.actor }}</td>
+                <td class="small muted">{{ e.summary or '' }}</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="5" class="muted">No changes recorded yet.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table></div>
+</section>
 {% endblock %}

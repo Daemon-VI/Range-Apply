@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Preparations — CareerOS{% endblock %}
+{% block content %}
+<div class="grid">
+    {% for name in ['READY', 'NEEDS_USER_INPUT', 'NEEDS_REVIEW', 'FAILED', 'SUPERSEDED'] %}
+    <div class="card"><div class="stat-label">{{ name }}</div><div class="stat-value">{{ counts.get(name, 0) }}</div></div>
+    {% endfor %}
+</div>
+<div class="card" style="margin-bottom: 20px;">
+    <form method="GET" action="/dashboard/preparations" style="display: flex; gap: 10px; align-items: center;">
+        <select name="status"><option value="">Any status</option>{% for s in statuses %}<option value="{{ s }}" {% if status == s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
+        <button type="submit">Apply</button>
+        <span style="color: var(--text-muted); font-size: 13px;">{{ total }} packages</span>
+    </form>
+</div>
+<div class="card">
+    <h3>Application packages</h3>
+    <p style="color: var(--text-muted); font-size: 13px;">A prepared package is not a submitted application. Tailoring level is a resource decision; it never changes eligibility.</p>
+    <table>
+        <thead><tr><th>Opportunity</th><th>v</th><th>Level</th><th>Lane</th><th>Cover letter</th><th>Status</th><th>Validation</th><th>AI</th><th>Updated</th></tr></thead>
+        <tbody>
+        {% for row in rows %}
+            <tr>
+                <td><a href="/dashboard/preparations/{{ row.id }}">{{ titles.get(row.id, row.opportunity_id) }}</a></td>
+                <td>{{ row.version }}</td>
+                <td><span class="badge badge-blue">{{ row.tailoring_level }}</span></td>
+                <td>{{ row.lane }}</td>
+                <td>{{ row.cover_letter_mode }}</td>
+                <td><span class="badge {% if row.status == 'READY' %}badge-green{% elif row.status in ['NEEDS_USER_INPUT', 'NEEDS_REVIEW'] %}badge-orange{% else %}badge-muted{% endif %}">{{ row.status }}</span></td>
+                <td>{{ row.validation_status }}</td>
+                <td>{% if row.ai_used %}{{ row.ai_provider }} ×{{ row.ai_calls }}{% else %}none{% endif %}</td>
+                <td style="white-space: nowrap;">{{ row.updated_at.strftime('%Y-%m-%d %H:%M') if row.updated_at else '' }}</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="9" style="color: var(--text-muted);">No packages yet. Prepare one with <code>POST /api/v1/preparations/</code> or run the PREPARE queue.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

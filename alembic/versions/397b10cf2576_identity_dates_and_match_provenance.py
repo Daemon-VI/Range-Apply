@@ -21,8 +21,8 @@ import json
 from typing import Sequence, Union
 
 import sqlalchemy as sa
-from alembic import op
 
+from alembic import op
 from app.jobs.normalization.urls import normalize_url
 
 revision: str = "397b10cf2576"

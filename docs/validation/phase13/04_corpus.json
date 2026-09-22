@@ -1,0 +1,2081 @@
+{
+  "pages": [
+    {
+      "source": "GREENHOUSE",
+      "company": "Discord",
+      "title": "Staff Software Engineer - Consumer Revenue",
+      "url": "https://job-boards.greenhouse.io/discord/jobs/8464570002",
+      "attempt_id": "5883a1f7-824f-4e3c-9058-3f512bf73a80",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "da1e24068035",
+            2381
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "b82c0a11d33b",
+            1851
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "greenhouse",
+      "discover_seconds": 2.27,
+      "mapping_seconds": 0.021,
+      "gate_seconds": 0.057,
+      "result": {
+        "fields": 34,
+        "by_type": {
+          "text": 30,
+          "phone": 1,
+          "file": 2,
+          "textarea": 1
+        },
+        "required": 23,
+        "required_answered": 6,
+        "missing_required": [
+          "Country*",
+          "Country*",
+          "Location (City)*",
+          "Location (City)*",
+          "Why do you want to work at Discord?*",
+          "Are you currently located in the US?*",
+          "Are you currently located in the US?*",
+          "Are you currently based in or willing to relocate to the Bay",
+          "Are you currently based in or willing to relocate to the Bay",
+          "Gender*",
+          "Gender*",
+          "Race and Ethnicity*"
+        ],
+        "optional_skipped": 9,
+        "file_fields": [
+          "Attach",
+          "Attach"
+        ],
+        "file_fields_mapped_to_artifacts": [
+          [
+            "Attach",
+            "RESUME"
+          ],
+          [
+            "Attach",
+            "COVER_LETTER"
+          ]
+        ],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "PROFILE": 4,
+          "NONE": 26,
+          "ARTIFACT": 2,
+          "PREPARATION": 2
+        },
+        "answer_statuses": {
+          "ANSWERED": 8,
+          "NEEDS_REVIEW": 5,
+          "NEEDS_USER_INPUT": 12,
+          "SKIPPED": 9
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "Apply",
+          "",
+          "Locate me",
+          "Attach",
+          "Dropbox"
+        ],
+        "handoff": null,
+        "strategy": "greenhouse",
+        "page_title": "Job Application for Staff Software Engineer - Consumer Revenue at Discord",
+        "gate_failures": [],
+        "sample_labels": [
+          "First Name* [text*]",
+          "Last Name* [text*]",
+          "Email* [text*]",
+          "Country* [text*]",
+          "Country* [text*]",
+          "Phone* [phone*]",
+          "Location (City)* [text*]",
+          "Location (City)* [text*]",
+          "Attach [file]",
+          "Attach [file]",
+          "School [text]",
+          "Degree [text]",
+          "Discipline [text]",
+          "Why do you want to work at Discord?* [textarea*]"
+        ],
+        "captcha": true,
+        "captcha_inline": false,
+        "in_frame": false,
+        "settle_ms": 30
+      },
+      "outcome": "discovered",
+      "seconds_total": 2.73
+    },
+    {
+      "source": "GREENHOUSE",
+      "company": "Asana",
+      "title": "Senior Product Manager, AI Agents Experience",
+      "url": "https://www.asana.com/jobs/apply/8178264?gh_jid=8178264",
+      "attempt_id": "fffec979-af7c-49e6-a00f-c4c99f493e47",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "f7882d9e25cf",
+            2226
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "greenhouse",
+      "discover_seconds": 23.76,
+      "mapping_seconds": 0.013,
+      "gate_seconds": 0.013,
+      "result": {
+        "fields": 39,
+        "by_type": {
+          "text": 35,
+          "phone": 1,
+          "file": 2,
+          "checkbox": 1
+        },
+        "required": 32,
+        "required_answered": 6,
+        "missing_required": [
+          "Country*",
+          "Country*",
+          "Location (City)*",
+          "Location (City)*",
+          "Current Company *",
+          "Current Title *",
+          "Have you been employed, or otherwise engaged, by an Asana en",
+          "Have you been employed, or otherwise engaged, by an Asana en",
+          "Asana is seeking the below information for the exclusive and",
+          "",
+          "Do you currently work for or have you ever worked for a U.S.",
+          "Do you currently work for or have you ever worked for a U.S."
+        ],
+        "optional_skipped": 6,
+        "file_fields": [
+          "Attach",
+          "Attach"
+        ],
+        "file_fields_mapped_to_artifacts": [
+          [
+            "Attach",
+            "RESUME"
+          ]
+        ],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "PROFILE": 4,
+          "NONE": 32,
+          "ARTIFACT": 1,
+          "PREPARATION": 2
+        },
+        "answer_statuses": {
+          "ANSWERED": 7,
+          "NEEDS_REVIEW": 16,
+          "NEEDS_USER_INPUT": 10,
+          "SKIPPED": 6
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "",
+          "Locate me",
+          "Attach",
+          "Dropbox",
+          "Enter manually"
+        ],
+        "handoff": null,
+        "strategy": "greenhouse",
+        "page_title": "Job Application for Senior Product Manager, AI Agents Experience at Asana",
+        "gate_failures": [],
+        "sample_labels": [
+          "First Name* [text*]",
+          "Last Name* [text*]",
+          "Email* [text*]",
+          "Country* [text*]",
+          "Country* [text*]",
+          "Phone* [phone*]",
+          "Location (City)* [text*]",
+          "Location (City)* [text*]",
+          "Attach [file]",
+          "Attach [file]",
+          "[Optional] Preferred Full Name (The name that you  [text]",
+          "Current Company * [text*]",
+          "Current Title * [text*]",
+          "LinkedIn Profile [text]"
+        ],
+        "captcha": true,
+        "captcha_inline": false,
+        "in_frame": true,
+        "settle_ms": 312
+      },
+      "outcome": "discovered",
+      "seconds_total": 23.82
+    },
+    {
+      "source": "GREENHOUSE",
+      "company": "Discord",
+      "title": "Staff Software Engineer, Safety Experience",
+      "url": "https://job-boards.greenhouse.io/discord/jobs/8727410002",
+      "attempt_id": "125a32be-2697-4d80-af67-0081c2c22fd4",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "3fee56e5c65b",
+            2400
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "e4a34c7a0e92",
+            1874
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "greenhouse",
+      "discover_seconds": 1.46,
+      "mapping_seconds": 0.012,
+      "gate_seconds": 0.014,
+      "result": {
+        "fields": 34,
+        "by_type": {
+          "text": 30,
+          "phone": 1,
+          "file": 2,
+          "textarea": 1
+        },
+        "required": 23,
+        "required_answered": 6,
+        "missing_required": [
+          "Country*",
+          "Country*",
+          "Location (City)*",
+          "Location (City)*",
+          "Why do you want to work at Discord?*",
+          "Are you currently located in the US?*",
+          "Are you currently located in the US?*",
+          "Are you currently based in or willing to relocate to the Bay",
+          "Are you currently based in or willing to relocate to the Bay",
+          "Gender*",
+          "Gender*",
+          "Race and Ethnicity*"
+        ],
+        "optional_skipped": 9,
+        "file_fields": [
+          "Attach",
+          "Attach"
+        ],
+        "file_fields_mapped_to_artifacts": [
+          [
+            "Attach",
+            "RESUME"
+          ],
+          [
+            "Attach",
+            "COVER_LETTER"
+          ]
+        ],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "PROFILE": 4,
+          "NONE": 26,
+          "ARTIFACT": 2,
+          "PREPARATION": 2
+        },
+        "answer_statuses": {
+          "ANSWERED": 8,
+          "NEEDS_REVIEW": 5,
+          "NEEDS_USER_INPUT": 12,
+          "SKIPPED": 9
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "Apply",
+          "",
+          "Locate me",
+          "Attach",
+          "Dropbox"
+        ],
+        "handoff": null,
+        "strategy": "greenhouse",
+        "page_title": "Job Application for Staff Software Engineer, Safety Experience at Discord",
+        "gate_failures": [],
+        "sample_labels": [
+          "First Name* [text*]",
+          "Last Name* [text*]",
+          "Email* [text*]",
+          "Country* [text*]",
+          "Country* [text*]",
+          "Phone* [phone*]",
+          "Location (City)* [text*]",
+          "Location (City)* [text*]",
+          "Attach [file]",
+          "Attach [file]",
+          "School [text]",
+          "Degree [text]",
+          "Discipline [text]",
+          "Why do you want to work at Discord?* [textarea*]"
+        ],
+        "captcha": true,
+        "captcha_inline": false,
+        "in_frame": false,
+        "settle_ms": 16
+      },
+      "outcome": "discovered",
+      "seconds_total": 1.52
+    },
+    {
+      "source": "GREENHOUSE",
+      "company": "Asana",
+      "title": "Senior Revenue Accountant",
+      "url": "https://www.asana.com/jobs/apply/8189390?gh_jid=8189390",
+      "attempt_id": "080dcf41-906b-4501-a34a-264dcc7ee5dc",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "f7882d9e25cf",
+            2226
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "greenhouse",
+      "discover_seconds": 24.65,
+      "mapping_seconds": 0.009,
+      "gate_seconds": 0.025,
+      "result": {
+        "fields": 39,
+        "by_type": {
+          "text": 35,
+          "phone": 1,
+          "file": 2,
+          "checkbox": 1
+        },
+        "required": 32,
+        "required_answered": 6,
+        "missing_required": [
+          "Country*",
+          "Country*",
+          "Location (City)*",
+          "Location (City)*",
+          "Current Company *",
+          "Current Title *",
+          "Have you been employed, or otherwise engaged, by an Asana en",
+          "Have you been employed, or otherwise engaged, by an Asana en",
+          "Asana is seeking the below information for the exclusive and",
+          "",
+          "Do you currently work for or have you ever worked for a U.S.",
+          "Do you currently work for or have you ever worked for a U.S."
+        ],
+        "optional_skipped": 6,
+        "file_fields": [
+          "Attach",
+          "Attach"
+        ],
+        "file_fields_mapped_to_artifacts": [
+          [
+            "Attach",
+            "RESUME"
+          ]
+        ],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "PROFILE": 4,
+          "NONE": 32,
+          "ARTIFACT": 1,
+          "PREPARATION": 2
+        },
+        "answer_statuses": {
+          "ANSWERED": 7,
+          "NEEDS_REVIEW": 16,
+          "NEEDS_USER_INPUT": 10,
+          "SKIPPED": 6
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "",
+          "Locate me",
+          "Attach",
+          "Dropbox",
+          "Enter manually"
+        ],
+        "handoff": null,
+        "strategy": "greenhouse",
+        "page_title": "Job Application for Senior Revenue Accountant at Asana",
+        "gate_failures": [],
+        "sample_labels": [
+          "First Name* [text*]",
+          "Last Name* [text*]",
+          "Email* [text*]",
+          "Country* [text*]",
+          "Country* [text*]",
+          "Phone* [phone*]",
+          "Location (City)* [text*]",
+          "Location (City)* [text*]",
+          "Attach [file]",
+          "Attach [file]",
+          "[Optional] Preferred Full Name (The name that you  [text]",
+          "Current Company * [text*]",
+          "Current Title * [text*]",
+          "LinkedIn Profile [text]"
+        ],
+        "captcha": true,
+        "captcha_inline": false,
+        "in_frame": true,
+        "settle_ms": 296
+      },
+      "outcome": "discovered",
+      "seconds_total": 24.73
+    },
+    {
+      "source": "GREENHOUSE",
+      "company": "Discord",
+      "title": "Payments & Fraud Analyst",
+      "url": "https://job-boards.greenhouse.io/discord/jobs/8771059002",
+      "attempt_id": "4694f013-bc77-4b81-b8d6-292deffd12d4",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "c98c5a077ddd",
+            2227
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "greenhouse",
+      "discover_seconds": 0.79,
+      "mapping_seconds": 0.008,
+      "gate_seconds": 0.02,
+      "result": {
+        "fields": 34,
+        "by_type": {
+          "text": 30,
+          "phone": 1,
+          "file": 2,
+          "textarea": 1
+        },
+        "required": 23,
+        "required_answered": 6,
+        "missing_required": [
+          "Country*",
+          "Country*",
+          "Location (City)*",
+          "Location (City)*",
+          "Why do you want to work at Discord?*",
+          "Are you currently located in the US?*",
+          "Are you currently located in the US?*",
+          "Are you currently based in or willing to relocate to the Bay",
+          "Are you currently based in or willing to relocate to the Bay",
+          "Gender*",
+          "Gender*",
+          "Race and Ethnicity*"
+        ],
+        "optional_skipped": 10,
+        "file_fields": [
+          "Attach",
+          "Attach"
+        ],
+        "file_fields_mapped_to_artifacts": [
+          [
+            "Attach",
+            "RESUME"
+          ]
+        ],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "PROFILE": 4,
+          "NONE": 27,
+          "ARTIFACT": 1,
+          "PREPARATION": 2
+        },
+        "answer_statuses": {
+          "ANSWERED": 7,
+          "NEEDS_REVIEW": 5,
+          "NEEDS_USER_INPUT": 12,
+          "SKIPPED": 10
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "Apply",
+          "",
+          "Locate me",
+          "Attach",
+          "Dropbox"
+        ],
+        "handoff": null,
+        "strategy": "greenhouse",
+        "page_title": "Job Application for Payments & Fraud Analyst at Discord",
+        "gate_failures": [],
+        "sample_labels": [
+          "First Name* [text*]",
+          "Last Name* [text*]",
+          "Email* [text*]",
+          "Country* [text*]",
+          "Country* [text*]",
+          "Phone* [phone*]",
+          "Location (City)* [text*]",
+          "Location (City)* [text*]",
+          "Attach [file]",
+          "Attach [file]",
+          "School [text]",
+          "Degree [text]",
+          "Discipline [text]",
+          "Why do you want to work at Discord?* [textarea*]"
+        ],
+        "captcha": false,
+        "captcha_inline": false,
+        "in_frame": false,
+        "settle_ms": 31
+      },
+      "outcome": "discovered",
+      "seconds_total": 0.86
+    },
+    {
+      "source": "LEVER",
+      "company": "Spotify",
+      "title": "Staff Machine Learning Engineer, Home Surfaces",
+      "url": "https://jobs.lever.co/spotify/281e7db9-86ba-4a1c-8773-c23b96ed32dc/apply",
+      "attempt_id": "3fe94246-1082-4798-a649-64afc470a93d",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "f7882d9e25cf",
+            2226
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "lever",
+      "discover_seconds": 4.18,
+      "mapping_seconds": 0.008,
+      "gate_seconds": 0.019,
+      "result": {
+        "fields": 15,
+        "by_type": {
+          "file": 1,
+          "text": 8,
+          "multi_select": 2,
+          "checkbox": 2,
+          "email": 1,
+          "select": 1
+        },
+        "required": 6,
+        "required_answered": 3,
+        "missing_required": [
+          "Current location \u2731No location found. Try entering a differen",
+          "Current company \u2731",
+          "Have you ever been previously employed by Spotify? \u2731"
+        ],
+        "optional_skipped": 8,
+        "file_fields": [
+          "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resume.Analyzi"
+        ],
+        "file_fields_mapped_to_artifacts": [
+          [
+            "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resume.Analyzi",
+            "RESUME"
+          ]
+        ],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "ARTIFACT": 1,
+          "PROFILE": 3,
+          "NONE": 11
+        },
+        "answer_statuses": {
+          "ANSWERED": 4,
+          "SKIPPED": 8,
+          "NEEDS_USER_INPUT": 1,
+          "NEEDS_REVIEW": 2
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "deny",
+          "accept",
+          "SUBMIT APPLICATION"
+        ],
+        "handoff": null,
+        "strategy": "lever",
+        "page_title": "Spotify - Staff Machine Learning Engineer, Home Surfaces",
+        "gate_failures": [],
+        "sample_labels": [
+          "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resu [file]",
+          "Full name\u2731 [text*]",
+          "Pronouns [multi_select]",
+          "Custom [checkbox]",
+          "Email\u2731 [email*]",
+          "Phone \u2731 [text*]",
+          "Current location \u2731No location found. Try entering  [text*]",
+          "Current company \u2731 [text*]",
+          "LinkedIn URL [text]",
+          "GitHub URL [text]",
+          "Portfolio URL [text]",
+          "Other website [text]",
+          "Have you ever been previously employed by Spotify? [multi_select*]",
+          "What is your location? [select]"
+        ],
+        "captcha": true,
+        "captcha_inline": true,
+        "in_frame": false,
+        "settle_ms": 31
+      },
+      "outcome": "discovered",
+      "seconds_total": 4.23
+    },
+    {
+      "source": "LEVER",
+      "company": "Spotify",
+      "title": "Manager, Proposition Strategy",
+      "url": "https://jobs.lever.co/spotify/8251142e-f213-45df-89a9-914e814bd7a7/apply",
+      "attempt_id": "8cb6359b-47b2-4082-9850-be35be3769b8",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "bd27906ec41f",
+            2383
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "a1614856728f",
+            1856
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "lever",
+      "discover_seconds": 2.68,
+      "mapping_seconds": 0.006,
+      "gate_seconds": 0.022,
+      "result": {
+        "fields": 16,
+        "by_type": {
+          "select": 2,
+          "file": 1,
+          "text": 8,
+          "multi_select": 2,
+          "checkbox": 2,
+          "email": 1
+        },
+        "required": 6,
+        "required_answered": 3,
+        "missing_required": [
+          "Current location \u2731No location found. Try entering a differen",
+          "Current company \u2731",
+          "Have you ever been previously employed by Spotify? \u2731"
+        ],
+        "optional_skipped": 9,
+        "file_fields": [
+          "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resume.Analyzi"
+        ],
+        "file_fields_mapped_to_artifacts": [
+          [
+            "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resume.Analyzi",
+            "RESUME"
+          ]
+        ],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "NONE": 12,
+          "ARTIFACT": 1,
+          "PROFILE": 3
+        },
+        "answer_statuses": {
+          "SKIPPED": 9,
+          "ANSWERED": 4,
+          "NEEDS_USER_INPUT": 1,
+          "NEEDS_REVIEW": 2
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "deny",
+          "accept",
+          "SUBMIT APPLICATION"
+        ],
+        "handoff": null,
+        "strategy": "lever",
+        "page_title": "Spotify - Manager, Proposition Strategy",
+        "gate_failures": [],
+        "sample_labels": [
+          "Are you interested in working out of any of the fo [select]",
+          "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resu [file]",
+          "Full name\u2731 [text*]",
+          "Pronouns [multi_select]",
+          "Custom [checkbox]",
+          "Email\u2731 [email*]",
+          "Phone \u2731 [text*]",
+          "Current location \u2731No location found. Try entering  [text*]",
+          "Current company \u2731 [text*]",
+          "LinkedIn URL [text]",
+          "GitHub URL [text]",
+          "Portfolio URL [text]",
+          "Other website [text]",
+          "Have you ever been previously employed by Spotify? [multi_select*]"
+        ],
+        "captcha": true,
+        "captcha_inline": true,
+        "in_frame": false,
+        "settle_ms": 93
+      },
+      "outcome": "discovered",
+      "seconds_total": 2.73
+    },
+    {
+      "source": "LEVER",
+      "company": "Spotify",
+      "title": "Senior Staff Engineer - Platform & Partner Experience",
+      "url": "https://jobs.lever.co/spotify/cfbb2765-b4e9-445a-b558-d1fa7876863d/apply",
+      "attempt_id": "225f9916-338f-45d0-b562-81a95233481d",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "c24c5f70c548",
+            2506
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "4a6a64ceadc1",
+            1881
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "lever",
+      "discover_seconds": 5.29,
+      "mapping_seconds": 0.006,
+      "gate_seconds": 0.019,
+      "result": {
+        "fields": 16,
+        "by_type": {
+          "select": 2,
+          "file": 1,
+          "text": 8,
+          "multi_select": 2,
+          "checkbox": 2,
+          "email": 1
+        },
+        "required": 6,
+        "required_answered": 3,
+        "missing_required": [
+          "Current location \u2731No location found. Try entering a differen",
+          "Current company \u2731",
+          "Have you ever been previously employed by Spotify? \u2731"
+        ],
+        "optional_skipped": 9,
+        "file_fields": [
+          "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resume.Analyzi"
+        ],
+        "file_fields_mapped_to_artifacts": [
+          [
+            "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resume.Analyzi",
+            "RESUME"
+          ]
+        ],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "NONE": 12,
+          "ARTIFACT": 1,
+          "PROFILE": 3
+        },
+        "answer_statuses": {
+          "SKIPPED": 9,
+          "ANSWERED": 4,
+          "NEEDS_USER_INPUT": 1,
+          "NEEDS_REVIEW": 2
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "deny",
+          "accept",
+          "SUBMIT APPLICATION"
+        ],
+        "handoff": null,
+        "strategy": "lever",
+        "page_title": "Spotify - Senior Staff Engineer - Platform & Partner Experience",
+        "gate_failures": [],
+        "sample_labels": [
+          "Are you interested in working out of any of the fo [select]",
+          "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resu [file]",
+          "Full name\u2731 [text*]",
+          "Pronouns [multi_select]",
+          "Custom [checkbox]",
+          "Email\u2731 [email*]",
+          "Phone \u2731 [text*]",
+          "Current location \u2731No location found. Try entering  [text*]",
+          "Current company \u2731 [text*]",
+          "LinkedIn URL [text]",
+          "GitHub URL [text]",
+          "Portfolio URL [text]",
+          "Other website [text]",
+          "Have you ever been previously employed by Spotify? [multi_select*]"
+        ],
+        "captcha": true,
+        "captcha_inline": true,
+        "in_frame": false,
+        "settle_ms": 94
+      },
+      "outcome": "discovered",
+      "seconds_total": 5.35
+    },
+    {
+      "source": "LEVER",
+      "company": "Spotify",
+      "title": "Senior Software Engineer - Enterprise AI",
+      "url": "https://jobs.lever.co/spotify/c73be71c-1a63-4906-9925-95f2115d1f1d/apply",
+      "attempt_id": "a20d171f-712c-4f4d-b351-48dfb477e15e",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "c24c5f70c548",
+            2506
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "f48ae141a8a1",
+            1861
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "lever",
+      "discover_seconds": 2.46,
+      "mapping_seconds": 0.005,
+      "gate_seconds": 0.017,
+      "result": {
+        "fields": 15,
+        "by_type": {
+          "file": 1,
+          "text": 8,
+          "multi_select": 2,
+          "checkbox": 2,
+          "email": 1,
+          "select": 1
+        },
+        "required": 6,
+        "required_answered": 3,
+        "missing_required": [
+          "Current location \u2731No location found. Try entering a differen",
+          "Current company \u2731",
+          "Have you ever been previously employed by Spotify? \u2731"
+        ],
+        "optional_skipped": 8,
+        "file_fields": [
+          "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resume.Analyzi"
+        ],
+        "file_fields_mapped_to_artifacts": [
+          [
+            "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resume.Analyzi",
+            "RESUME"
+          ]
+        ],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "ARTIFACT": 1,
+          "PROFILE": 3,
+          "NONE": 11
+        },
+        "answer_statuses": {
+          "ANSWERED": 4,
+          "SKIPPED": 8,
+          "NEEDS_USER_INPUT": 1,
+          "NEEDS_REVIEW": 2
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "deny",
+          "accept",
+          "SUBMIT APPLICATION"
+        ],
+        "handoff": null,
+        "strategy": "lever",
+        "page_title": "Spotify - Senior Software Engineer - Enterprise AI",
+        "gate_failures": [],
+        "sample_labels": [
+          "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resu [file]",
+          "Full name\u2731 [text*]",
+          "Pronouns [multi_select]",
+          "Custom [checkbox]",
+          "Email\u2731 [email*]",
+          "Phone \u2731 [text*]",
+          "Current location \u2731No location found. Try entering  [text*]",
+          "Current company \u2731 [text*]",
+          "LinkedIn URL [text]",
+          "GitHub URL [text]",
+          "Portfolio URL [text]",
+          "Other website [text]",
+          "Have you ever been previously employed by Spotify? [multi_select*]",
+          "What is your location? [select]"
+        ],
+        "captcha": true,
+        "captcha_inline": true,
+        "in_frame": false,
+        "settle_ms": 15
+      },
+      "outcome": "discovered",
+      "seconds_total": 2.52
+    },
+    {
+      "source": "LEVER",
+      "company": "Spotify",
+      "title": "Senior Partner Engineer - Hardware Partnerships",
+      "url": "https://jobs.lever.co/spotify/2b2ae5a0-f040-4e9a-847c-157b9a41ee29/apply",
+      "attempt_id": "631d9c6a-6ce4-4329-b48a-ad4cb21e3df8",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "c24c5f70c548",
+            2506
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "9097c461d510",
+            1864
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "lever",
+      "discover_seconds": 2.19,
+      "mapping_seconds": 0.008,
+      "gate_seconds": 0.025,
+      "result": {
+        "fields": 17,
+        "by_type": {
+          "select": 2,
+          "file": 1,
+          "text": 8,
+          "multi_select": 2,
+          "checkbox": 2,
+          "email": 1,
+          "radio": 1
+        },
+        "required": 7,
+        "required_answered": 3,
+        "missing_required": [
+          "Current location \u2731No location found. Try entering a differen",
+          "Current company \u2731",
+          "Have you ever been previously employed by Spotify? \u2731",
+          "This role requires you to be based in either London or Stock"
+        ],
+        "optional_skipped": 9,
+        "file_fields": [
+          "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resume.Analyzi"
+        ],
+        "file_fields_mapped_to_artifacts": [
+          [
+            "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resume.Analyzi",
+            "RESUME"
+          ]
+        ],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "NONE": 13,
+          "ARTIFACT": 1,
+          "PROFILE": 3
+        },
+        "answer_statuses": {
+          "SKIPPED": 9,
+          "ANSWERED": 4,
+          "NEEDS_USER_INPUT": 2,
+          "NEEDS_REVIEW": 2
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "deny",
+          "accept",
+          "SUBMIT APPLICATION"
+        ],
+        "handoff": null,
+        "strategy": "lever",
+        "page_title": "Spotify - Senior Partner Engineer - Hardware Partnerships",
+        "gate_failures": [],
+        "sample_labels": [
+          "Are you interested in working out of any of the fo [select]",
+          "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resu [file]",
+          "Full name\u2731 [text*]",
+          "Pronouns [multi_select]",
+          "Custom [checkbox]",
+          "Email\u2731 [email*]",
+          "Phone \u2731 [text*]",
+          "Current location \u2731No location found. Try entering  [text*]",
+          "Current company \u2731 [text*]",
+          "LinkedIn URL [text]",
+          "GitHub URL [text]",
+          "Portfolio URL [text]",
+          "Other website [text]",
+          "Have you ever been previously employed by Spotify? [multi_select*]"
+        ],
+        "captcha": true,
+        "captcha_inline": true,
+        "in_frame": false,
+        "settle_ms": 110
+      },
+      "outcome": "discovered",
+      "seconds_total": 2.25
+    },
+    {
+      "source": "LEVER",
+      "company": "Spotify",
+      "title": "Senior Machine Learning Engineer, Personalization, Magenta",
+      "url": "https://jobs.lever.co/spotify/3cf07bc7-2b9f-4531-af88-a09cfdf7b3ab/apply",
+      "attempt_id": "7de954fb-7492-4f18-acab-5ca1bd2787ec",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "c24c5f70c548",
+            2506
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "cc6bad1308b8",
+            1882
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "lever",
+      "discover_seconds": 3.56,
+      "mapping_seconds": 0.006,
+      "gate_seconds": 0.016,
+      "result": {
+        "fields": 15,
+        "by_type": {
+          "file": 1,
+          "text": 8,
+          "multi_select": 2,
+          "checkbox": 2,
+          "email": 1,
+          "select": 1
+        },
+        "required": 6,
+        "required_answered": 3,
+        "missing_required": [
+          "Current location \u2731No location found. Try entering a differen",
+          "Current company \u2731",
+          "Have you ever been previously employed by Spotify? \u2731"
+        ],
+        "optional_skipped": 8,
+        "file_fields": [
+          "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resume.Analyzi"
+        ],
+        "file_fields_mapped_to_artifacts": [
+          [
+            "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resume.Analyzi",
+            "RESUME"
+          ]
+        ],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "ARTIFACT": 1,
+          "PROFILE": 3,
+          "NONE": 11
+        },
+        "answer_statuses": {
+          "ANSWERED": 4,
+          "SKIPPED": 8,
+          "NEEDS_USER_INPUT": 1,
+          "NEEDS_REVIEW": 2
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "deny",
+          "accept",
+          "SUBMIT APPLICATION"
+        ],
+        "handoff": null,
+        "strategy": "lever",
+        "page_title": "Spotify - Senior Machine Learning Engineer, Personalization, Magenta",
+        "gate_failures": [],
+        "sample_labels": [
+          "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resu [file]",
+          "Full name\u2731 [text*]",
+          "Pronouns [multi_select]",
+          "Custom [checkbox]",
+          "Email\u2731 [email*]",
+          "Phone \u2731 [text*]",
+          "Current location \u2731No location found. Try entering  [text*]",
+          "Current company \u2731 [text*]",
+          "LinkedIn URL [text]",
+          "GitHub URL [text]",
+          "Portfolio URL [text]",
+          "Other website [text]",
+          "Have you ever been previously employed by Spotify? [multi_select*]",
+          "What is your location? [select]"
+        ],
+        "captcha": true,
+        "captcha_inline": true,
+        "in_frame": false,
+        "settle_ms": 77
+      },
+      "outcome": "discovered",
+      "seconds_total": 3.61
+    },
+    {
+      "source": "LEVER",
+      "company": "Spotify",
+      "title": "Senior Data Engineer - Data Platform",
+      "url": "https://jobs.lever.co/spotify/204f6cd7-98a3-4360-87e3-8876adf087da/apply",
+      "attempt_id": "4cfc73a9-f4ff-4762-818c-c8353c57f15b",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "c24c5f70c548",
+            2506
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "de2b3fad33f4",
+            1858
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "lever",
+      "discover_seconds": 2.35,
+      "mapping_seconds": 0.004,
+      "gate_seconds": 0.018,
+      "result": {
+        "fields": 15,
+        "by_type": {
+          "file": 1,
+          "text": 8,
+          "multi_select": 2,
+          "checkbox": 2,
+          "email": 1,
+          "select": 1
+        },
+        "required": 6,
+        "required_answered": 3,
+        "missing_required": [
+          "Current location \u2731No location found. Try entering a differen",
+          "Current company \u2731",
+          "Have you ever been previously employed by Spotify? \u2731"
+        ],
+        "optional_skipped": 8,
+        "file_fields": [
+          "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resume.Analyzi"
+        ],
+        "file_fields_mapped_to_artifacts": [
+          [
+            "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resume.Analyzi",
+            "RESUME"
+          ]
+        ],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "ARTIFACT": 1,
+          "PROFILE": 3,
+          "NONE": 11
+        },
+        "answer_statuses": {
+          "ANSWERED": 4,
+          "SKIPPED": 8,
+          "NEEDS_USER_INPUT": 1,
+          "NEEDS_REVIEW": 2
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "deny",
+          "accept",
+          "SUBMIT APPLICATION"
+        ],
+        "handoff": null,
+        "strategy": "lever",
+        "page_title": "Spotify - Senior Data Engineer - Data Platform",
+        "gate_failures": [],
+        "sample_labels": [
+          "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resu [file]",
+          "Full name\u2731 [text*]",
+          "Pronouns [multi_select]",
+          "Custom [checkbox]",
+          "Email\u2731 [email*]",
+          "Phone \u2731 [text*]",
+          "Current location \u2731No location found. Try entering  [text*]",
+          "Current company \u2731 [text*]",
+          "LinkedIn URL [text]",
+          "GitHub URL [text]",
+          "Portfolio URL [text]",
+          "Other website [text]",
+          "Have you ever been previously employed by Spotify? [multi_select*]",
+          "What is your location? [select]"
+        ],
+        "captcha": true,
+        "captcha_inline": true,
+        "in_frame": false,
+        "settle_ms": 31
+      },
+      "outcome": "discovered",
+      "seconds_total": 2.4
+    },
+    {
+      "source": "LEVER",
+      "company": "Spotify",
+      "title": "Senior Backend Engineer - Commerce Platform",
+      "url": "https://jobs.lever.co/spotify/88b0a5ea-65d8-4c0c-8d1f-c30989ea5c16/apply",
+      "attempt_id": "3d823cf3-fafa-42ac-9b54-1ce5fc965d1b",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "c24c5f70c548",
+            2506
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "ce2e2d6fe0ab",
+            1860
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "lever",
+      "discover_seconds": 4.86,
+      "mapping_seconds": 0.007,
+      "gate_seconds": 0.019,
+      "result": {
+        "fields": 16,
+        "by_type": {
+          "select": 2,
+          "file": 1,
+          "text": 8,
+          "multi_select": 2,
+          "checkbox": 2,
+          "email": 1
+        },
+        "required": 6,
+        "required_answered": 3,
+        "missing_required": [
+          "Current location \u2731No location found. Try entering a differen",
+          "Current company \u2731",
+          "Have you ever been previously employed by Spotify? \u2731"
+        ],
+        "optional_skipped": 9,
+        "file_fields": [
+          "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resume.Analyzi"
+        ],
+        "file_fields_mapped_to_artifacts": [
+          [
+            "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resume.Analyzi",
+            "RESUME"
+          ]
+        ],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "NONE": 12,
+          "ARTIFACT": 1,
+          "PROFILE": 3
+        },
+        "answer_statuses": {
+          "SKIPPED": 9,
+          "ANSWERED": 4,
+          "NEEDS_USER_INPUT": 1,
+          "NEEDS_REVIEW": 2
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "deny",
+          "accept",
+          "SUBMIT APPLICATION"
+        ],
+        "handoff": null,
+        "strategy": "lever",
+        "page_title": "Spotify - Senior Backend Engineer - Commerce Platform",
+        "gate_failures": [],
+        "sample_labels": [
+          "Are you interested in working out of any of the fo [select]",
+          "Resume/CV \u2731ATTACH RESUME/CVCouldn't auto-read resu [file]",
+          "Full name\u2731 [text*]",
+          "Pronouns [multi_select]",
+          "Custom [checkbox]",
+          "Email\u2731 [email*]",
+          "Phone \u2731 [text*]",
+          "Current location \u2731No location found. Try entering  [text*]",
+          "Current company \u2731 [text*]",
+          "LinkedIn URL [text]",
+          "GitHub URL [text]",
+          "Portfolio URL [text]",
+          "Other website [text]",
+          "Have you ever been previously employed by Spotify? [multi_select*]"
+        ],
+        "captcha": true,
+        "captcha_inline": true,
+        "in_frame": false,
+        "settle_ms": 47
+      },
+      "outcome": "discovered",
+      "seconds_total": 4.92
+    },
+    {
+      "source": "ASHBY",
+      "company": "Linear",
+      "title": "Product Support Specialist, Europe",
+      "url": "https://jobs.ashbyhq.com/linear/820d0d5a-0930-475c-b494-23e18ad2aa68/application",
+      "attempt_id": "d34bed2e-01b2-4ef6-8ff4-1d37d6eece9f",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "2043e49a948d",
+            2388
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "57d8e3e5b1a9",
+            1840
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "ashby",
+      "discover_seconds": 1.96,
+      "mapping_seconds": 0.007,
+      "gate_seconds": 0.022,
+      "result": {
+        "fields": 12,
+        "by_type": {
+          "file": 2,
+          "text": 6,
+          "email": 1,
+          "textarea": 3
+        },
+        "required": 7,
+        "required_answered": 4,
+        "missing_required": [
+          "Why Linear?",
+          "What is your experience troubleshooting technical issues, in",
+          "LinkedIn"
+        ],
+        "optional_skipped": 4,
+        "file_fields": [
+          "Autofill from resume",
+          "Resume"
+        ],
+        "file_fields_mapped_to_artifacts": [
+          [
+            "Autofill from resume",
+            "RESUME"
+          ],
+          [
+            "Resume",
+            "RESUME"
+          ]
+        ],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "ARTIFACT": 2,
+          "PROFILE": 2,
+          "NONE": 7,
+          "PREPARATION": 1
+        },
+        "answer_statuses": {
+          "ANSWERED": 5,
+          "SKIPPED": 4,
+          "NEEDS_REVIEW": 2,
+          "NEEDS_USER_INPUT": 1
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "Upload file",
+          "Upload File",
+          "",
+          "Submit Application"
+        ],
+        "handoff": null,
+        "strategy": "ashby",
+        "page_title": "Product Support Specialist, Europe @ Linear",
+        "gate_failures": [],
+        "sample_labels": [
+          "Autofill from resume [file]",
+          "Name [text*]",
+          "Email [email*]",
+          "Resume [file*]",
+          "City, State, Country [text]",
+          "Why Linear? [textarea*]",
+          "What is your experience troubleshooting technical  [textarea*]",
+          "Please provide examples of project work you've don [textarea*]",
+          "LinkedIn [text*]",
+          "X Profile [text]",
+          "Github or personal website [text]",
+          "Has someone at Linear referred you for this role?  [text]"
+        ],
+        "captcha": false,
+        "captcha_inline": false,
+        "in_frame": false,
+        "settle_ms": 546
+      },
+      "outcome": "discovered",
+      "seconds_total": 2.01
+    },
+    {
+      "source": "ASHBY",
+      "company": "Supabase",
+      "title": "Platform Engineer - Compute Capacity",
+      "url": "https://jobs.ashbyhq.com/supabase/4eb14408-51e6-4c58-812a-3782d5c0b045/application",
+      "attempt_id": "448a158a-ecc7-4c78-b346-3e808f1607c3",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "a7286fb1d0dc",
+            2382
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "aacca8afe9d0",
+            1850
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "ashby",
+      "discover_seconds": 5.07,
+      "mapping_seconds": 0.017,
+      "gate_seconds": 0.016,
+      "result": {
+        "fields": 14,
+        "by_type": {
+          "file": 2,
+          "text": 7,
+          "email": 1,
+          "textarea": 3,
+          "radio": 1
+        },
+        "required": 9,
+        "required_answered": 4,
+        "missing_required": [
+          "Passport Country",
+          "Country of Residence",
+          "Github Profile",
+          "Linkedin",
+          "Tell us about your experience working in an async and/or rem"
+        ],
+        "optional_skipped": 4,
+        "file_fields": [
+          "Autofill from resume",
+          "Resume"
+        ],
+        "file_fields_mapped_to_artifacts": [
+          [
+            "Autofill from resume",
+            "RESUME"
+          ],
+          [
+            "Resume",
+            "RESUME"
+          ]
+        ],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "ARTIFACT": 2,
+          "PROFILE": 2,
+          "NONE": 9,
+          "PREPARATION": 1
+        },
+        "answer_statuses": {
+          "ANSWERED": 5,
+          "NEEDS_REVIEW": 2,
+          "SKIPPED": 4,
+          "NEEDS_USER_INPUT": 3
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "Upload file",
+          "Upload File",
+          "Yes",
+          "No",
+          "Submit Application"
+        ],
+        "handoff": null,
+        "strategy": "ashby",
+        "page_title": "Platform Engineer - Compute Capacity @ Supabase",
+        "gate_failures": [],
+        "sample_labels": [
+          "Autofill from resume [file]",
+          "Name [text*]",
+          "Email [email*]",
+          "Resume [file*]",
+          "Passport Country [text*]",
+          "Country of Residence [text*]",
+          "Twitter / X profile [text]",
+          "Github Profile [text*]",
+          "Linkedin [text*]",
+          "Have you made any open source contributions in the [textarea]",
+          "Why are you interested in joining the Supabase tea [textarea*]",
+          "Tell us about your experience working in an async  [textarea*]",
+          "About you [radio]",
+          "Referrer name (if relevant) [text]"
+        ],
+        "captcha": true,
+        "captcha_inline": false,
+        "in_frame": false,
+        "settle_ms": 2625
+      },
+      "outcome": "discovered",
+      "seconds_total": 5.13
+    },
+    {
+      "source": "ASHBY",
+      "company": "Supabase",
+      "title": "Engineering Manager, Billing",
+      "url": "https://jobs.ashbyhq.com/supabase/b4a2f5e5-5c51-4c1a-abde-a89de27451c7/application",
+      "attempt_id": "8479a5be-e644-4eb9-9ac8-178f790f7cdb",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "10fe10a63d81",
+            2220
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "ashby",
+      "discover_seconds": 1.86,
+      "mapping_seconds": 0.004,
+      "gate_seconds": 0.017,
+      "result": {
+        "fields": 12,
+        "by_type": {
+          "file": 2,
+          "text": 7,
+          "email": 1,
+          "textarea": 2
+        },
+        "required": 8,
+        "required_answered": 3,
+        "missing_required": [
+          "Passport Country",
+          "Country of Residence",
+          "Github Profile",
+          "Linkedin",
+          "Tell us about your experience working in an async and/or rem"
+        ],
+        "optional_skipped": 3,
+        "file_fields": [
+          "Autofill from resume",
+          "Resume"
+        ],
+        "file_fields_mapped_to_artifacts": [
+          [
+            "Autofill from resume",
+            "RESUME"
+          ],
+          [
+            "Resume",
+            "RESUME"
+          ]
+        ],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "ARTIFACT": 2,
+          "PROFILE": 2,
+          "NONE": 8
+        },
+        "answer_statuses": {
+          "ANSWERED": 4,
+          "NEEDS_REVIEW": 2,
+          "SKIPPED": 3,
+          "NEEDS_USER_INPUT": 3
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "Upload file",
+          "Upload File",
+          "Yes",
+          "No",
+          "Submit Application"
+        ],
+        "handoff": null,
+        "strategy": "ashby",
+        "page_title": "Engineering Manager, Billing @ Supabase",
+        "gate_failures": [],
+        "sample_labels": [
+          "Autofill from resume [file]",
+          "Name [text*]",
+          "Email [email*]",
+          "Resume [file*]",
+          "Passport Country [text*]",
+          "Country of Residence [text*]",
+          "Twitter / X profile [text]",
+          "Github Profile [text*]",
+          "Linkedin [text*]",
+          "Tell us about your experience working in an async  [textarea*]",
+          "Have you made any open source contributions in the [textarea]",
+          "Where did you hear about this vacancy? [text]"
+        ],
+        "captcha": false,
+        "captcha_inline": false,
+        "in_frame": false,
+        "settle_ms": 530
+      },
+      "outcome": "discovered",
+      "seconds_total": 1.9
+    },
+    {
+      "source": "ASHBY",
+      "company": "Supabase",
+      "title": "Platform Security Engineer (AMER/APAC)",
+      "url": "https://jobs.ashbyhq.com/supabase/8fa1c7a0-a85c-4562-a1f5-4dd22cadae27/application",
+      "attempt_id": "f209b066-2a40-4dbd-ac12-2ded550b5909",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "4dd9d98610fa",
+            2401
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "1934e5ab0e9e",
+            1883
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "ashby",
+      "discover_seconds": 6.15,
+      "mapping_seconds": 0.003,
+      "gate_seconds": 0.013,
+      "result": {
+        "fields": 12,
+        "by_type": {
+          "file": 2,
+          "text": 7,
+          "email": 1,
+          "textarea": 2
+        },
+        "required": 8,
+        "required_answered": 3,
+        "missing_required": [
+          "Passport Country",
+          "Country of Residence",
+          "Github Profile",
+          "Linkedin",
+          "Tell us about your experience working in an async and/or rem"
+        ],
+        "optional_skipped": 3,
+        "file_fields": [
+          "Autofill from resume",
+          "Resume"
+        ],
+        "file_fields_mapped_to_artifacts": [
+          [
+            "Autofill from resume",
+            "RESUME"
+          ],
+          [
+            "Resume",
+            "RESUME"
+          ]
+        ],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "ARTIFACT": 2,
+          "PROFILE": 2,
+          "NONE": 8
+        },
+        "answer_statuses": {
+          "ANSWERED": 4,
+          "NEEDS_REVIEW": 2,
+          "SKIPPED": 3,
+          "NEEDS_USER_INPUT": 3
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "Upload file",
+          "Upload File",
+          "Yes",
+          "No",
+          "Submit Application"
+        ],
+        "handoff": null,
+        "strategy": "ashby",
+        "page_title": "Platform Security Engineer (AMER/APAC) @ Supabase",
+        "gate_failures": [],
+        "sample_labels": [
+          "Autofill from resume [file]",
+          "Name [text*]",
+          "Email [email*]",
+          "Resume [file*]",
+          "Passport Country [text*]",
+          "Country of Residence [text*]",
+          "Twitter / X profile [text]",
+          "Github Profile [text*]",
+          "Linkedin [text*]",
+          "Tell us about your experience working in an async  [textarea*]",
+          "Have you made any open source contributions in the [textarea]",
+          "Where did you hear about this vacancy? [text]"
+        ],
+        "captcha": false,
+        "captcha_inline": false,
+        "in_frame": false,
+        "settle_ms": 562
+      },
+      "outcome": "discovered",
+      "seconds_total": 6.2
+    },
+    {
+      "source": "ASHBY",
+      "company": "PostHog",
+      "title": "Security Engineer",
+      "url": "https://jobs.ashbyhq.com/posthog/36d5ce14-851c-450f-879a-45cbb896225e/application",
+      "attempt_id": "2aadd6a8-21e3-4ea2-b3e3-af6e9c5b0f71",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "c98c5a077ddd",
+            2227
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "ashby",
+      "discover_seconds": 9.24,
+      "mapping_seconds": 0.002,
+      "gate_seconds": 0.014,
+      "result": {
+        "fields": 0,
+        "by_type": {},
+        "required": 0,
+        "required_answered": 0,
+        "missing_required": [],
+        "optional_skipped": 0,
+        "file_fields": [],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {},
+        "answer_statuses": {},
+        "custom_widgets": 0,
+        "submit_buttons": [],
+        "handoff": "AMBIGUOUS_FORM",
+        "strategy": "ashby",
+        "page_title": "Jobs",
+        "gate_failures": [],
+        "sample_labels": [],
+        "captcha": false,
+        "captcha_inline": false,
+        "in_frame": false,
+        "settle_ms": 8202
+      },
+      "outcome": "handoff:AMBIGUOUS_FORM",
+      "seconds_total": 9.27
+    },
+    {
+      "source": "ASHBY",
+      "company": "Supabase",
+      "title": "Software Engineer - Branching",
+      "url": "https://jobs.ashbyhq.com/supabase/06752423-eebb-472c-95b5-c7ff2559fd60/application",
+      "attempt_id": "9b204fb5-5675-4eac-831a-13f0223fae3d",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "b55c6edc04bf",
+            2401
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "8926fc3f43ed",
+            1866
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "ashby",
+      "discover_seconds": 1.63,
+      "mapping_seconds": 0.011,
+      "gate_seconds": 0.017,
+      "result": {
+        "fields": 14,
+        "by_type": {
+          "file": 2,
+          "text": 7,
+          "email": 1,
+          "textarea": 3,
+          "radio": 1
+        },
+        "required": 9,
+        "required_answered": 4,
+        "missing_required": [
+          "Passport Country",
+          "Country of Residence",
+          "Github Profile",
+          "Linkedin",
+          "Tell us about your experience working in an async and/or rem"
+        ],
+        "optional_skipped": 4,
+        "file_fields": [
+          "Autofill from resume",
+          "Resume"
+        ],
+        "file_fields_mapped_to_artifacts": [
+          [
+            "Autofill from resume",
+            "RESUME"
+          ],
+          [
+            "Resume",
+            "RESUME"
+          ]
+        ],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "ARTIFACT": 2,
+          "PROFILE": 2,
+          "NONE": 9,
+          "PREPARATION": 1
+        },
+        "answer_statuses": {
+          "ANSWERED": 5,
+          "NEEDS_REVIEW": 2,
+          "SKIPPED": 4,
+          "NEEDS_USER_INPUT": 3
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "Upload file",
+          "Upload File",
+          "Yes",
+          "No",
+          "Submit Application"
+        ],
+        "handoff": null,
+        "strategy": "ashby",
+        "page_title": "Software Engineer - Branching @ Supabase",
+        "gate_failures": [],
+        "sample_labels": [
+          "Autofill from resume [file]",
+          "Name [text*]",
+          "Email [email*]",
+          "Resume [file*]",
+          "Passport Country [text*]",
+          "Country of Residence [text*]",
+          "Twitter / X profile [text]",
+          "Github Profile [text*]",
+          "Linkedin [text*]",
+          "Have you made any open source contributions in the [textarea]",
+          "Why are you interested in joining the Supabase tea [textarea*]",
+          "Tell us about your experience working in an async  [textarea*]",
+          "About you [radio]",
+          "Referrer name (if relevant) [text]"
+        ],
+        "captcha": false,
+        "captcha_inline": false,
+        "in_frame": false,
+        "settle_ms": 547
+      },
+      "outcome": "discovered",
+      "seconds_total": 1.68
+    },
+    {
+      "source": "ASHBY",
+      "company": "Supabase",
+      "title": "Partnerships Manager, Ecosystem",
+      "url": "https://jobs.ashbyhq.com/supabase/f0f277ac-b96c-478a-81ca-7bd80612533f/application",
+      "attempt_id": "072322c6-0ffb-43eb-b3a6-fa65c32d104a",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "10fe10a63d81",
+            2220
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "ashby",
+      "discover_seconds": 3.08,
+      "mapping_seconds": 0.003,
+      "gate_seconds": 0.014,
+      "result": {
+        "fields": 12,
+        "by_type": {
+          "file": 2,
+          "text": 7,
+          "email": 1,
+          "textarea": 2
+        },
+        "required": 8,
+        "required_answered": 3,
+        "missing_required": [
+          "Passport Country",
+          "Country of Residence",
+          "Github Profile",
+          "Linkedin",
+          "Tell us about your experience working in an async and/or rem"
+        ],
+        "optional_skipped": 3,
+        "file_fields": [
+          "Autofill from resume",
+          "Resume"
+        ],
+        "file_fields_mapped_to_artifacts": [
+          [
+            "Autofill from resume",
+            "RESUME"
+          ],
+          [
+            "Resume",
+            "RESUME"
+          ]
+        ],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "ARTIFACT": 2,
+          "PROFILE": 2,
+          "NONE": 8
+        },
+        "answer_statuses": {
+          "ANSWERED": 4,
+          "NEEDS_REVIEW": 2,
+          "SKIPPED": 3,
+          "NEEDS_USER_INPUT": 3
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "Upload file",
+          "Upload File",
+          "Yes",
+          "No",
+          "Submit Application"
+        ],
+        "handoff": null,
+        "strategy": "ashby",
+        "page_title": "Partnerships Manager, Ecosystem @ Supabase",
+        "gate_failures": [],
+        "sample_labels": [
+          "Autofill from resume [file]",
+          "Name [text*]",
+          "Email [email*]",
+          "Resume [file*]",
+          "Passport Country [text*]",
+          "Country of Residence [text*]",
+          "Twitter / X profile [text]",
+          "Github Profile [text*]",
+          "Linkedin [text*]",
+          "Tell us about your experience working in an async  [textarea*]",
+          "Have you made any open source contributions in the [textarea]",
+          "Where did you hear about this vacancy? [text]"
+        ],
+        "captcha": false,
+        "captcha_inline": false,
+        "in_frame": false,
+        "settle_ms": 547
+      },
+      "outcome": "discovered",
+      "seconds_total": 3.11
+    },
+    {
+      "source": "ASHBY",
+      "company": "PostHog",
+      "title": "Technical Staff Writer (Blogs & Newsletters)",
+      "url": "https://jobs.ashbyhq.com/posthog/693ba66a-1f4b-4fd0-9fb4-0861b268a55d/application",
+      "attempt_id": "f75029e3-e56a-4154-9c21-96690736d763",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "c98c5a077ddd",
+            2227
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "ashby",
+      "discover_seconds": 10.52,
+      "mapping_seconds": 0.004,
+      "gate_seconds": 0.014,
+      "result": {
+        "fields": 0,
+        "by_type": {},
+        "required": 0,
+        "required_answered": 0,
+        "missing_required": [],
+        "optional_skipped": 0,
+        "file_fields": [],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {},
+        "answer_statuses": {},
+        "custom_widgets": 0,
+        "submit_buttons": [],
+        "handoff": "AMBIGUOUS_FORM",
+        "strategy": "ashby",
+        "page_title": "Jobs",
+        "gate_failures": [],
+        "sample_labels": [],
+        "captcha": false,
+        "captcha_inline": false,
+        "in_frame": false,
+        "settle_ms": 8234
+      },
+      "outcome": "handoff:AMBIGUOUS_FORM",
+      "seconds_total": 10.56
+    }
+  ],
+  "summary": {
+    "discovered": 19,
+    "handoff:AMBIGUOUS_FORM": 2
+  },
+  "by_source": {
+    "GREENHOUSE": {
+      "discovered": 5
+    },
+    "LEVER": {
+      "discovered": 8
+    },
+    "ASHBY": {
+      "discovered": 6,
+      "handoff:AMBIGUOUS_FORM": 2
+    }
+  }
+}

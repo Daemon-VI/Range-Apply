@@ -1,0 +1,35 @@
+{
+  "match": {
+    "status": "COMPLETED",
+    "jobs_processed": 429,
+    "jobs_matched": 429,
+    "jobs_failed": 0,
+    "seconds": 18.32,
+    "ai_calls": 0
+  },
+  "sync": {
+    "synced": 429,
+    "admitted": 429,
+    "not_admitted": 0,
+    "seconds": 2.88
+  },
+  "scheduler": {
+    "considered": 409,
+    "admitted": 40,
+    "blocked_by_reason": {
+      "DUPLICATE_APPLICATION": 1
+    },
+    "ready_for_execution": 40,
+    "preparation": {
+      "READY_FOR_EXECUTION": 40,
+      "NEEDS_USER_INPUT": 0,
+      "NEEDS_REVIEW": 0,
+      "FAILED": 0,
+      "claimed": 40
+    },
+    "seconds": 2.27
+  },
+  "submit_items": {
+    "already_queued": 40
+  }
+}

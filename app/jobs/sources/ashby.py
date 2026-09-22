@@ -45,7 +45,7 @@ class AshbySource(JobSource):
             if not job_id:
                 continue
 
-            title = item.get("title", "").strip()
+            title = (item.get("title") or "").strip()
             job_url = item.get("jobUrl") or f"https://jobs.ashbyhq.com/{board_name}/{job_id}"
             apply_url = item.get("applyUrl")
 

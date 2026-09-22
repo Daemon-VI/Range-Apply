@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Backend Engineer - Acme (Greenhouse job-boards, searchable dropdowns)</title>
+<style>
+.field{margin:8px 0}
+.select__menu{position:absolute;background:#fff;border:1px solid #999;z-index:10}
+.select__option{padding:2px 6px;cursor:pointer}
+.select__single-value{display:inline-block;min-width:40px}
+.hidden{display:none}
+</style></head>
+<body>
+<div id="application">
+  <h1>Apply for this job</h1>
+  <form id="application_form" action="#" novalidate>
+    <div class="field"><label for="first_name">First Name <span class="required">*</span></label><input id="first_name" name="first_name" type="text" required></div>
+    <div class="field"><label for="last_name">Last Name <span class="required">*</span></label><input id="last_name" name="last_name" type="text" required></div>
+    <div class="field"><label for="email">Email <span class="required">*</span></label><input id="email" name="email" type="email" required></div>
+    <div class="field"><label for="resume">Attach <span class="required">*</span></label><input id="resume" name="resume" type="file" accept=".pdf,.txt" required></div>
+
+    <!-- react-select-like searchable dropdowns: the options render only after typing. -->
+    <div class="field" data-rs="country" data-options="India|Indonesia|United States|United Kingdom|British Indian Ocean Territory">
+      <label for="country">Country <span class="required">*</span></label>
+      <div class="select__container"><div class="select__control"><div class="select__value-container"><div class="select__single-value hidden"></div><div class="select__input-container"><input id="country" class="select__input" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-required="true" autocomplete="off"></div></div></div>
+      <input tabindex="-1" aria-hidden="true" class="rs-required" required value=""></div>
+    </div>
+    <div class="field" data-rs="location" data-async="1" data-options="Hyderabad, Telangana, India|Hyderabad, Sindh, Pakistan|Secunderabad, Telangana, India|Bengaluru, Karnataka, India">
+      <label for="candidate-location">Location (City) <span class="required">*</span></label>
+      <div class="select__container"><div class="select__control"><div class="select__value-container"><div class="select__single-value hidden"></div><div class="select__input-container"><input id="candidate-location" class="select__input" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-required="true" autocomplete="off"></div></div></div>
+      <input tabindex="-1" aria-hidden="true" class="rs-required" required value=""></div>
+    </div>
+    <div class="field" data-rs="sponsor" data-options="Yes|No">
+      <label for="question_1">Will you now or in the future require sponsorship for employment? <span class="required">*</span></label>
+      <div class="select__container"><div class="select__control"><div class="select__value-container"><div class="select__single-value hidden"></div><div class="select__input-container"><input id="question_1" class="select__input" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-required="true" autocomplete="off"></div></div></div>
+      <input tabindex="-1" aria-hidden="true" class="rs-required" required value=""></div>
+    </div>
+    <div class="field" data-rs="degree" data-options="High School|Associate's Degree|Bachelor's Degree|Master's Degree|Doctorate">
+      <label for="degree--0">Degree</label>
+      <div class="select__container"><div class="select__control"><div class="select__value-container"><div class="select__single-value hidden"></div><div class="select__input-container"><input id="degree--0" class="select__input" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" autocomplete="off"></div></div></div>
+      <input tabindex="-1" aria-hidden="true" class="rs-required" value=""></div>
+    </div>
+
+    <!-- Ashby-style yes / no: two buttons over a hidden checkbox. -->
+    <div class="field entry"><label class="title" for="q-anchor">Are you able to commit to working from one of our offices on Anchor Days each week? <span class="required">*</span></label>
+      <div class="yesno"><button type="button" aria-pressed="false" data-option="yes">Yes</button><button type="button" aria-pressed="false" data-option="no">No</button>
+      <input type="checkbox" name="q-anchor" tabindex="-1" style="position:absolute;opacity:0;width:0;height:0;margin:0;padding:0;border:0" required></div></div>
+
+    <div class="field"><label><input type="checkbox" name="consent" value="1" required> I acknowledge that I have read the Candidate Privacy Notice</label></div>
+    <input id="submit_app" type="submit" value="Submit Application">
+  </form>
+</div>
+<script src="_shared.js"></script>
+<script>
+  // A minimal react-select: typing filters a list rendered into a portal at the
+  // end of <body>; clicking an option shows it in the single-value element and
+  // stores it on the required dummy input. Nothing is selected by typing alone.
+  document.querySelectorAll('[data-rs]').forEach(function (box) {
+    const input = box.querySelector('input[role="combobox"]');
+    const single = box.querySelector('.select__single-value');
+    const dummy = box.querySelector('.rs-required');
+    const all = box.getAttribute('data-options').split('|');
+    const async = box.getAttribute('data-async') === '1';
+    let menu = null;
+    function close() { if (menu) { menu.remove(); menu = null; } input.setAttribute('aria-expanded', 'false'); }
+    function render(items) {
+      close();
+      menu = document.createElement('div');
+      menu.className = 'select__menu';
+      menu.setAttribute('role', 'listbox');
+      const r = input.getBoundingClientRect();
+      menu.style.left = (r.left + window.scrollX) + 'px';
+      menu.style.top = (r.bottom + window.scrollY) + 'px';
+      if (!items.length) {
+        const n = document.createElement('div'); n.className = 'select__menu-notice'; n.textContent = 'No options'; menu.appendChild(n);
+      }
+      items.forEach(function (label) {
+        const o = document.createElement('div');
+        o.className = 'select__option'; o.setAttribute('role', 'option'); o.textContent = label;
+        o.addEventListener('mousedown', function (e) { e.preventDefault(); });
+        o.addEventListener('click', function () {
+          single.textContent = label; single.classList.remove('hidden');
+          dummy.value = label; input.value = '';
+          box.setAttribute('data-selected', label);
+          close();
+        });
+        menu.appendChild(o);
+      });
+      document.body.appendChild(menu);
+      input.setAttribute('aria-expanded', 'true');
+    }
+    function search() {
+      const q = input.value.trim().toLowerCase();
+      if (!q) { close(); return; }
+      const items = all.filter(function (l) { return l.toLowerCase().indexOf(q) !== -1; });
+      if (async) { setTimeout(function () { if (input.value.trim().toLowerCase() === q) render(items); }, 400); }
+      else render(items);
+    }
+    input.addEventListener('input', search);
+    input.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+    input.addEventListener('blur', function () { setTimeout(close, 150); });
+  });
+  document.querySelectorAll('.yesno button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      const group = b.parentElement;
+      group.querySelectorAll('button').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+      b.setAttribute('aria-pressed', 'true');
+      const box = group.querySelector('input[type="checkbox"]');
+      box.checked = true; box.value = b.getAttribute('data-option');
+    });
+  });
+  document.getElementById('application_form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const missing = window.fixture.missingRequired(this);
+    const chosen = {};
+    document.querySelectorAll('[data-rs]').forEach(function (box) { chosen[box.getAttribute('data-rs')] = box.getAttribute('data-selected') || ''; });
+    if (missing.length) { window.fixture.reject('Please complete the required fields: ' + missing.join(', ')); return; }
+    const yes = document.querySelector('input[name="q-anchor"]');
+    const summary = Object.keys(chosen).map(function (k) { return k + '=' + chosen[k]; }).join(';') + ';anchor=' + (yes.checked ? yes.value : '');
+    location.href = 'confirmation.html?ref=GS-' + encodeURIComponent(summary);
+  });
+</script>
+</body>
+</html>

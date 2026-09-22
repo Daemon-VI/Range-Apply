@@ -1,0 +1,19 @@
+{% extends "desktop_base.html" %}
+{% block title %}CareerOS — Run {{ opp.title if opp else '' }}{% endblock %}
+{% block content %}
+<div class="breadcrumb"><a href="/desktop/applications">Applications</a> / <a href="/desktop/applications/{{ attempt.id }}">{{ opp.company if opp else 'Application' }}</a> / Run</div>
+<div class="page-head">
+    <div>
+        <div class="eyebrow">{% if job.mode == 'live' %}Real submission{% else %}Dry run{% endif %}</div>
+        <h1>{% if job.mode == 'live' %}Real submission{% else %}Dry run{% endif %} <span class="muted">— {{ opp.title if opp else 'application' }}{% if opp %} at {{ opp.company }}{% endif %}</span></h1>
+        <p>One application, one run, on this machine.{% if job.mode != 'live' %} The submit control was never pressed.{% endif %}</p>
+    </div>
+    <div class="actions">
+        <a class="btn secondary" href="/desktop/applications/{{ attempt.id }}">Back to review</a>
+        <a class="btn secondary" href="/desktop/attention">Attention center</a>
+        <a class="btn subtle" href="/dashboard/execution/attempts/{{ attempt.id }}">Inspect execution</a>
+    </div>
+</div>
+
+{% include "_run_status.html" %}
+{% endblock %}

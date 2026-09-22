@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CareerOS Apply</title>
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+<header>
+  <strong>CareerOS Apply</strong>
+  <span id="conn" class="pill">…</span>
+</header>
+<main id="main">
+  <p id="message" class="muted">Checking this page…</p>
+  <section id="match" hidden>
+    <div class="job"><span id="job-title"></span><br><small id="job-company" class="muted"></small></div>
+    <div id="phase" class="phase"></div>
+    <div id="pending" hidden>
+      <p class="muted small">These fields have no truthful prepared answer. Answer them yourself (saved to your answer bank if ticked) or fill them on the page.</p>
+      <div id="pending-list"></div>
+    </div>
+    <div id="handoff" hidden>
+      <p id="handoff-text" class="warn"></p>
+      <label>Reference (optional) <input id="confirm-ref" placeholder="e.g. application id"></label>
+      <div class="row">
+        <button id="btn-confirm-yes">I submitted it</button>
+        <button id="btn-confirm-no" class="secondary">I did not submit</button>
+      </div>
+    </div>
+    <div class="row" id="actions">
+      <button id="btn-fill">Fill this application</button>
+      <button id="btn-submit" hidden>Submit now</button>
+      <button id="btn-pause" class="secondary" hidden>Pause &amp; hand to me</button>
+    </div>
+    <p id="note" class="small muted"></p>
+  </section>
+  <section id="none" hidden>
+    <p class="muted">This page is not a queued application, or it is not runnable yet.</p>
+    <p class="small muted" id="queue-summary"></p>
+  </section>
+  <section id="setup" hidden>
+    <p class="warn">Not connected to CareerOS. Open the options page and enter the local server address and API key.</p>
+  </section>
+</main>
+<footer>
+  <a href="#" id="open-options">Options</a>
+  <a href="#" id="open-dashboard">Dashboard</a>
+  <a href="#" id="reset" class="muted">Reset tab</a>
+</footer>
+<script src="api.js"></script>
+<script src="popup.js"></script>
+</body>
+</html>

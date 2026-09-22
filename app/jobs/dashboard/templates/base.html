@@ -37,21 +37,41 @@
         .badge-blue { background: rgba(56, 189, 248, 0.15); color: var(--accent); }
         .badge-purple { background: rgba(192, 132, 252, 0.15); color: var(--accent-purple); }
         .badge-orange { background: rgba(251, 146, 60, 0.15); color: var(--accent-orange); }
+        .badge-muted { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); }
+        code { font-size: 12px; color: var(--accent-purple); }
         a { color: var(--accent); text-decoration: none; }
         a:hover { text-decoration: underline; }
         input, select { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); padding: 8px 12px; border-radius: 6px; font-size: 14px; }
         button { background: var(--accent); color: #0f172a; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; }
         button:hover { opacity: 0.9; }
     </style>
+    <!-- htmx (free CDN, progressive enhancement only): hx-boost turns plain
+         form posts and links into in-place swaps; everything works without it. -->
+    <script src="/desktop/static/htmx.min.js" defer></script>
+    {# Page-scoped styling hook: a page may link the shared CareerOS design system here. #}
+    {% block head %}{% endblock %}
 </head>
-<body>
-    <div class="container">
+<body{% block body_attrs %}{% endblock %}>
+    <div class="container" hx-boost="true">
         <nav>
-            <div class="logo">CareerOS Discovery</div>
+            <div class="logo">CareerOS</div>
             <div class="nav-links">
+                <a href="/desktop/">Control center</a>
                 <a href="/dashboard/">Overview</a>
                 <a href="/dashboard/jobs">Jobs</a>
-                <a href="/dashboard/runs">Discovery Runs</a>
+                <a href="/dashboard/shortlist">Shortlist</a>
+                <a href="/dashboard/opportunities">Opportunities</a>
+                <a href="/dashboard/queue">Queue</a>
+                <a href="/dashboard/preparations">Preparations</a>
+                <a href="/dashboard/scheduler">Scheduler</a>
+                <a href="/dashboard/execution">Execution</a>
+                <a href="/dashboard/signals">Signals</a>
+                <a href="/dashboard/learning">Learning</a>
+                <a href="/dashboard/ops">Ops</a>
+                <a href="/dashboard/policy">Policy</a>
+                <a href="/dashboard/profile/">Career Brain</a>
+                <a href="/dashboard/runs">Runs</a>
+                <a href="/dashboard/sources">Sources</a>
                 <a href="/docs" target="_blank">API Docs</a>
             </div>
         </nav>

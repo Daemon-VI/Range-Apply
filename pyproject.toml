@@ -4,10 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "careeros"
-version = "0.2.0"
-description = "CareerOS — Autonomous Career Operating System (Phase 2: Job Discovery)"
+version = "0.5.0"
+description = "CareerOS / Range Apply — high-volume, truthful, evidence-backed job application engine"
 readme = "README.md"
-requires-python = ">=3.9"
+# 3.11 is what CI, the venv and every free host we target actually run.
+requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.32.0",
@@ -24,9 +25,28 @@ dependencies = [
     # It is a runtime dependency, not a dev convenience: the app refuses to
     # create its own schema and requires `alembic upgrade head`.
     "alembic>=1.13.0",
+    # IANA zone database for the scheduler's per-tenant day/week cap boundaries;
+    # Windows ships none, so zoneinfo needs this pure-Python package there.
+    "tzdata>=2024.1",
+    # Blueprint Phase 8: local, deterministic document rendering of validated
+    # preparations (no AI, no cloud). fpdf2 -> PDF, python-docx -> DOCX,
+    # pypdf -> structural validation / text extraction.
+    "fpdf2>=2.7.0",
+    "python-docx>=1.1.0",
+    "pypdf>=4.0.0",
 ]
 
 [project.optional-dependencies]
+# Desktop control center shell (python -m app.desktop): pywebview over the
+# platform webview (WebView2 on Windows). The server and dashboards run
+# without it.
+desktop = [
+    "pywebview>=6.2",
+    # Increment 5: native Windows toasts for local notifications. Windows-only
+    # (it imports `winreg`), and entirely optional — without it the in-app
+    # notification center is the only surface.
+    "winotify>=1.1; sys_platform == 'win32'",
+]
 firecrawl = [
     "firecrawl-py>=4.0.0",
 ]
@@ -62,10 +82,17 @@ include = ["app*"]
 testpaths = ["tests"]
 asyncio_mode = "auto"
 pythonpath = ["."]
+markers = [
+    "perf: larger synthetic-volume fixtures; the 5,000-job run needs CAREEROS_PERF=1",
+]
 
 [tool.ruff]
-target-version = "py39"
+target-version = "py311"
 line-length = 100
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP"]
+select = ["E", "F", "I"]
+# E501: the pre-existing codebase has ~140 long lines, mostly docstrings and
+# SQLAlchemy column definitions. Wrapping them is churn with no behavioural
+# value; new code should stay under 100 columns anyway.
+ignore = ["E501"]

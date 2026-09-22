@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Application queue — CareerOS{% endblock %}
+{% block content %}
+<div class="grid">
+    {% for name in ['PENDING', 'CLAIMED', 'PROCESSING', 'RETRY_WAIT', 'NEEDS_REVIEW', 'BLOCKED', 'SUCCEEDED', 'FAILED', 'CANCELLED'] %}
+    <div class="card"><div class="stat-label">{{ name }}</div><div class="stat-value">{{ counts.get(name, 0) }}</div></div>
+    {% endfor %}
+</div>
+
+<div class="card" style="margin-bottom: 20px;">
+    <form method="GET" action="/dashboard/queue" style="display: flex; gap: 10px; align-items: center;">
+        <select name="state"><option value="">Any state</option>{% for s in states %}<option value="{{ s }}" {% if state == s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
+        <button type="submit">Apply</button>
+        <span style="color: var(--text-muted); font-size: 13px;">{{ total }} items</span>
+    </form>
+</div>
+
+<div class="card">
+    <h3>Queue (priority order)</h3>
+    <table>
+        <thead><tr><th>Opportunity</th><th>Action</th><th>Lane</th><th>State</th><th>Priority</th><th>Attempts</th><th>Available</th><th>Worker</th><th>Last error</th></tr></thead>
+        <tbody>
+        {% for item in items %}
+            <tr>
+                <td>{{ titles.get(item.id, item.opportunity_id) }}</td>
+                <td><code>{{ item.action }}</code></td>
+                <td>{{ item.lane }}</td>
+                <td><span class="badge {% if item.state == 'SUCCEEDED' %}badge-green{% elif item.state in ['FAILED', 'BLOCKED'] %}badge-orange{% elif item.state == 'NEEDS_REVIEW' %}badge-purple{% else %}badge-blue{% endif %}">{{ item.state }}</span></td>
+                <td>{{ item.priority }}</td>
+                <td>{{ item.attempts }}/{{ item.max_attempts }}</td>
+                <td style="white-space: nowrap;">{{ item.available_at.strftime('%Y-%m-%d %H:%M') if item.available_at else '' }}</td>
+                <td>{{ item.claimed_by or '' }}</td>
+                <td style="color: var(--text-muted); font-size: 12px;">{{ (item.last_error or '')[:80] }}</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="9" style="color: var(--text-muted);">The queue is empty. The <a href="/dashboard/scheduler">scheduler</a> enqueues admitted opportunities automatically; <code>POST /api/v1/opportunities/{id}/enqueue</code> still works for one-offs.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

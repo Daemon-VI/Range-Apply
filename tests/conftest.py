@@ -26,12 +26,20 @@ if not os.environ.get("DATABASE_URL"):
             candidate.unlink()
     os.environ["DATABASE_URL"] = f"sqlite:///{TEST_DB_PATH.as_posix()}"
 os.environ.setdefault("APP_ENV", "test")
+# The developer's .env may switch real AI on (AI_ENABLED, GEMINI_API_KEY); tests never
+# call a real provider. Environment variables win over .env in pydantic-settings.
+os.environ["AI_ENABLED"] = "false"
+os.environ["AI_PROVIDER"] = "stub"
+os.environ["LLM_PROVIDER"] = "stub"
+os.environ["GEMINI_API_KEY"] = ""
 os.environ.setdefault("API_KEY", "test-api-key")
+# Rendered documents (Phase 8) go to a per-process temp root, never the repo.
+os.environ.setdefault("DOCUMENTS_ROOT", str(Path(tempfile.gettempdir()) / f"careeros_test_docs_{os.getpid()}"))
 
 import pytest  # noqa: E402
-from alembic import command  # noqa: E402
 from alembic.config import Config  # noqa: E402
 
+from alembic import command  # noqa: E402
 from app.config import PROJECT_ROOT  # noqa: E402
 
 TEST_API_KEY = os.environ["API_KEY"]
@@ -51,6 +59,16 @@ _migrate()
 def auth_headers() -> dict:
     """Headers authorizing a write request."""
     return dict(AUTH_HEADERS)
+
+
+@pytest.fixture(autouse=True)
+def _submission_mode_starts_safe():
+    """Every test starts like a fresh process: SAFE / DRY RUN, nothing live."""
+    from app.execution import submission_mode
+
+    submission_mode.reset()
+    yield
+    submission_mode.reset()
 
 
 @pytest.fixture(autouse=True)

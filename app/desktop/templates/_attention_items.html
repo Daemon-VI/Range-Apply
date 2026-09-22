@@ -1,0 +1,72 @@
+{% if items %}
+{% for g in attention_groups %}{% if g['items'] %}
+<section class="inbox-group" id="bucket-{{ g.key }}" aria-labelledby="bucket-title-{{ g.key }}">
+    <h2 id="bucket-title-{{ g.key }}">{{ g.label }} <span class="badge badge-{{ 'red' if g.key in ['failed'] else ('purple' if g.key == 'uncertain' else 'orange') }}">{{ g['items']|length }}</span> <span class="small muted" style="font-weight:400">{{ g.help }}</span></h2>
+    {% for it in g['items'] %}
+    <article class="task attention-item {{ it.severity }}{% if it.status == 'UNCERTAIN' %} tone-uncertain{% endif %}" aria-labelledby="task-{{ g.key }}-{{ loop.index }}">
+        <div class="task-head">
+            <div>
+                <h3 class="task-title" id="task-{{ g.key }}-{{ loop.index }}">{% if it.opp %}{{ it.opp.title }} <span class="company">at {{ it.opp.company }}</span>{% else %}{{ it.kind|humanize }}{% endif %}</h3>
+                <div class="row mt-2">
+                    <span class="badge badge-{{ 'red' if it.severity == 'red' else 'orange' }}">{{ it.reason|replace('_', ' ') }}</span>
+                    {% if it.kind == 'attempt' and it.reason != it.status %}<code class="xs">{{ it.reason }}</code>{% endif %}
+                    {% if it.when %}<span class="small muted">updated {{ it.when.strftime('%Y-%m-%d %H:%M') }}</span>{% endif %}
+                    {% if it.kind == 'preparation' %}<span class="small muted">{% if it.attempt %}application {{ it.attempt.status|replace('_', ' ')|lower }}{% else %}no application attempt linked{% endif %}</span>{% endif %}
+                </div>
+            </div>
+            <div class="actions">
+                {% if it.kind == 'attempt' %}
+                    <a class="btn primary sm" href="/desktop/applications/{{ it.attempt.id }}">Review</a>
+                    {% if it.url %}<a class="btn secondary sm" href="{{ it.url }}" target="_blank" rel="noopener">Open in browser</a>{% endif %}
+                    {% if it.status == 'UNCERTAIN' and it.run %}
+                        <button class="secondary sm" data-action data-method="POST" data-url="/api/v1/execution/runs/{{ it.run.id }}/confirm" data-body='{"submitted": true, "note": "confirmed from the attention center"}' data-confirm="Confirm that this application WAS submitted?" data-done="Submission confirmed">It was submitted</button>
+                        <button class="secondary sm" data-action data-method="POST" data-url="/api/v1/execution/runs/{{ it.run.id }}/confirm" data-body='{"submitted": false, "note": "rejected from the attention center"}' data-confirm="Confirm that this application was NOT submitted?" data-done="Marked as not submitted">Not submitted</button>
+                    {% endif %}
+                    {% if it.status in ['FAILED', 'BLOCKED', 'NEEDS_REVIEW'] %}<button class="secondary sm" data-action data-method="POST" data-url="/api/v1/execution/attempts/{{ it.attempt.id }}/retry" data-body='{"reason": "retried from the attention center"}' data-done="Retry requested">Retry</button>{% endif %}
+                    <button class="danger sm" data-action data-method="POST" data-url="/api/v1/execution/attempts/{{ it.attempt.id }}/cancel" data-body='{"reason": "cancelled from the attention center"}' data-confirm="Cancel this application attempt?" data-done="Attempt cancelled">Cancel</button>
+                {% elif it.kind == 'preparation' %}
+                    <a class="btn primary sm" href="/dashboard/preparations/{{ it.prep.id }}">Answer in preparation</a>
+                    {% if it.attempt %}<a class="btn secondary sm" href="/desktop/applications/{{ it.attempt.id }}">Application</a>{% endif %}
+                {% elif it.kind == 'signal' %}
+                    <a class="btn primary sm" href="/dashboard/signals/{{ it.signal.id }}">Open signal</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="task-body">
+            <p><span class="label">What happened</span>{{ it.text.what }}</p>
+            <p><span class="label">Why it needs you</span>{{ it.text.why }}</p>
+            <p><span class="label">What you can do</span>{{ it.text.do }}</p>
+        </div>
+        {% if it.kind == 'attempt' and it.fields %}
+        <div class="table-wrap mt-3"><table class="table-compact"><thead><tr><th scope="col">Employer requires</th><th scope="col">Your answer</th></tr></thead><tbody>
+        {% for f in it.fields %}
+        <tr><td><div class="strong">{{ f.label }}{% if f.required %} <span class="muted">(required)</span>{% endif %}</div>{% if f.reason %}<span class="sub">{{ f.reason }}</span>{% endif %}</td>
+            <td>{% if f.field_type == 'unknown' %}<p class="small"><strong>Answer this on the employer page.</strong> CareerOS cannot operate this control; a saved answer would not be filled in. Choose it yourself during a supervised run.</p>{% else %}<form id="att-field-{{ f.id }}" onsubmit="return false" class="answer-form"><label class="sr-only" for="att-field-input-{{ f.id }}">Your answer to: {{ f.label }}</label><input id="att-field-input-{{ f.id }}" name="answer" placeholder="Truthful answer" autocomplete="off"><label class="check"><input type="checkbox" name="save_to_bank"> Save to answer bank</label><button class="primary sm" data-action data-method="PUT" data-url="/api/v1/execution/fields/{{ f.id }}/answer" data-form="att-field-{{ f.id }}" data-done="Answer saved">Save answer</button></form>{% endif %}</td></tr>
+        {% endfor %}</tbody></table></div>
+        {% endif %}
+        {% if it.kind == 'preparation' and it.pending %}
+        <ul class="small mt-3">{% for a in it.pending %}<li>{{ a.question }} <span class="badge badge-orange">NEEDS USER INPUT</span></li>{% endfor %}</ul>
+        {% endif %}
+    </article>
+    {% endfor %}
+</section>
+{% endif %}{% endfor %}
+{% else %}
+<div class="empty">
+    <strong>Nothing needs you right now.</strong>
+    Blocked runs, failures, uncertain outcomes and open questions appear here as tasks.
+    <div class="actions"><a class="btn secondary" href="/desktop/">Back to Home</a></div>
+</div>
+{% endif %}
+{% if stale %}
+<details class="panel mt-6">
+    <summary>{{ stale|length }} stale package(s) with open questions — their applications were cancelled, closed or rejected (not counted above)</summary>
+    <ul class="why-list mt-2">
+        {% for it in stale %}
+        <li><span class="why-tag"><span class="badge badge-muted">{{ it.attempt.status|replace('_', ' ') if it.attempt else 'NO APPLICATION' }}</span></span>
+            <span class="spacer">{% if it.opp %}{{ it.opp.title }} <span class="muted">at {{ it.opp.company }}</span>{% endif %}<span class="cell-sub">{{ it.pending|length }} open question(s). Answers you give are reused if the role comes back.</span></span>
+            <a class="btn subtle sm" href="/dashboard/preparations/{{ it.prep.id }}">Open preparation</a></li>
+        {% endfor %}
+    </ul>
+</details>
+{% endif %}

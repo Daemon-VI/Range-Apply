@@ -1,0 +1,249 @@
+{% extends "desktop_base.html" %}
+{% block title %}CareerOS — Review {{ opp.title if opp else '' }}{% endblock %}
+{% macro value_cell(r) %}{% if r.masked %}<span class="masked-value"><span data-masked>{{ r.display }}</span><span data-full hidden>{{ r.value }}</span><button type="button" class="reveal" data-reveal aria-expanded="false">Show</button></span>{% else %}{{ r.display }}{% endif %}{% endmacro %}
+{% block content %}
+<div class="breadcrumb"><a href="{% if attempt %}/desktop/applications{% else %}/desktop/opportunities{% endif %}">{% if attempt %}Applications{% else %}Opportunities{% endif %}</a> / {{ opp.company if opp else 'Opportunity' }}</div>
+<div class="page-head">
+    <div>
+        <div class="eyebrow">{% if attempt %}Application review{% else %}Opportunity{% endif %}</div>
+        <h1>{{ opp.title if opp else 'Opportunity' }}</h1>
+        <div class="meta">
+            <span class="strong">{{ opp.company if opp else '' }}</span>
+            <span aria-hidden="true">·</span><span>{{ (job.location if job and job.location else (opp.location_bucket if opp else '')) or 'Location not stated' }}</span>
+            {% if job %}<span aria-hidden="true">·</span><span class="tag">{{ job.source }}</span>{% endif %}
+            {% if url %}<span aria-hidden="true">·</span><a href="{{ url }}" target="_blank" rel="noopener">Open in browser</a>{% endif %}
+        </div>
+    </div>
+    <div class="actions">
+        {% if attempt %}<span class="badge badge-{{ badge.get(attempt.status, 'muted') }}">{{ attempt.status|replace('_', ' ') }}</span>{% endif %}
+        {% if attempt %}<a class="btn subtle sm" href="/dashboard/execution/attempts/{{ attempt.id }}">Inspect execution</a>
+        <a class="btn subtle sm" href="/api/v1/career/audit?entity_id={{ attempt.id }}" target="_blank" rel="noopener">Inspect audit</a>{% endif %}
+    </div>
+</div>
+
+{% if needs_input %}
+<div class="note" role="alert"><strong>NEEDS USER INPUT.</strong> {{ missing_answers|length + missing_fields|length }} required answer(s){% if missing_documents %} and {{ missing_documents|length }} document(s){% endif %} are missing. CareerOS does not fill them for you; <a href="#questions">answer below</a>{% if prep %} or in the <a href="/dashboard/preparations/{{ prep.id }}">preparation page</a>{% endif %}. Only truthful answers: nothing you leave empty is guessed.</div>
+{% endif %}
+{% if handoff %}
+<div class="note"><strong>{{ attempt.blocked_reason }}.</strong> {{ handoff.what }} {{ handoff.why }} <em>{{ handoff.do }}</em></div>
+{% endif %}
+{% if active_run %}
+<div class="note info" role="status"><strong>A run is in progress</strong> ({{ active_run.mode }}, started {{ active_run.started_at.strftime('%H:%M:%S') if active_run.started_at else '—' }}). <a href="/desktop/applications/{{ attempt.id }}/run/{{ active_run.id }}">Open the run page</a> — the visible browser window belongs to it.</div>
+{% endif %}
+
+<div class="layout-main-side">
+<div>
+    <section class="card mb-4" aria-labelledby="preflight-title">
+        <div class="card-head">
+            <h2 id="preflight-title">Pre-flight checklist</h2>
+            <p>Derived from stored state only. “Not yet” means CareerOS has no evidence either way.</p>
+        </div>
+        <ul class="checklist">
+            {% for c in checks %}
+            <li>
+                <span class="check-icon {{ c.state }}" aria-hidden="true">{% if c.state == 'pass' %}&#10003;{% elif c.state == 'fail' %}&#10005;{% elif c.state == 'warn' %}!{% else %}&ndash;{% endif %}</span>
+                <span class="check-text"><span class="check-name">{{ c.name }}</span><span class="check-state {{ c.state }}">{{ c.label }}</span><span class="check-detail">{{ c.detail }}</span></span>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section class="card mb-4 tone-info" aria-labelledby="next-title">
+        <div class="card-head"><h2 id="next-title">Next step</h2></div>
+        <p class="note ok small">{% if execution_mode.dry_run %}<strong>SAFE / DRY RUN.</strong>{% else %}<strong>LIVE MODE.</strong>{% endif %} Real submission happens only from the confirmation screen, one application at a time, in a visible browser.</p>
+        {% if active_run %}
+        <div class="actions"><a class="btn primary lg" href="/desktop/applications/{{ attempt.id }}/run/{{ active_run.id }}">Open the run in progress</a></div>
+        {% elif can_run %}
+        <div class="step">
+            <span class="step-num" aria-hidden="true">1</span>
+            <div class="stack-sm">
+                <h3>Run a dry run</h3>
+                <p class="small muted">Opens the employer's page in a visible browser, maps and fills the form, and stops. The submit control is never pressed.</p>
+                <div class="actions"><a class="btn primary lg" href="/desktop/applications/{{ attempt.id }}/confirm?mode=dry_run">Run dry run</a></div>
+            </div>
+        </div>
+        <div class="step danger">
+            <span class="step-num" aria-hidden="true">2</span>
+            <div class="stack-sm">
+                <h3>Submit for real — a separate, confirmed step</h3>
+                {% if execution_mode.live_enabled %}
+                <p class="small muted">LIVE SUBMISSION ENABLED. Opens the confirmation screen. Nothing starts until you type SUBMIT there.</p>
+                {% else %}
+                <p class="small muted">Switched off: CareerOS is in SAFE / DRY RUN, and the server refuses a real submission. Use <strong>Enable live submission</strong> at the top first.</p>
+                {% endif %}
+                <div class="actions"><a class="btn danger" href="/desktop/applications/{{ attempt.id }}/confirm?mode=live">Submit for real</a></div>
+            </div>
+        </div>
+        {% elif needs_input %}
+        <div class="actions"><a class="btn primary lg" href="#questions">Answer the open questions</a></div>
+        {% elif not attempt %}
+        <p class="small muted">No application exists for this opportunity yet. The scheduler creates one when the opportunity is admitted and prepared.</p>
+        {% else %}
+        <p class="small muted">Nothing can be run while this application is {{ attempt.status|replace('_', ' ')|lower }}.</p>
+        {% endif %}
+        {% if attempt and (attempt.status in ['FAILED', 'BLOCKED', 'NEEDS_REVIEW'] or attempt.status not in ['CANCELLED', 'VERIFIED', 'SUBMITTED', 'CLOSED', 'REJECTED']) %}
+        <hr>
+        <div class="actions">
+            {% if attempt.status in ['FAILED', 'BLOCKED', 'NEEDS_REVIEW'] %}<button class="secondary" data-action data-method="POST" data-url="/api/v1/execution/attempts/{{ attempt.id }}/retry" data-body='{"reason": "retried from the desktop"}' data-done="Retry requested">Retry</button>{% endif %}
+            <span class="spacer"></span>
+            {% if attempt.status not in ['CANCELLED', 'VERIFIED', 'SUBMITTED', 'CLOSED', 'REJECTED'] %}<button class="danger" data-action data-method="POST" data-url="/api/v1/execution/attempts/{{ attempt.id }}/cancel" data-body='{"reason": "cancelled from the desktop"}' data-confirm="Cancel this application attempt?" data-done="Attempt cancelled" data-next="/desktop/applications">Cancel application</button>{% endif %}
+        </div>
+        {% endif %}
+    </section>
+
+    <section class="card mb-4" id="questions" aria-labelledby="answers-title">
+        <div class="card-head">
+            <h2 id="answers-title">Prepared answers</h2>
+            <p>{% if missing_answers %}{{ missing_answers|length }} still need you.{% elif answers %}All answered.{% endif %}</p>
+        </div>
+        {% if answers %}
+        <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Question</th><th scope="col">Answer</th><th scope="col">Status</th><th scope="col">Evidence</th></tr></thead><tbody>
+        {% for a in answers %}
+        <tr{% if a.status != 'ANSWERED' %} class="row-uncertain"{% endif %}>
+            <td><div class="strong">{{ a.question }}</div>{% if a.required %}<span class="sub">Required</span>{% endif %}</td>
+            <td>{% if a.status == 'ANSWERED' %}{{ a.answer }}{% else %}<em class="muted">no answer yet</em>
+                {% if prep %}<form id="prep-answer-{{ a.id }}" onsubmit="return false" class="answer-form">
+                    <label class="sr-only" for="prep-answer-input-{{ a.id }}">Your answer to: {{ a.question }}</label>
+                    <input id="prep-answer-input-{{ a.id }}" name="answer" placeholder="Your truthful answer" autocomplete="off">
+                    {% if a.category in employer_specific %}<span class="hint">Employer-specific: used for this application only, never reused for another employer.</span>
+                    {% else %}<label class="check"><input type="checkbox" name="save_to_bank"> Save to answer bank (reused for this question in future applications)</label>{% endif %}
+                    <button class="primary sm" data-action data-method="PUT" data-url="/api/v1/preparations/{{ prep.id }}/answers/{{ a.id }}" data-form="prep-answer-{{ a.id }}" data-done="Answer saved">Save answer</button>
+                </form>
+                <span class="sub">Used for: {% if opp %}{{ opp.company }} — {{ opp.title }}{% else %}this application{% endif %}. {% if a.reason %}Why it is asked of you: {{ a.reason }}.{% endif %}</span>{% endif %}
+            {% endif %}</td>
+            <td><span class="badge {% if a.status == 'ANSWERED' %}badge-green{% else %}badge-orange{% endif %}">{% if a.status == 'ANSWERED' %}ANSWERED{% else %}NEEDS USER INPUT{% endif %}</span><span class="sub">{{ a.source|humanize }}{% if a.reason and a.status == 'ANSWERED' %} · {{ a.reason }}{% endif %}</span></td>
+            <td class="small">{% for key in a.evidence_keys %}<div><code>{{ key }}</code> <span class="badge badge-{{ grade_badge.get(grades.get(key, 'UNVERIFIED'), 'orange') }}">{{ grades.get(key, 'UNVERIFIED') }}</span></div>{% else %}<span class="muted">—</span>{% endfor %}</td>
+        </tr>
+        {% endfor %}</tbody></table></div>
+        {% else %}<div class="empty compact"><strong>No screening questions were prepared.</strong>Questions the employer's form asks appear under Application form after a dry run.</div>{% endif %}
+    </section>
+
+    <section class="card mb-4" aria-labelledby="form-title">
+        <div class="card-head">
+            <h2 id="form-title">{% if fields %}Discovered form ({{ fields|length }} fields){% else %}Application form{% endif %}</h2>
+            <p>What the latest run found on the employer's page and what it maps to. Email and phone are abbreviated; use Show to check them.</p>
+        </div>
+        {% if fields %}
+        <div class="table-wrap"><table class="table-compact">
+        <thead><tr><th scope="col">Field</th><th scope="col">Value</th><th scope="col">Source</th><th scope="col">Status</th></tr></thead><tbody>
+        {% for r in field_rows %}{% set f = r.field %}
+        <tr class="{% if f.status in ['NEEDS_USER_INPUT', 'NEEDS_REVIEW'] %}row-uncertain{% endif %}">
+            <td><div class="strong">{{ f.label }}</div><span class="sub">{{ f.field_type }}{% if f.required %} · required{% endif %}</span></td>
+            <td>{% if f.status == 'ANSWERED' %}{% if f.artifact_type %}<span class="badge badge-blue">{{ f.artifact_type }}</span>{% else %}{{ value_cell(r) }}{% endif %}{% elif f.status in ['NEEDS_USER_INPUT', 'NEEDS_REVIEW'] and f.field_type == 'unknown' %}
+                <p class="small"><strong>Answer this on the employer page.</strong> CareerOS cannot operate this control; a saved answer would not be filled in. Choose it yourself during a supervised run.</p>
+            {% elif f.status in ['NEEDS_USER_INPUT', 'NEEDS_REVIEW'] %}
+                <form id="field-{{ f.id }}" onsubmit="return false" class="answer-form">
+                    <label class="sr-only" for="field-input-{{ f.id }}">Your answer to: {{ f.label }}</label>
+                    <input id="field-input-{{ f.id }}" name="answer" placeholder="Your truthful answer" autocomplete="off">
+                    <label class="check"><input type="checkbox" name="save_to_bank"> Save to answer bank</label>
+                    <button class="primary sm" data-action data-method="PUT" data-url="/api/v1/execution/fields/{{ f.id }}/answer" data-form="field-{{ f.id }}" data-done="Answer saved">Save answer</button>
+                </form>
+            {% else %}<em class="muted">skipped — nothing will be typed</em>{% endif %}</td>
+            <td class="small">{{ f.source|humanize if f.source and f.source != 'NONE' else '—' }}</td>
+            <td><span class="badge {% if f.status == 'ANSWERED' %}badge-green{% elif f.status == 'SKIPPED' %}badge-muted{% else %}badge-orange{% endif %}">{% if f.status == 'NEEDS_USER_INPUT' %}NEEDS USER INPUT{% else %}{{ f.status|replace('_', ' ') }}{% endif %}</span>{% if f.reason %}<span class="sub">{{ f.reason }}</span>{% endif %}</td>
+        </tr>
+        {% endfor %}</tbody></table></div>
+        {% else %}
+        <div class="empty compact"><strong>No form captured yet.</strong>A dry run opens the employer's page and maps every field here before anything could be submitted.</div>
+        {% endif %}
+    </section>
+
+    <section class="card mb-4" aria-labelledby="what-title">
+        <div class="card-head"><h2 id="what-title">What will be submitted?</h2></div>
+        {% if prep %}
+        <div class="section-title">Documents</div>
+        {% if documents %}
+        <div class="table-wrap"><table class="table-compact"><thead><tr><th scope="col">Document</th><th scope="col">Version</th><th scope="col">Status</th><th scope="col"><span class="sr-only">Open</span></th></tr></thead><tbody>
+        {% for d in documents %}
+        <tr><td class="strong">{{ d.artifact_type|humanize }} <span class="tag">{{ d.format }}</span><span class="sub">SHA-256 <code title="{{ d.content_hash }}">{{ d.content_hash[:12] }}…</code> · {{ d.artifact_type }}</span></td><td>v{{ d.version }}</td><td><span class="badge {% if d.status == 'ACTIVE' %}badge-green{% else %}badge-muted{% endif %}">{{ d.status }}</span> <span class="badge {% if d.validation_status == 'PASSED' %}badge-green{% else %}badge-orange{% endif %}">{{ d.validation_status }}</span></td><td>{% if d.status == 'ACTIVE' %}<a class="btn secondary sm" href="/desktop/documents/{{ d.id }}/file" target="_blank" rel="noopener">Open</a>{% endif %}</td></tr>
+        {% endfor %}</tbody></table></div>
+        {% else %}<p class="small muted">No rendered documents yet{% if artifacts %} ({{ artifacts|length }} prepared artifact(s) exist; they render when execution starts){% endif %}.</p>{% endif %}
+        {% if missing_documents %}<p class="note small mt-2">Missing rendered document(s): {{ missing_documents|join(', ') }}.</p>{% endif %}
+
+        {% if profile_fields %}
+        <div class="section-title">Profile fields sent</div>
+        <dl class="kv">{% for r in profile_fields %}<dt>{{ r.field.label }}</dt><dd>{{ value_cell(r) }}</dd>{% endfor %}</dl>
+        {% endif %}
+
+        <details class="panel">
+            <summary>Package details</summary>
+            <dl class="kv mt-2">
+                <dt>Preparation</dt><dd>v{{ prep.version }} · <span class="badge {% if prep.status == 'READY' %}badge-green{% elif prep.status in ['NEEDS_USER_INPUT', 'NEEDS_REVIEW'] %}badge-orange{% else %}badge-muted{% endif %}">{{ prep.status|replace('_', ' ') }}</span> <span class="badge {% if prep.validation_status == 'PASSED' %}badge-green{% else %}badge-orange{% endif %}">validation {{ prep.validation_status }}</span></dd>
+                <dt>Level / lane</dt><dd>{{ prep.tailoring_level }} · {{ prep.lane }} · cover letter {{ prep.cover_letter_mode|lower }}</dd>
+                <dt>Positioning</dt><dd>{% if variant %}{{ variant.name }} <span class="small muted">({{ variant.role_family }}, v{{ prep.positioning_variant_version }})</span>{% else %}<span class="muted">none</span>{% endif %}</dd>
+                <dt>AI</dt><dd>{% if prep.ai_used %}<span class="badge badge-purple">{{ prep.ai_provider }} ×{{ prep.ai_calls }}</span>{% else %}<span class="badge badge-muted">no AI</span>{% endif %}</dd>
+                <dt>Fingerprint</dt><dd><code>{{ prep.input_fingerprint[:16] }}…</code></dd>
+                <dt>Open</dt><dd><a href="/dashboard/preparations/{{ prep.id }}">Preparation page</a></dd>
+            </dl>
+        </details>
+        {% else %}
+        <div class="empty compact"><strong>Nothing is prepared for this opportunity yet.</strong>The scheduler prepares admitted opportunities in priority order.</div>
+        {% endif %}
+    </section>
+
+    {% if preview %}
+    <section class="card mb-4" aria-labelledby="pre-title">
+        <div class="card-head"><h2 id="pre-title">Pre-submit preconditions</h2><p>Checked again at the gate, immediately before submit.</p></div>
+        {% if preview.preconditions.ok %}<span class="badge badge-green">all preconditions pass</span>{% else %}<ul class="small">{% for f in preview.preconditions.failures %}<li><code>{{ f.code }}</code> {{ f.message }}</li>{% endfor %}</ul>{% endif %}
+        {% if preview.preconditions.stale_inputs %}<p class="small muted mt-2">Stale inputs: {{ preview.preconditions.stale_inputs|join(', ') }}</p>{% endif %}
+        <p class="small muted mt-2">Blocking fields: {{ preview.blocking_fields }} · target {{ preview.package.target.ats_family.value }} · executor hint {{ preview.package.target.executor_hint.value }}</p>
+    </section>
+    {% endif %}
+
+    {% if runs %}
+    <section class="card mb-4" aria-labelledby="history-title">
+        <div class="card-head"><h2 id="history-title">Execution history</h2></div>
+        <div class="table-wrap"><table class="table-compact"><thead><tr><th scope="col">#</th><th scope="col">Status</th><th scope="col">Submit pressed</th><th scope="col">Verification</th><th scope="col">When</th><th scope="col">Detail</th></tr></thead><tbody>
+        {% for r in runs %}
+        <tr><td>{{ r.run_number }}<span class="sub">{{ r.executor_kind }}</span></td><td><span class="badge {% if r.status in ['VERIFIED', 'DRY_RUN'] %}badge-green{% elif r.status in ['UNKNOWN', 'HANDOFF'] %}badge-orange{% elif 'FAILED' in r.status %}badge-red{% else %}badge-blue{% endif %}">{{ r.status|replace('_', ' ') }}</span>{% if r.outcome and r.outcome != r.status %}<span class="sub">{{ r.outcome }}</span>{% endif %}</td><td>{% if r.submit_invoked %}<span class="badge badge-orange">yes</span>{% else %}<span class="badge badge-muted">no</span>{% endif %}</td><td class="small">{{ r.verification_status|replace('_', ' ')|lower }}{% if r.verification_method %} ({{ r.verification_method }}){% endif %}</td><td class="small nowrap">{{ r.finished_at.strftime('%Y-%m-%d %H:%M') if r.finished_at else '—' }}</td><td class="small muted">{% set detail = (r.error_message or (r.handoff.message if r.handoff else '') or '')[:140] %}{% if detail %}{{ detail }}{% elif r.diagnostics and r.diagnostics.get('fields_filled') is not none %}{{ r.diagnostics.get('fields_filled') }} filled, {{ r.diagnostics.get('fields_skipped', 0) }} skipped{% endif %}</td></tr>
+        {% endfor %}</tbody></table></div>
+        {% if attempt and attempt.status == 'UNCERTAIN' and runs %}
+        <div class="note uncertain mt-3"><strong>Outcome unknown.</strong> CareerOS will not resubmit. Tell it what happened:
+            <div class="actions mt-2">
+                <button class="primary" data-action data-method="POST" data-url="/api/v1/execution/runs/{{ runs[0].id }}/confirm" data-body='{"submitted": true, "note": "confirmed from the desktop"}' data-confirm="Confirm that this application WAS submitted to the employer?" data-done="Submission confirmed">It was submitted</button>
+                <button class="secondary" data-action data-method="POST" data-url="/api/v1/execution/runs/{{ runs[0].id }}/confirm" data-body='{"submitted": false, "note": "rejected from the desktop"}' data-confirm="Confirm that this application was NOT submitted?" data-done="Marked as not submitted">It was not submitted</button>
+            </div>
+        </div>
+        {% endif %}
+    </section>
+    {% endif %}
+</div>
+
+<aside aria-label="Why this job and evidence">
+    <section class="card mb-4" aria-labelledby="why-title">
+        <div class="card-head"><h2 id="why-title">Why this job?</h2></div>
+        <ul class="why-list">
+            {% for w in why %}<li><span class="why-tag"><span class="badge badge-{{ w.tone }}">{{ w.tag }}</span></span><span>{{ w.text }}</span></li>{% endfor %}
+        </ul>
+        <details class="panel">
+            <summary>Details and reason codes</summary>
+            <dl class="kv mt-2 small">
+                <dt>Eligibility</dt><dd><span class="badge badge-{{ eligibility_badge.get(co.eligibility_status, 'muted') }}">{{ co.eligibility_status or 'unknown' }}</span>{% if decision %} <span class="muted">ruleset {{ decision.ruleset_version }} · confidence {{ decision.confidence }}</span>{% endif %}</dd>
+                <dt>Reason codes</dt><dd>{% if decision and decision.reason_codes %}{% for r in decision.reason_codes %}<code>{{ r }}</code> {% endfor %}{% else %}<span class="muted">none recorded</span>{% endif %}</dd>
+                <dt>Fit</dt><dd><span class="badge badge-{{ fit_badge.get(co.fit_band, 'muted') }}">{{ co.fit_band or '—' }}</span> score {{ co.fit_score if co.fit_score is not none else '—' }}</dd>
+                <dt>Priority</dt><dd>{{ co.priority_score if co.priority_score is not none else '—' }}{% if priority %} <span class="muted">({{ priority.weights_version }})</span>{% endif %}</dd>
+                {% if priority and priority.components %}<dt>Priority components</dt><dd>{% for k, v in priority.components.items() if k not in ['weights', 'learned'] %}{{ k }} {{ v }}{% if not loop.last %} · {% endif %}{% endfor %}</dd>{% endif %}
+                <dt>Admission</dt><dd>{% if co.policy_admitted %}<span class="badge badge-green">admitted</span>{% elif co.policy_admitted is sameas false %}<span class="badge badge-orange">not admitted</span>{% else %}<span class="badge badge-muted">not evaluated</span>{% endif %} <code>{{ co.policy_reason or '' }}</code></dd>
+                {% if relevance %}<dt>Role relevance</dt><dd>{{ relevance.code }} · {{ relevance.detail }}</dd>{% endif %}
+                {% if geography %}<dt>Geography</dt><dd>{{ geography.tier }} · {{ geography.detail }}</dd>{% endif %}
+                <dt>Policy / gates</dt><dd class="muted">admission policy v{{ co.admission_policy_version or '?' }} · {{ co.gate_ruleset_version or '?' }}{% if co.scheduler_code %} · scheduler {{ co.scheduler_code }}{% if co.scheduler_reason %}: {{ co.scheduler_reason }}{% endif %}{% endif %}</dd>
+                <dt>State</dt><dd><span class="badge badge-muted">{{ co.state }}</span></dd>
+            </dl>
+        </details>
+    </section>
+
+    <section class="card mb-4" aria-labelledby="evidence-title">
+        <div class="card-head"><h2 id="evidence-title">Relevant evidence</h2></div>
+        {% if evidence %}
+        <ul class="why-list">
+        {% for e in evidence %}
+            <li><span class="why-tag"><span class="badge badge-{{ grade_badge.get(e.grade, 'orange') }}">{{ e.grade }}</span></span><span><span class="strong">{{ e.label }}</span><span class="cell-sub"><code>{{ e.key }}</code>{% if e.kind %} · {{ e.kind|humanize }}{% endif %}{% if not e.resolved %} · not found{% endif %}</span></span></li>
+        {% endfor %}
+        </ul>
+        <p class="small muted mt-3">CONFIRMED = verified fact; APPROXIMATE = inferred; UNVERIFIED and NEEDS_REVIEW are never presented to an employer as confirmed; REMOVED is no longer used.</p>
+        {% else %}<div class="empty compact">No preparation yet, so no evidence is attached.</div>{% endif %}
+    </section>
+</aside>
+</div>
+{% endblock %}

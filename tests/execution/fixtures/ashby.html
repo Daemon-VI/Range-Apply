@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Platform Engineer - Gamma (Ashby-like, standard controls)</title></head>
+<body>
+<div class="ashby-application-form">
+  <form novalidate>
+    <div class="ashby-application-form-field-entry"><label for="_systemfield_name">Name <span aria-hidden="true">*</span></label><input id="_systemfield_name" name="_systemfield_name" type="text" aria-required="true"></div>
+    <div class="ashby-application-form-field-entry"><label for="_systemfield_email">Email <span aria-hidden="true">*</span></label><input id="_systemfield_email" name="_systemfield_email" type="email" aria-required="true"></div>
+    <div class="ashby-application-form-field-entry"><label for="_systemfield_resume">Resume <span aria-hidden="true">*</span></label><input id="_systemfield_resume" name="_systemfield_resume" type="file" aria-required="true"></div>
+    <div class="ashby-application-form-field-entry"><label for="q1">Tell us about yourself. <span aria-hidden="true">*</span></label><textarea id="q1" name="q1" aria-required="true"></textarea></div>
+    <button type="submit">Submit Application</button>
+  </form>
+</div>
+<script src="_shared.js"></script>
+<script>
+  document.querySelector('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const missing = window.fixture.missingRequired(this);
+    if (missing.length) { window.fixture.reject('Missing: ' + missing.join(', ')); return; }
+    location.href = 'confirmation.html?submitted=true&ref=AS-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+  });
+</script>
+</body>
+</html>

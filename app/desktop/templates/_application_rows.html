@@ -1,0 +1,61 @@
+{% macro row_actions(it) %}{% set a = it.attempt %}
+<div class="actions">
+    {% if it.group == 'NEEDS_INPUT' %}<a class="btn primary sm" href="/desktop/applications/{{ a.id }}#questions">Answer</a>
+    {% elif it.group in ['READY', 'ATTENTION'] %}<a class="btn primary sm" href="/desktop/applications/{{ a.id }}">Review</a>
+    {% else %}<a class="btn secondary sm" href="/desktop/applications/{{ a.id }}">Review</a>{% endif %}
+    {% if it.can_dry_run %}<a class="btn secondary sm" href="/desktop/applications/{{ a.id }}/confirm?mode=dry_run">Dry run</a>{% endif %}
+    {% if it.can_dry_run and it.dry_run_done %}<a class="btn danger sm" href="/desktop/applications/{{ a.id }}/confirm?mode=live" title="Opens the confirmation screen; you type SUBMIT there">Submit…</a>{% endif %}
+    {% if it.can_retry %}<button class="secondary sm" data-action data-method="POST" data-url="/api/v1/execution/attempts/{{ a.id }}/retry" data-body='{"reason": "retried from the desktop"}' data-done="Retry requested">Retry</button>{% endif %}
+    {% if it.can_cancel %}<button class="danger sm" data-action data-method="POST" data-url="/api/v1/execution/attempts/{{ a.id }}/cancel" data-body='{"reason": "cancelled from the desktop"}' data-confirm="Cancel this application attempt? It releases its slot and the queue item." data-done="Attempt cancelled">Cancel</button>{% endif %}
+</div>
+{% endmacro %}
+{% macro table(items) %}
+<div class="card flush"><div class="table-wrap">
+<table>
+    <thead><tr><th scope="col">Company</th><th scope="col">Role</th><th scope="col">Location</th><th scope="col">Status</th><th scope="col">What CareerOS needs</th><th scope="col">Next action</th></tr></thead>
+    <tbody>
+    {% for it in items %}{% set a = it.attempt %}
+    <tr>
+        <td class="strong">{{ it.opp.company if it.opp else '—' }}</td>
+        <td><a href="/desktop/applications/{{ a.id }}">{{ it.opp.title if it.opp else a.id[:8] }}</a><span class="sub">{% if it.co and it.co.fit_band %}{{ it.co.fit_band|humanize }} fit · {% endif %}updated {{ a.updated_at.strftime('%Y-%m-%d %H:%M') if a.updated_at else '—' }}</span></td>
+        <td class="small">{{ it.location or '—' }}</td>
+        <td><span class="badge badge-{{ it.badge }}">{{ a.status|replace('_', ' ') }}</span>{% if it.prep and it.prep.status != a.status %}<span class="sub">package {{ it.prep.status|replace('_', ' ')|lower }}</span>{% endif %}{% if a.blocked_reason %}<span class="sub"><code>{{ a.blocked_reason }}</code></span>{% endif %}</td>
+        <td class="small">{{ it.needs }}</td>
+        <td>{{ row_actions(it) }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div></div>
+{% endmacro %}
+{% if items %}
+{% for s in sections %}
+<section class="app-group" aria-labelledby="group-{{ s.key }}">
+    {% if s.collapsed %}<details class="group-collapsed"><summary>{% endif %}
+    <div class="group-head">
+        <h2 id="group-{{ s.key }}">{{ s.label }}</h2>
+        <span class="badge badge-{{ group_badge.get(s.key, 'muted') }}">{{ s.total }}</span>
+        {% if s.help %}<p>{{ s.help }}</p>{% endif %}
+        {% if not group and s.total > s['items']|length %}<a class="small" href="/desktop/applications?group={{ s.key }}">Show all {{ s.total }}</a>{% endif %}
+    </div>
+    {% if s.collapsed %}</summary>{% endif %}
+    {{ table(s['items']) }}
+    {% if s.collapsed %}</details>{% endif %}
+</section>
+{% endfor %}
+{% if paging and paging.pages > 1 %}
+<div class="pager card">
+    <span>Page {{ paging.page }} of {{ paging.pages }} · {{ total }} application(s)</span>
+    <span class="actions">
+        {% if paging.prev %}<a class="btn secondary sm" href="/desktop/applications?{{ paging.prev }}">&larr; Previous</a>{% endif %}
+        {% if paging.next %}<a class="btn secondary sm" href="/desktop/applications?{{ paging.next }}">Next &rarr;</a>{% endif %}
+    </span>
+</div>
+{% endif %}
+{% else %}
+<div class="empty">
+    <strong>No applications{% if group %} in {{ group_meta[group].label if group in group_meta else group }}{% endif %}.</strong>
+    {% if group %}Nothing is in this group right now.{% else %}Run the scheduler to admit and prepare opportunities.{% endif %}
+    <div class="actions"><a class="btn secondary" href="/desktop/opportunities">Browse opportunities</a></div>
+</div>
+{% endif %}

@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "CareerOS Apply",
+  "version": "0.1.0",
+  "description": "Fills job applications from your local CareerOS execution queue. Truthful, prepared answers only; every submit is gated by the local server; CAPTCHAs, logins and MFA are always handed to you.",
+  "minimum_chrome_version": "116",
+  "permissions": ["storage", "activeTab", "scripting", "tabs", "alarms"],
+  "host_permissions": ["http://127.0.0.1/*", "http://localhost/*"],
+  "optional_host_permissions": ["https://*/*", "http://*/*"],
+  "background": {"service_worker": "src/background.js"},
+  "action": {
+    "default_title": "CareerOS Apply",
+    "default_popup": "src/popup.html"
+  },
+  "options_ui": {"page": "src/options.html", "open_in_tab": false},
+  "content_security_policy": {"extension_pages": "script-src 'self'; object-src 'self'"}
+}

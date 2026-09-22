@@ -16,6 +16,7 @@ recalculating is always safe.
 
 import logging
 import time
+from datetime import timedelta
 from typing import Iterable, List, Optional, Sequence
 
 from sqlalchemy.exc import SQLAlchemyError
@@ -116,6 +117,7 @@ def run_matching(
     trigger: str = "manual",
     include_closed: bool = False,
     limit: Optional[int] = None,
+    tenant_id: Optional[str] = None,
 ) -> MatchRunRow:
     """Score jobs from the database and persist the results.
 
@@ -126,6 +128,8 @@ def run_matching(
         trigger: Provenance label ("manual", "scheduled", "JOB_DISCOVERY", ...).
         include_closed: Score jobs that have been closed at their source.
         limit: Cap the number of jobs scored in this run.
+        tenant_id: The tenant whose Career Brain the orchestrator was built
+            for; recorded on the run row (never defaulted).
 
     Returns:
         The finished :class:`MatchRunRow`.
@@ -141,6 +145,7 @@ def run_matching(
         trigger=trigger,
         status="RUNNING",
         errors=[],
+        tenant_id=tenant_id,
     )
     db.add(run)
     db.commit()
@@ -222,6 +227,35 @@ def run_matching(
         failed,
     )
     return run
+
+
+#: A match run still RUNNING after this long belongs to a process that stopped.
+STALE_MATCH_RUN_MINUTES = 60
+
+
+def match_run_is_stale(run: MatchRunRow, now=None, minutes: Optional[int] = None) -> bool:
+    if (run.status or "").upper() != "RUNNING" or run.started_at is None:
+        return False
+    limit = timedelta(minutes=minutes if minutes is not None else STALE_MATCH_RUN_MINUTES)
+    return ((now or db_now()) - run.started_at) > limit
+
+
+def reconcile_stale_match_runs(db: Session, minutes: Optional[int] = None) -> int:
+    """Mark match runs a dead process left RUNNING as FAILED (interrupted). Returns the count.
+
+    A restart while "Re-run matching" was working (2026-09-14) left a RUNNING row
+    forever. Only the status changes: its scores, if any, were never the latest
+    run (``latest_run`` reads COMPLETED / PARTIAL only).
+    """
+    now = db_now()
+    stale = [run for run in db.query(MatchRunRow).filter(MatchRunRow.status == "RUNNING").all() if match_run_is_stale(run, now, minutes)]
+    for run in stale:
+        run.status = "FAILED"
+        run.completed_at = now
+        run.errors = list(run.errors or []) + ["interrupted: the process stopped before the run finished"]
+    if stale:
+        db.commit()
+    return len(stale)
 
 
 def latest_run(db: Session) -> Optional[MatchRunRow]:

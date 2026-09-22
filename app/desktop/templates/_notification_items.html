@@ -1,0 +1,22 @@
+{% if items %}
+{% for it in items %}
+<article class="task notification-item {{ badge.get(it.notification.kind, 'muted') }}{% if not it.seen %} unseen{% endif %}">
+    <div class="task-head">
+        <div>
+            <h3 class="task-title">{{ it.notification.title }}{% if not it.seen %} <span class="badge badge-blue">new</span>{% endif %}</h3>
+            <p class="mt-2">{{ it.notification.body }}</p>
+            <div class="row mt-2">
+                <span class="badge badge-{{ badge.get(it.notification.kind, 'muted') }}">{{ it.notification.reason or it.notification.kind }}</span>
+                <span class="small muted">{{ it.ago }} · {{ it.when }}</span>
+                {% if it.notification.importance == 'high' %}<span class="badge badge-orange">high</span>{% endif %}
+            </div>
+        </div>
+        <div class="actions">
+            <a class="btn secondary sm" href="{{ it.notification.path }}">Open</a>
+        </div>
+    </div>
+</article>
+{% endfor %}
+{% else %}
+<div class="empty"><strong>Nothing has been announced yet.</strong>When something happens — an application becomes ready, an attempt is blocked, a submission is verified, a signal arrives — CareerOS shows a native Windows toast (on Windows, when <code>winotify</code> is installed) and lists it here. Everything is listed here either way, so nothing is missed when toasts are unavailable.</div>
+{% endif %}

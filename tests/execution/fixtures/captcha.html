@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Apply - Epsilon</title></head>
+<body>
+  <h1>Apply</h1>
+  <form novalidate>
+    <p><label>Email *<input type="email" name="email" required></label></p>
+    <div class="g-recaptcha" data-sitekey="fixture-site-key"><iframe title="reCAPTCHA" src="about:blank#recaptcha" width="300" height="78"></iframe><textarea name="g-recaptcha-response" style="display:none"></textarea></div>
+    <p>Please verify that you are human before submitting.</p>
+    <button type="submit">Submit</button>
+  </form>
+  <script src="_shared.js"></script>
+  <script>
+    // "?solved=1" stands for the person having completed the widget: the
+    // provider writes its response token into the hidden textarea.
+    if (window.fixture.param('solved') === '1') document.querySelector('[name="g-recaptcha-response"]').value = 'fixture-token-' + Date.now();
+    document.querySelector('form').addEventListener('submit', function (e) { e.preventDefault(); window.fixture.confirm('CAP-' + Date.now()); });
+  </script>
+</body>
+</html>

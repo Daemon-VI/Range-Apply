@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Scheduler — CareerOS{% endblock %}
+{% block content %}
+{% if notice %}
+<div class="card" style="margin-bottom: 16px;">
+    {% if notice.startswith('error:') %}<strong>Not run:</strong> {{ notice.split(':', 2)[2] }}{% elif notice.startswith('run:') %}<span class="badge badge-green">run {{ notice.split(':')[1] }}</span> {{ notice.split(':')[2] }} admitted{% else %}<span class="badge badge-green">{{ notice }}</span>{% endif %}
+</div>
+{% endif %}
+
+<div class="grid">
+    <div class="card"><div class="stat-label">Today ({{ capacity.day.key }})</div><div class="stat-value">{{ capacity.day.used }} / {{ capacity.day.cap }}</div><div style="color: var(--text-muted); font-size: 12px;">{{ capacity.day.remaining }} remaining · {{ capacity.timezone }}</div></div>
+    <div class="card"><div class="stat-label">This week ({{ capacity.week.key }})</div><div class="stat-value">{{ capacity.week.used }} / {{ capacity.week.cap }}</div><div style="color: var(--text-muted); font-size: 12px;">{{ capacity.week.remaining }} remaining</div></div>
+    <div class="card"><div class="stat-label">Ready for execution</div><div class="stat-value">{{ capacity.ready_for_execution }}</div><div style="color: var(--text-muted); font-size: 12px;">READY packages awaiting a submission lane</div></div>
+    <div class="card"><div class="stat-label">Cool-downs active</div><div class="stat-value">{{ capacity.cooldowns_active }}</div><div style="color: var(--text-muted); font-size: 12px;">{{ capacity.cooldown_days }} days per company · {{ capacity.blocked_companies|length }} blocked</div></div>
+</div>
+
+{% if capacity.paused %}<div class="card" style="margin-bottom: 16px;"><span class="badge badge-orange">paused</span> A cap is set to 0: nothing is admitted until you raise it on the <a href="/dashboard/policy">policy page</a>.</div>{% endif %}
+
+<div class="card" style="margin-bottom: 20px;">
+    <h3>Next run (preview, policy v{{ preview.policy_version }})</h3>
+    <p style="color: var(--text-muted); font-size: 13px;">{{ preview.considered }} considered · {{ preview.admissible }} admissible · {{ preview.would_admit }} would be admitted now · {{ preview.deferred }} deferred to a later run (window {{ preview.window_size }} — batching, not a cap).</p>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0;">
+        {% for code, n in preview.by_code.items()|sort %}<span class="badge {% if code == 'ADMITTED' %}badge-green{% elif code in ['WINDOW_DEFERRED', 'ALREADY_IN_PROGRESS', 'ALREADY_SUBMITTED'] %}badge-blue{% elif code in ['NEEDS_REVIEW', 'NEEDS_USER_INPUT'] %}badge-purple{% else %}badge-orange{% endif %}">{{ code }} {{ n }}</span>{% endfor %}
+    </div>
+    <form method="POST" action="/dashboard/scheduler/run" style="display: flex; gap: 10px; align-items: center;">
+        <label>Window <input type="number" name="window" value="{{ window }}" min="1" max="5000" style="width: 90px;"></label>
+        <label><input type="checkbox" name="prepare"> also prepare (zero-AI)</label>
+        <button type="submit">Run scheduler now</button>
+    </form>
+</div>
+
+{% if capacity.cooldowns %}
+<div class="card" style="margin-bottom: 20px;">
+    <h3>Company cool-downs</h3>
+    <table><thead><tr><th>Company</th><th>Until</th><th>Started by</th></tr></thead><tbody>
+    {% for c in capacity.cooldowns %}<tr><td>{{ c.company }}</td><td>{{ c.until.strftime('%Y-%m-%d %H:%M') }}</td><td>{{ c.source }}</td></tr>{% endfor %}
+    </tbody></table>
+</div>
+{% endif %}
+
+<div class="card" style="margin-bottom: 20px;">
+    <h3>Decisions in order (first 100)</h3>
+    <table>
+        <thead><tr><th>#</th><th>Opportunity</th><th>Priority</th><th>Fit</th><th>Eligibility</th><th>Decision</th><th>Why</th></tr></thead>
+        <tbody>
+        {% for d in preview.decisions %}
+        <tr>
+            <td>{{ d.order }}</td>
+            <td>{{ d.title }} — {{ d.company }}</td>
+            <td>{{ d.priority_score if d.priority_score is not none else '—' }}</td>
+            <td>{{ d.fit_score if d.fit_score is not none else '—' }} {{ d.fit_band or '' }}</td>
+            <td>{{ d.eligibility or '—' }}</td>
+            <td><span class="badge {% if d.code.value == 'ADMITTED' %}badge-green{% elif d.code.value in ['WINDOW_DEFERRED', 'ALREADY_IN_PROGRESS', 'ALREADY_SUBMITTED'] %}badge-blue{% elif d.code.value in ['NEEDS_REVIEW', 'NEEDS_USER_INPUT'] %}badge-purple{% else %}badge-orange{% endif %}">{{ d.code.value }}</span></td>
+            <td style="color: var(--text-muted); font-size: 12px;">{{ d.reason[:100] }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" style="color: var(--text-muted);">No candidate opportunities yet. Run discovery and a match recalculation first.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <h3>Run history ({{ total_runs }})</h3>
+    <table>
+        <thead><tr><th>Started</th><th>Status</th><th>Trigger</th><th>Considered</th><th>Admitted</th><th>Enqueued</th><th>In progress</th><th>Blocked</th><th>Deferred</th><th>Review / input</th><th>Seconds</th></tr></thead>
+        <tbody>
+        {% for r in runs %}
+        <tr>
+            <td style="white-space: nowrap;"><a href="/dashboard/scheduler/runs/{{ r.id }}">{{ r.started_at.strftime('%Y-%m-%d %H:%M:%S') }}</a></td>
+            <td><span class="badge {% if r.status == 'COMPLETED' %}badge-green{% elif r.status == 'RUNNING' %}badge-blue{% else %}badge-orange{% endif %}">{{ r.status }}</span></td>
+            <td>{{ r.trigger }}</td>
+            <td>{{ r.considered }}</td><td>{{ r.admitted }}</td><td>{{ r.enqueued }}</td><td>{{ r.already_queued }}</td><td>{{ r.blocked }}</td><td>{{ r.deferred }}</td><td>{{ r.needs_review }} / {{ r.needs_user_input }}</td>
+            <td>{{ r.duration_seconds or '' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="11" style="color: var(--text-muted);">No scheduler runs yet.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

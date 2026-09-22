@@ -1,0 +1,18 @@
+{% extends "desktop_base.html" %}
+{% block title %}CareerOS — Notifications{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <div class="eyebrow">System</div>
+        <h1>Notifications</h1>
+        <p>{{ items|length }} recent · {{ notification_count }} unseen. What CareerOS told you about since this app started. Reading this page never starts, retries or changes anything — every button that does lives on the application itself.</p>
+    </div>
+    <div class="actions">
+        <button class="secondary" data-action data-method="POST" data-url="/desktop/api/notifications/seen" data-body='{}' data-done="Marked as seen">Mark all as seen</button>
+    </div>
+</div>
+<div id="notification-items" hx-get="/desktop/partials/notifications" hx-trigger="every 30s, careeros:refresh from:body" hx-swap="innerHTML" aria-live="polite">
+    {% include "_notification_items.html" %}
+</div>
+<p class="small muted mt-4">Native toasts: {% if native.available %}<span class="badge badge-green">{{ native.name }}</span> — Windows shows them outside this window{% else %}<span class="badge badge-muted">in-app only</span> — install <code>winotify</code> on Windows for toasts outside this window{% endif %}. This list is kept in memory for the life of the app; the applications themselves are the record.</p>
+{% endblock %}

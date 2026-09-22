@@ -4,18 +4,26 @@
 <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
         <h2 style="font-size: 18px;">Discovery Runs History</h2>
+        <a href="/dashboard/sources">Source health →</a>
     </div>
+    <div style="overflow-x: auto;">
     <table>
         <thead>
             <tr>
                 <th>Source</th>
-                <th>Board / Identifier</th>
+                <th>Board</th>
                 <th>Started</th>
-                <th>Discovered</th>
+                <th>Fetched</th>
                 <th>New</th>
                 <th>Updated</th>
-                <th>Duplicates</th>
+                <th>Unchanged</th>
+                <th>Dup</th>
+                <th>Repost</th>
+                <th>Opp new / linked</th>
+                <th>Rejected</th>
                 <th>Failed</th>
+                <th>Requests</th>
+                <th>AI calls / hits</th>
                 <th>Status</th>
                 <th>Duration</th>
             </tr>
@@ -24,26 +32,33 @@
             {% for run in runs %}
             <tr>
                 <td><span class="badge badge-blue">{{ run.source }}</span></td>
-                <td><strong>{{ run.source_identifier }}</strong></td>
-                <td>{{ run.started_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                <td><strong>{{ run.source_identifier }}</strong>{% if run.resumed_from_run_id %} <span class="badge badge-purple">resumed</span>{% endif %}</td>
+                <td style="white-space: nowrap;">{{ run.started_at.strftime('%Y-%m-%d %H:%M') }}</td>
                 <td>{{ run.candidates_discovered }}</td>
                 <td style="color: var(--accent-green); font-weight: 600;">+{{ run.jobs_new }}</td>
                 <td>{{ run.jobs_updated }}</td>
+                <td>{{ run.jobs_unchanged or 0 }}</td>
                 <td>{{ run.jobs_duplicate }}</td>
+                <td>{{ run.jobs_reposted or 0 }}</td>
+                <td>{{ run.opportunities_new or 0 }} / {{ run.opportunities_linked or 0 }}</td>
+                <td>{{ run.jobs_rejected or 0 }}</td>
                 <td>{{ run.jobs_failed }}</td>
+                <td>{{ run.network_requests or 0 }}{% if run.rate_limit_hits %} <span class="badge badge-orange">429×{{ run.rate_limit_hits }}</span>{% endif %}</td>
+                <td>{{ run.ai_calls or 0 }} / {{ run.ai_cache_hits or 0 }}</td>
                 <td>
                     {% if run.status == 'completed' %}
                         <span class="badge badge-green">completed</span>
                     {% else %}
-                        <span class="badge badge-orange">{{ run.status }}</span>
+                        <span class="badge badge-orange" title="{{ run.failure_kind or '' }}">{{ run.status }}{% if run.failure_kind %}: {{ run.failure_kind }}{% endif %}</span>
                     {% endif %}
                 </td>
                 <td>{{ run.duration_seconds }}s</td>
             </tr>
             {% else %}
-            <tr><td colspan="10" style="text-align: center; color: var(--text-muted);">No runs recorded yet.</td></tr>
+            <tr><td colspan="16" style="text-align: center; color: var(--text-muted);">No runs recorded yet.</td></tr>
             {% endfor %}
         </tbody>
     </table>
+    </div>
 </div>
 {% endblock %}

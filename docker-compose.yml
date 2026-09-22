@@ -1,0 +1,33 @@
+# Local PostgreSQL for development and for running the test suite against the
+# same engine production uses. Free: Docker Desktop / Podman + a public image.
+#
+#   docker compose up -d
+#   $env:DATABASE_URL = "postgresql://careeros:careeros@localhost:5432/careeros"   # PowerShell
+#   alembic upgrade head
+#   pytest -q
+#
+# The pgvector image is a stock Postgres 16 with the `vector` extension
+# available (CREATE EXTENSION is done by a migration only if/when embeddings
+# are enabled). Supabase's free tier ships the same extension, so local and
+# hosted behave identically. SQLite remains the zero-install default.
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: careeros-postgres
+    environment:
+      POSTGRES_USER: careeros
+      POSTGRES_PASSWORD: careeros
+      POSTGRES_DB: careeros
+    ports:
+      - "5432:5432"
+    volumes:
+      - careeros_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U careeros -d careeros"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  careeros_pgdata:

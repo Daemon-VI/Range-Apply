@@ -302,3 +302,113 @@ def test_onsite_job_in_candidates_own_city_is_eligible():
     job = make_job(remote_type=RemoteType.ON_SITE, location="Bengaluru")
     result = evaluate(job, FakeProfile(graduation_year=2027, location="Bengaluru"))
     assert result.status == EligibilityStatus.ELIGIBLE
+
+
+# --------------------------------------------------------------------- #
+# Experience gate and US citizenship (first real dry run, 2026-09-13)
+# --------------------------------------------------------------------- #
+
+from datetime import date  # noqa: E402
+
+from app.jobs.models.enums import ExperienceLevel  # noqa: E402
+
+TODAY = date(2026, 9, 13)
+
+
+@dataclass
+class FakeJobHistory:
+    is_employment: bool
+
+
+class BrainWithHistory(FakeCareerBrain):
+    def __init__(self, profile=None, experience=()):
+        super().__init__(profile)
+        self._experience = list(experience)
+
+    def get_experience(self):
+        return list(self._experience)
+
+
+def evaluate_on(job, profile=None, experience=()):
+    return EligibilityEngine(BrainWithHistory(profile or FakeProfile(graduation_year=2027), experience), today=lambda: TODAY).evaluate_detailed(job)
+
+
+def test_senior_role_is_ineligible_for_a_student_with_no_employment():
+    """Real boards: 'Senior Software Engineer, Product Velocity' was LIKELY_ELIGIBLE for a
+    third-year student, and admission picked it over the company's internships."""
+    result = evaluate_on(make_job(title="Senior Software Engineer, Product Velocity", experience_level=ExperienceLevel.SENIOR))
+    assert result.status is EligibilityStatus.INELIGIBLE
+    assert any("Senior-level role" in r and "graduating 2027" in r for r in result.blocking_reasons)
+
+
+def test_required_years_in_the_qualifications_are_a_hard_gate_for_a_student():
+    job = make_job(title="Software Engineer", qualifications=["4+ years of professional software engineering experience, with strong backend expertise."])
+    result = evaluate_on(job)
+    assert result.status is EligibilityStatus.INELIGIBLE and "4+ years" in result.blocking_reasons[0]
+
+
+def test_years_mentioned_only_in_free_text_stay_uncertain_not_blocked():
+    job = make_job(title="Software Engineer - Reliability", description="Ideally 2+ years of experience with production systems.")
+    result = evaluate_on(job)
+    assert result.status is EligibilityStatus.UNCERTAIN and not result.blocking_reasons
+
+
+def test_one_required_year_or_a_mid_level_role_is_uncertain():
+    assert evaluate_on(make_job(qualifications=["1+ years of experience with Python"])).status is EligibilityStatus.UNCERTAIN
+    assert evaluate_on(make_job(experience_level=ExperienceLevel.MID)).status is EligibilityStatus.UNCERTAIN
+
+
+def test_internship_and_new_grad_roles_are_untouched_by_the_experience_gate():
+    intern = make_job(title="Software Engineer (CPD) - Winter Intern", experience_level=ExperienceLevel.INTERN, graduation_year_requirement=2027)
+    result = evaluate_on(intern)
+    assert result.status is EligibilityStatus.ELIGIBLE and not any(g.name == "experience" for g in result.gates)
+    new_grad = make_job(title="Software Engineer - New Grad (2027)", experience_level=ExperienceLevel.ENTRY_LEVEL, qualifications=["Recent graduate (2027) with a degree in Computer Science"])
+    assert not any(g.name == "experience" for g in evaluate_on(new_grad).gates)
+
+
+def test_the_gate_never_applies_to_a_candidate_with_employment_or_already_graduated():
+    senior = make_job(experience_level=ExperienceLevel.SENIOR, qualifications=["5+ years of experience"])
+    employed = evaluate_on(senior, experience=[FakeJobHistory(is_employment=True)])
+    assert not any(g.name == "experience" for g in employed.gates), "real experience is measured elsewhere, never assumed away"
+    graduated = evaluate_on(senior, profile=FakeProfile(graduation_year=2020))
+    assert not any(g.name == "experience" for g in graduated.gates)
+    unknown_year = evaluate_on(senior, profile=FakeProfile(graduation_year=None))
+    assert not any(g.name == "experience" for g in unknown_year.gates), "an unknown year never makes a candidate a student"
+
+
+def test_us_citizen_title_is_a_work_authorization_gate_decided_by_the_recorded_status():
+    """Real boards: 'Software Engineer - Reliability (US Citizen)' was LIKELY_ELIGIBLE for
+    a candidate in India whose authorization is not recorded."""
+    job = make_job(title="Software Engineer - Reliability (US Citizen)")
+    unrecorded = evaluate_on(job, profile=FakeProfile(graduation_year=2027, work_authorization=None))
+    assert unrecorded.status is EligibilityStatus.UNCERTAIN and any("limited to US citizens" in u for u in unrecorded.uncertainties)
+    other = evaluate_on(job, profile=FakeProfile(graduation_year=2027, work_authorization="Indian citizen, no sponsorship required"))
+    assert other.status is EligibilityStatus.INELIGIBLE, "another country's citizenship is not a US citizenship"
+    us = evaluate_on(job, profile=FakeProfile(graduation_year=2027, work_authorization="US Citizen"))
+    assert us.status is EligibilityStatus.ELIGIBLE
+    campus = evaluate_on(make_job(title="Campus Recruiter", description="Focus citizens of every community."), profile=FakeProfile(graduation_year=2027))
+    assert not any(g.name == "work_authorization" for g in campus.gates), "no false positive on ordinary words"
+
+
+def test_zero_minimum_ranges_and_unrelated_numbers_never_gate():
+    assert not any(g.name == "experience" for g in evaluate_on(make_job(qualifications=["0-2 years of experience in software development"])).gates)
+    assert not any(g.name == "experience" for g in evaluate_on(make_job(description="Join 3000 engineers across 12 offices.")).gates)
+
+
+@dataclass
+class DatedJob:
+    is_employment: bool
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
+
+
+def test_a_short_internship_keeps_a_student_pre_career_but_a_real_career_does_not():
+    """Real profile (2026-09-13): a 4-month AI/ML internship is employment, and it switched the
+    gate off so senior roles were LIKELY again. Under 12 dated months the gate still applies."""
+    senior = make_job(title="Senior Machine Learning Engineer", experience_level=ExperienceLevel.SENIOR)
+    intern = evaluate_on(senior, experience=[DatedJob(True, "2025-09", "2026-01")])
+    assert intern.status is EligibilityStatus.INELIGIBLE and "less than a year of recorded employment" in intern.blocking_reasons[0]
+    career = evaluate_on(senior, experience=[DatedJob(True, "2019-01", "2023-06")])
+    assert not any(g.name == "experience" for g in career.gates), "years of dated employment are measured elsewhere"
+    undated = evaluate_on(senior, experience=[DatedJob(True), DatedJob(True, "2025-09", "2026-01")])
+    assert not any(g.name == "experience" for g in undated.gates), "undated employment is unknown, never assumed short"

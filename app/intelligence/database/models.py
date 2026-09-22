@@ -46,6 +46,9 @@ class MatchRunRow(Base):
     duration_seconds = Column(Float)
     trigger = Column(String(64)) # e.g. "CAREER_BRAIN_UPDATE" or "JOB_DISCOVERY"
     status = Column(String(32), default="RUNNING")
+    # Blueprint Phase 6: which tenant's Career Brain the run was scored
+    # against. Nullable for rows that predate tenancy; never defaulted.
+    tenant_id = Column(String(64), ForeignKey("tenants.id", ondelete="SET NULL"), nullable=True, index=True)
 
 class JobMatchRow(Base):
     """Core entity storing the final match score, eligibility, etc."""

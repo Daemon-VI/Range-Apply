@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Signal — CareerOS{% endblock %}
+{% block content %}
+{% if notice %}
+<div class="card" style="margin-bottom: 16px;">
+    {% if notice.startswith('error:') %}<strong>Not applied:</strong> {{ notice.split(':', 2)[2] }}{% else %}<span class="badge badge-green">{{ notice }}</span>{% endif %}
+</div>
+{% endif %}
+
+<div class="card" style="margin-bottom: 16px;">
+    <h2>{{ signal.subject or signal.id }}
+        <span class="badge {% if signal.status == 'APPLIED' %}badge-green{% elif signal.status in ['NEEDS_REVIEW', 'UNMATCHED'] %}badge-purple{% elif signal.status in ['IGNORED', 'MERGED'] %}badge-muted{% else %}badge-blue{% endif %}">{{ signal.status }}</span></h2>
+    <p style="color: var(--text-muted); font-size: 13px;">
+        <code>{{ signal.source }}</code>{% if signal.source_reference %} · ref <code>{{ signal.source_reference[:80] }}</code>{% endif %}
+        · observed {{ signal.observed_at.strftime('%Y-%m-%d %H:%M') if signal.observed_at else '—' }} ({{ signal.observation_count }}×)
+        {% if signal.external_at %} · employer time {{ signal.external_at.strftime('%Y-%m-%d %H:%M') }}{% endif %}
+        {% if signal.sender %} · from {{ signal.sender }}{% endif %}
+        · hash <code>{{ signal.content_hash[:12] }}</code> · schema {{ signal.schema_version }}
+    </p>
+    {% if signal.status_reason %}<p style="font-size: 13px;">{{ signal.status_reason }}</p>{% endif %}
+    <p><strong>Classification:</strong> <span class="badge badge-blue">{{ signal.category }}</span> {{ signal.confidence }} by {{ signal.classification_source or '—' }} <code>{{ signal.classifier_version or '' }}</code>
+        {% if signal.classification.get('matched_rules') %} · rules {{ signal.classification.get('matched_rules')|join(', ') }}{% endif %}
+        {% if signal.classification.get('competing') %} · competing {{ signal.classification.get('competing')|join(', ') }}{% endif %}
+        {% if signal.ai %} · AI {{ signal.ai.get('status') }} {{ signal.ai.get('provider') or '' }} {% if signal.ai.get('cache_hit') %}(cache){% endif %} {{ signal.ai.get('latency_ms') }} ms{% if signal.ai.get('fallback_reason') %} — {{ signal.ai.get('fallback_reason') }}{% endif %}{% endif %}
+    </p>
+    <p><strong>Attribution:</strong> {{ signal.attribution_status }}{% if attribution %} · rule <code>{{ attribution.rule }}</code> {{ attribution.confidence }} · {{ attribution.explanation or '' }} <code>{{ attribution.attribution_version }}</code>{% endif %}</p>
+    {% if signal.excerpt %}<details><summary style="cursor: pointer; font-size: 13px;">Excerpt ({{ signal.excerpt|length }} chars, credentials redacted)</summary><pre style="white-space: pre-wrap; font-size: 12px;">{{ signal.excerpt }}</pre></details>{% endif %}
+    {% if signal.payload.get('references') %}<p style="font-size: 12px; color: var(--text-muted);">References: {{ signal.payload.get('references')|join(', ') }}</p>{% endif %}
+    <p><a href="/dashboard/signals">← inbox</a></p>
+</div>
+
+{% if candidates %}
+<div class="card" style="margin-bottom: 16px;">
+    <h3>Possible applications (ambiguous)</h3>
+    <table><thead><tr><th>Company</th><th>Title</th><th>Status</th><th></th></tr></thead><tbody>
+    {% for a, opp in candidates %}
+    <tr><td>{{ opp.company if opp else '—' }}</td><td>{{ opp.title if opp else a.id }}</td><td>{{ a.status }}</td>
+        <td><form method="POST" action="/dashboard/signals/{{ signal.id }}/link" style="display: inline;"><input type="hidden" name="application_id" value="{{ a.id }}"><button type="submit">Link</button></form></td></tr>
+    {% endfor %}
+    </tbody></table>
+</div>
+{% endif %}
+
+<div class="card" style="margin-bottom: 16px;">
+    <h3>Review actions</h3>
+    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+        <form method="POST" action="/dashboard/signals/{{ signal.id }}/link"><input name="application_id" placeholder="application id" required style="width: 280px;"> <button type="submit">Link to application</button></form>
+        <form method="POST" action="/dashboard/signals/{{ signal.id }}/confirm-classification"><select name="category">{% for c in categories %}<option value="{{ c }}" {% if c == signal.category %}selected{% endif %}>{{ c }}</option>{% endfor %}</select> <button type="submit">Confirm classification</button></form>
+        <form method="POST" action="/dashboard/signals/{{ signal.id }}/reject-classification"><button type="submit" style="background: var(--accent-orange);">Reject classification</button></form>
+        <form method="POST" action="/dashboard/signals/{{ signal.id }}/confirm-outcome"><select name="outcome">{% for o in outcomes %}<option value="{{ o }}">{{ o }}</option>{% endfor %}</select> <button type="submit">Confirm outcome</button></form>
+        <form method="POST" action="/dashboard/signals/{{ signal.id }}/ignore"><input name="note" placeholder="why (optional)"> <button type="submit">Mark irrelevant</button></form>
+        <form method="POST" action="/dashboard/signals/{{ signal.id }}/merge"><input name="into_signal_id" placeholder="duplicate of signal id" required style="width: 280px;"> <button type="submit">Merge into</button></form>
+        <form method="POST" action="/dashboard/signals/{{ signal.id }}/reprocess"><button type="submit">Reprocess</button></form>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom: 16px;">
+    <h3>Trace</h3>
+    <ol style="font-size: 13px;">
+        <li>Signal <code>{{ signal.id }}</code> ({{ signal.source }})</li>
+        <li>Attribution: {{ signal.attribution_status }}{% if attribution %} via <code>{{ attribution.rule }}</code>{% endif %}</li>
+        {% if trace.opportunity %}<li>Opportunity: {{ trace.opportunity.company }} · {{ trace.opportunity.title }} ({{ trace.opportunity.status }})</li>{% endif %}
+        {% if trace.candidate_opportunity %}<li>Candidate opportunity: <a href="/dashboard/opportunities">{{ trace.candidate_opportunity.state }}</a> · band {{ trace.candidate_opportunity.fit_band }} ({{ trace.candidate_opportunity.fit_score }}) · policy v{{ trace.candidate_opportunity.admission_policy_version }} · {{ trace.candidate_opportunity.gate_ruleset_version }}</li>{% endif %}
+        {% if trace.preparation %}<li>Preparation: <a href="/dashboard/preparations/{{ trace.preparation.id }}">v{{ trace.preparation.version }}</a> {{ trace.preparation.status }} · {{ trace.preparation.tailoring_level }} · fingerprint <code>{{ trace.preparation.input_fingerprint[:12] }}</code></li>{% endif %}
+        {% if trace.attempt %}<li>Attempt: <a href="/dashboard/execution/attempts/{{ trace.attempt.id }}">{{ trace.attempt.status }}</a> #{{ trace.attempt.attempt_number }}{% if trace.attempt.external_application_id %} · reference <code>{{ trace.attempt.external_application_id }}</code>{% endif %}</li>{% endif %}
+        {% for r in trace.execution_runs %}<li>Execution run {{ r.run_number }}: {{ r.executor_kind }} {{ r.status }} · verification {{ r.verification_status }} {{ r.verification_method or '' }}</li>{% endfor %}
+        {% if trace.application_outcome %}<li>Current outcome: <strong>{{ trace.application_outcome.current_outcome }}</strong>{% if trace.application_outcome.provisional_outcome %} (provisional {{ trace.application_outcome.provisional_outcome }}){% endif %}{% if trace.application_outcome.needs_review %} <span class="badge badge-purple">needs review</span>{% endif %}{% if trace.application_outcome.conflicts %} · conflicts: {{ trace.application_outcome.conflicts|join('; ') }}{% endif %} · v{{ trace.application_outcome.version }} {{ trace.application_outcome.rules_version }}</li>{% endif %}
+    </ol>
+</div>
+
+<div class="card" style="margin-bottom: 16px;">
+    <h3>Outcome events from this signal</h3>
+    <table><thead><tr><th>#</th><th>Outcome</th><th>Evidence</th><th>Origin</th><th>Event time</th><th>State</th><th>Note</th></tr></thead><tbody>
+    {% for e in trace.outcome_events %}
+    <tr><td>{{ e.sequence }}</td><td>{{ e.outcome }}</td><td>{{ e.evidence }}</td><td>{{ e.origin }} · {{ e.actor }}</td><td style="font-size: 12px;">{{ e.event_at.strftime('%Y-%m-%d %H:%M') if e.event_at else '—' }} ({{ e.time_basis }})</td>
+        <td style="font-size: 12px;">{% if e.retracted %}retracted: {{ e.retracted_reason }}{% elif e.superseded_by_id %}superseded{% else %}active{% endif %}</td><td style="font-size: 12px;">{{ e.note or '' }}</td></tr>
+    {% else %}<tr><td colspan="7" style="color: var(--text-muted);">No outcome event.</td></tr>{% endfor %}
+    </tbody></table>
+</div>
+
+<div class="card" style="margin-bottom: 16px;">
+    <h3>Attribution history</h3>
+    <table><thead><tr><th>When</th><th>Status</th><th>Rule</th><th>Application</th><th>Actor</th><th>Explanation</th><th>Version</th></tr></thead><tbody>
+    {% for a in trace.attributions %}
+    <tr><td style="font-size: 12px;">{{ a.created_at.strftime('%Y-%m-%d %H:%M') if a.created_at else '—' }}</td><td>{{ a.status }}{% if a.superseded_by_id %} <span style="color: var(--text-muted);">(superseded)</span>{% endif %}</td><td><code>{{ a.rule }}</code></td><td style="font-size: 12px;">{{ a.application_id or '—' }}{% if a.candidates %} · {{ a.candidates|length }} candidates{% endif %}</td><td>{{ a.actor }}</td><td style="font-size: 12px;">{{ a.explanation or '' }}</td><td><code>{{ a.attribution_version }}</code></td></tr>
+    {% endfor %}
+    </tbody></table>
+</div>
+
+<div class="card">
+    <h3>Observations ({{ trace.observations|length }})</h3>
+    <ul style="font-size: 12px;">{% for o in trace.observations %}<li>{{ o.observed_at.strftime('%Y-%m-%d %H:%M:%S') if o.observed_at else '—' }} · {{ o.source }} · <code>{{ o.content_hash[:12] }}</code>{% if o.provenance %} · {{ o.provenance }}{% endif %}</li>{% endfor %}</ul>
+    {% if trace.application_events %}<h3 style="margin-top: 12px;">Application history</h3><ul style="font-size: 12px;">{% for e in trace.application_events %}<li>{{ e.created_at or '' }} · {{ e.event_type }} {{ e.from_status or '' }} → {{ e.to_status or '' }}</li>{% endfor %}</ul>{% endif %}
+</div>
+{% endblock %}

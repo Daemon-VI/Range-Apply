@@ -1,5 +1,6 @@
 """Lever job source adapter using the public unauthenticated Postings API."""
 
+import html
 import logging
 from typing import List
 
@@ -47,13 +48,16 @@ class LeverSource(JobSource):
             if not job_id:
                 continue
 
-            title = item.get("text", "").strip() or item.get("title", "").strip()
-            urls = item.get("urls", {})
-            show_url = urls.get("show") or f"https://jobs.lever.co/{company_slug}/{job_id}"
-            apply_url = urls.get("apply")
+            title = (item.get("text") or "").strip() or (item.get("title") or "").strip()
+            # The live v0 API puts `hostedUrl` / `applyUrl` at the top level;
+            # older payloads (and the docs' examples) nest them under `urls`.
+            # The application form lives at the `/apply` page, not the posting.
+            urls = item.get("urls") or {}
+            show_url = item.get("hostedUrl") or urls.get("show") or f"https://jobs.lever.co/{company_slug}/{job_id}"
+            apply_url = item.get("applyUrl") or urls.get("apply") or f"{show_url.rstrip('/')}/apply"
 
-            content = item.get("descriptionHtml") or item.get("description") or ""
-            content_type = "html" if item.get("descriptionHtml") else "plain"
+            content = self._content(item)
+            content_type = "html" if (item.get("descriptionHtml") or item.get("description") or item.get("lists") or item.get("additional")) else "plain"
 
             categories = item.get("categories", {})
             location_str = categories.get("location") if isinstance(categories, dict) else None
@@ -97,3 +101,28 @@ class LeverSource(JobSource):
             company_slug,
         )
         return raw_jobs
+
+    @staticmethod
+    def _content(item: dict) -> str:
+        """The whole posting: description, then every titled list, then the closing section.
+
+        Audit fix (2026-09-14): the v0 API's ``description`` is only the opening;
+        responsibilities and requirements live in ``lists`` ("Experience and
+        Qualification") and ``additional``. On the live Zeta board 18 of 18
+        postings stated years of experience only there, so eligibility, skills
+        and qualification extraction never saw them.
+        """
+        body = item.get("descriptionHtml") or item.get("description") or item.get("descriptionPlain") or ""
+        parts = [body] if body.strip() else []
+        for section in item.get("lists") or []:
+            if not isinstance(section, dict):
+                continue
+            entries = section.get("content") or ""
+            if not isinstance(entries, str) or not entries.strip():
+                continue
+            heading = (section.get("text") or "").strip()
+            parts.append((f"<h3>{html.escape(heading)}</h3>" if heading else "") + f"<ul>{entries}</ul>")
+        additional = item.get("additional") or item.get("additionalPlain") or ""
+        if isinstance(additional, str) and additional.strip():
+            parts.append(additional)
+        return "\n".join(parts)

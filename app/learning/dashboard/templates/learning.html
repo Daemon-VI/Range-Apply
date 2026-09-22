@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Learning — CareerOS{% endblock %}
+{% macro pct(v) %}{% if v is none %}—{% else %}{{ (100 * v)|round(0)|int }}%{% endif %}{% endmacro %}
+{% macro conf(c) %}<span class="badge {% if c == 'HIGH' %}badge-green{% elif c == 'MEDIUM' %}badge-blue{% elif c == 'LOW' %}badge-orange{% else %}badge-muted{% endif %}">{{ c }}</span>{% endmacro %}
+{% block content %}
+{% if notice %}
+<div class="card" style="margin-bottom: 16px;">
+    {% if notice.startswith('error:') %}<strong>Not applied:</strong> {{ notice.split(':', 2)[2] }}{% else %}<span class="badge badge-green">{{ notice }}</span>{% endif %}
+</div>
+{% endif %}
+
+<div class="card" style="margin-bottom: 16px;">
+    <h2>Outcome learning <span style="color: var(--text-muted); font-weight: 400; font-size: 14px;">ordering and information only — never a filter, never a cap</span></h2>
+    <form method="POST" action="/dashboard/learning/snapshot" style="display: inline;"><button type="submit">Compute a new snapshot</button></form>
+    {% if snapshot %}
+    <p style="color: var(--text-muted); font-size: 13px;">Snapshot <code>{{ snapshot.id[:8] }}</code> as of {{ snapshot.as_of.strftime('%Y-%m-%d %H:%M') }} · window {{ snapshot.window_days or 'all history' }} · {{ snapshot.dataset_size }} executed applications · {{ snapshot.metric_count }} metrics · versions {{ snapshot.learning_version }} / {{ snapshot.feature_version }} / {{ snapshot.smoothing_method }} / {{ snapshot.outcome_rules_version }} · generated {{ snapshot.generated_at.strftime('%Y-%m-%d %H:%M') }}
+        {% if snapshots|length > 1 %} · older: {% for s in snapshots %}{% if s.id != snapshot.id %}<a href="/dashboard/learning?snapshot_id={{ s.id }}">{{ s.as_of.strftime('%m-%d %H:%M') }}</a> {% endif %}{% endfor %}{% endif %}</p>
+    {% else %}<p style="color: var(--text-muted); font-size: 13px;">No snapshot yet.</p>{% endif %}
+</div>
+
+{% if snapshot %}
+{% set s = snapshot.summary %}
+<div class="grid">
+    <div class="card"><div class="stat-label">submitted</div><div class="stat-value">{{ s.submitted }}</div></div>
+    <div class="card"><div class="stat-label">verified</div><div class="stat-value">{{ s.verified }}</div></div>
+    <div class="card"><div class="stat-label">response rate</div><div class="stat-value">{{ pct(s.response_rate) }}</div><div class="stat-label">{{ s.responded }} of {{ s.submitted }}</div></div>
+    <div class="card"><div class="stat-label">interview rate</div><div class="stat-value">{{ pct(s.interview_rate) }}</div><div class="stat-label">{{ s.interviewed }} of {{ s.submitted }}</div></div>
+    <div class="card"><div class="stat-label">rejection rate</div><div class="stat-value">{{ pct(s.rejection_rate) }}</div><div class="stat-label">{{ s.rejected }} of {{ s.submitted }}</div></div>
+    <div class="card"><div class="stat-label">assessment rate</div><div class="stat-value">{{ pct(s.assessment_rate) }}</div><div class="stat-label">{{ s.assessed }} of {{ s.submitted }}</div></div>
+    <div class="card"><div class="stat-label">median days to response</div><div class="stat-value">{{ s.median_days_to_response if s.median_days_to_response is not none else '—' }}</div></div>
+    <div class="card"><div class="stat-label">uncertainty rate</div><div class="stat-value">{{ pct(s.uncertainty_rate) }}</div><div class="stat-label">{{ s.uncertain }} uncertain</div></div>
+</div>
+<p style="color: var(--text-muted); font-size: 12px;">Evidence behind the labels: {% for k, v in s.evidence.items() %}{{ k }} {{ v }}{% if not loop.last %} · {% endif %}{% endfor %} — completeness: {% for k, v in s.completeness.items() %}{{ k }} {{ v }}{% if not loop.last %} · {% endif %}{% endfor %} — AI calls: {{ s.ai_calls }}</p>
+
+<div class="card" style="margin-bottom: 16px;">
+    <h3>Recommendations ({{ recommendations|length }})</h3>
+    <ul style="font-size: 13px;">
+    {% for r in recommendations %}
+    <li>{{ r.text }} <span style="color: var(--text-muted);">n={{ r.n }} · {{ conf(r.confidence) }} · {{ r.learning_version }} · window {{ r.window_days or 'all' }} · <em>{{ r.caveat }}</em></span></li>
+    {% else %}<li style="color: var(--text-muted);">Nothing to report yet: no group clears the sample threshold with an interval away from the baseline.</li>{% endfor %}
+    </ul>
+</div>
+
+{% for dim, groups in breakdowns.items() %}{% if groups %}
+<div class="card" style="margin-bottom: 16px;">
+    <h3>By {{ dim.lower().replace('_', ' ') }}</h3>
+    <table>
+        <thead><tr><th>Group</th><th>n</th><th>Confidence</th><th>Response</th><th>Interview</th><th>Rejection</th><th>Assessment</th><th>Verified</th><th>Uncertain</th><th>Days to response</th><th>Evidence</th></tr></thead>
+        <tbody>
+        {% for g in groups %}{% set m = g.metrics %}
+        <tr>
+            <td>{{ g.label[:60] }}</td><td>{{ g.n }}</td><td>{{ conf(g.confidence) }}</td>
+            <td>{{ pct(m['response_rate'].raw_rate) }} <span style="color: var(--text-muted); font-size: 11px;">~{{ pct(m['response_rate'].smoothed_rate) }} [{{ pct(m['response_rate'].ci_low) }}–{{ pct(m['response_rate'].ci_high) }}]</span></td>
+            <td>{{ pct(m['interview_rate'].raw_rate) }} <span style="color: var(--text-muted); font-size: 11px;">~{{ pct(m['interview_rate'].smoothed_rate) }}</span></td>
+            <td>{{ pct(m['rejection_rate'].raw_rate) }}</td><td>{{ pct(m['assessment_rate'].raw_rate) }}</td><td>{{ pct(m['verified_submission_rate'].raw_rate) }}</td><td>{{ pct(m['uncertainty_rate'].raw_rate) }}</td>
+            <td>{{ m['days_to_response'].median_value if m['days_to_response'].median_value is not none else '—' }} <span style="color: var(--text-muted); font-size: 11px;">(n={{ m['days_to_response'].n }})</span></td>
+            <td style="font-size: 11px; color: var(--text-muted);">{% for k, v in g.evidence.items() %}{{ k[:1] }}{{ v }} {% endfor %}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <p style="color: var(--text-muted); font-size: 12px;">Raw rate, then the smoothed rate (pulled toward the baseline by {{ settings.prior_strength }} pseudo-observations) and the 95% Wilson interval. LOW confidence = fewer than {{ settings.min_samples }} applications: not authoritative.{% if dim == 'EXECUTION_METHOD' %} Method differences may reflect which sites were routed to each executor, not the executor.{% endif %}</p>
+</div>
+{% endif %}{% endfor %}
+
+{% if source_discovery %}
+<div class="card" style="margin-bottom: 16px;">
+    <h3>Source discovery reliability (shared job-side data)</h3>
+    <table><thead><tr><th>Source</th><th>Jobs seen</th><th>Closed</th><th>Closure rate</th><th>Duplicates</th><th>Duplicate rate</th><th>Valid-job rate</th><th>Runs</th><th>Failed runs</th><th>Confidence</th></tr></thead><tbody>
+    {% for d in source_discovery %}<tr><td>{{ d.source }}</td><td>{{ d.jobs_seen }}</td><td>{{ d.jobs_closed }}</td><td>{{ pct(d.closure_rate) }}</td><td>{{ d.duplicates }}</td><td>{{ pct(d.duplicate_rate) }}</td><td>{{ pct(d.valid_job_rate) }}</td><td>{{ d.runs_total }}</td><td>{{ d.runs_failed }}</td><td>{{ conf(d.confidence) }}</td></tr>{% endfor %}
+    </tbody></table>
+</div>
+{% endif %}
+{% endif %}
+
+<div class="card">
+    <h3>Learning settings</h3>
+    <form method="POST" action="/dashboard/learning/settings" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+        <label><input type="checkbox" name="ordering_enabled" {% if settings.ordering_enabled %}checked{% endif %}> Let the learned response signal feed priority ordering (<code>learned_prior</code> component; order only)</label>
+        <label>Window (days) <input name="window_days" type="number" min="1" value="{{ settings.window_days or '' }}" placeholder="all history" style="width: 90px;"></label>
+        <label>Min samples <input name="min_samples" type="number" min="1" value="{{ settings.min_samples }}" style="width: 70px;"></label>
+        <label>Prior strength <input name="prior_strength" type="number" min="0" step="0.5" value="{{ settings.prior_strength }}" style="width: 70px;"></label>
+        <label>Minimum evidence <select name="minimum_evidence">{% for e in evidence_levels %}<option value="{{ e }}" {% if settings.minimum_evidence.value == e %}selected{% endif %}>{{ e }}</option>{% endfor %}</select></label>
+        <button type="submit">Save</button>
+    </form>
+    <p style="color: var(--text-muted); font-size: 12px;">These settings never change caps, bands, thresholds, blocklists or eligibility. Learning reorders and informs; it does not filter. Statistics describe what happened in this candidate's own history, not what would have happened.</p>
+</div>
+{% endblock %}

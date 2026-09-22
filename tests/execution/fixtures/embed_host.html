@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Careers at Echo - Software Engineer</title></head>
+<body>
+<header><nav><button type="button">Products</button><button type="button">Accept cookies</button></nav></header>
+<main>
+  <h1>Software Engineer</h1>
+  <p>Echo embeds its applicant-tracking form below, the way many employer career sites do.</p>
+  <div id="grnhse_app"></div>
+</main>
+<script>
+  // The embedded form is injected after a short delay, like a real embed script.
+  setTimeout(function () {
+    const frame = document.createElement('iframe');
+    frame.id = 'grnhse_iframe';
+    frame.src = 'greenhouse.html' + location.search;
+    frame.width = '100%';
+    frame.height = '900';
+    document.getElementById('grnhse_app').appendChild(frame);
+  }, 700);
+</script>
+</body>
+</html>

@@ -228,10 +228,17 @@ def _boundary_pattern(term: str) -> str:
     return rf"(?<![A-Za-z0-9._-]){escaped}(?![A-Za-z0-9])"
 
 
-def _build_index() -> Tuple[Dict[str, str], List[Tuple[str, re.Pattern]]]:
-    """Build the alias→canonical map and the ordered match patterns."""
+def _build_index() -> Tuple[Dict[str, str], List[Tuple[str, re.Pattern, Tuple[str, ...]]]]:
+    """Build the alias→canonical map and the ordered match patterns.
+
+    Each pattern carries the lower-cased literal surfaces it can match. A
+    surface-only pattern can only match text that contains one of those
+    literals, so :func:`find_skills_in_text` checks that with a substring test
+    before paying for the regex. Context patterns (custom disambiguation
+    regexes) carry an empty tuple and are always searched.
+    """
     alias_map: Dict[str, str] = {}
-    patterns: List[Tuple[str, re.Pattern]] = []
+    patterns: List[Tuple[str, re.Pattern, Tuple[str, ...]]] = []
 
     for entry in _RAW_TAXONOMY:
         surfaces = [entry.canonical, *entry.aliases]
@@ -239,10 +246,11 @@ def _build_index() -> Tuple[Dict[str, str], List[Tuple[str, re.Pattern]]]:
             alias_map[surface.lower()] = entry.canonical
 
         if entry.context:
-            patterns.append((entry.canonical, re.compile(entry.context, re.IGNORECASE)))
+            patterns.append((entry.canonical, re.compile(entry.context, re.IGNORECASE), ()))
         else:
             joined = "|".join(_boundary_pattern(s) for s in sorted(surfaces, key=len, reverse=True))
-            patterns.append((entry.canonical, re.compile(joined, re.IGNORECASE)))
+            literals = tuple(sorted({s.lower() for s in surfaces}))
+            patterns.append((entry.canonical, re.compile(joined, re.IGNORECASE), literals))
 
     # Longest canonical names first so "Spring Boot" wins over a shorter match.
     patterns.sort(key=lambda item: len(item[0]), reverse=True)
@@ -290,8 +298,13 @@ def find_skills_in_text(text: str) -> List[str]:
     if not text:
         return []
 
+    lowered = text.lower()
     found: Set[str] = set()
-    for canonical, pattern in _PATTERNS:
+    for canonical, pattern, literals in _PATTERNS:
+        # Cheap necessary condition first: a surface pattern cannot match
+        # unless one of its literal surfaces occurs in the text.
+        if literals and not any(literal in lowered for literal in literals):
+            continue
         if pattern.search(text):
             found.add(canonical)
     return sorted(found)

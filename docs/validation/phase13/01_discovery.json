@@ -1,0 +1,152 @@
+{
+  "boards": [
+    {
+      "source": "GREENHOUSE",
+      "identifier": "discord",
+      "status": "exception",
+      "error": "AttributeError: 'DiscoveryRunRow' object has no attribute 'jobs_fetched'"
+    },
+    {
+      "source": "GREENHOUSE",
+      "identifier": "duolingo",
+      "status": "exception",
+      "error": "AttributeError: 'DiscoveryRunRow' object has no attribute 'jobs_fetched'"
+    },
+    {
+      "source": "GREENHOUSE",
+      "identifier": "asana",
+      "status": "exception",
+      "error": "AttributeError: 'DiscoveryRunRow' object has no attribute 'jobs_fetched'"
+    },
+    {
+      "source": "LEVER",
+      "identifier": "nium",
+      "status": "exception",
+      "error": "AttributeError: 'DiscoveryRunRow' object has no attribute 'jobs_fetched'"
+    },
+    {
+      "source": "LEVER",
+      "identifier": "spotify",
+      "status": "exception",
+      "error": "AttributeError: 'DiscoveryRunRow' object has no attribute 'jobs_fetched'"
+    },
+    {
+      "source": "ASHBY",
+      "identifier": "linear",
+      "status": "exception",
+      "error": "AttributeError: 'DiscoveryRunRow' object has no attribute 'jobs_fetched'"
+    },
+    {
+      "source": "ASHBY",
+      "identifier": "posthog",
+      "status": "exception",
+      "error": "AttributeError: 'DiscoveryRunRow' object has no attribute 'jobs_fetched'"
+    },
+    {
+      "source": "ASHBY",
+      "identifier": "supabase",
+      "status": "exception",
+      "error": "AttributeError: 'DiscoveryRunRow' object has no attribute 'jobs_fetched'"
+    }
+  ],
+  "totals": {
+    "jobs": 429,
+    "opportunities": 409,
+    "by_source": {
+      "GREENHOUSE": 228,
+      "LEVER": 100,
+      "ASHBY": 101
+    },
+    "closed": 0
+  },
+  "source_health": [
+    {
+      "source": "GREENHOUSE",
+      "identifier": "discord",
+      "runs": 1,
+      "success": 1,
+      "failed": 0,
+      "fetched": 46,
+      "rejected": 0,
+      "duplicates": 0,
+      "consecutive_failures": 0
+    },
+    {
+      "source": "GREENHOUSE",
+      "identifier": "duolingo",
+      "runs": 1,
+      "success": 1,
+      "failed": 0,
+      "fetched": 80,
+      "rejected": 0,
+      "duplicates": 0,
+      "consecutive_failures": 0
+    },
+    {
+      "source": "GREENHOUSE",
+      "identifier": "asana",
+      "runs": 1,
+      "success": 1,
+      "failed": 0,
+      "fetched": 103,
+      "rejected": 0,
+      "duplicates": 0,
+      "consecutive_failures": 0
+    },
+    {
+      "source": "LEVER",
+      "identifier": "nium",
+      "runs": 1,
+      "success": 1,
+      "failed": 0,
+      "fetched": 28,
+      "rejected": 0,
+      "duplicates": 0,
+      "consecutive_failures": 0
+    },
+    {
+      "source": "LEVER",
+      "identifier": "spotify",
+      "runs": 1,
+      "success": 1,
+      "failed": 0,
+      "fetched": 72,
+      "rejected": 0,
+      "duplicates": 0,
+      "consecutive_failures": 0
+    },
+    {
+      "source": "ASHBY",
+      "identifier": "linear",
+      "runs": 1,
+      "success": 1,
+      "failed": 0,
+      "fetched": 30,
+      "rejected": 0,
+      "duplicates": 0,
+      "consecutive_failures": 0
+    },
+    {
+      "source": "ASHBY",
+      "identifier": "posthog",
+      "runs": 1,
+      "success": 1,
+      "failed": 0,
+      "fetched": 11,
+      "rejected": 0,
+      "duplicates": 0,
+      "consecutive_failures": 0
+    },
+    {
+      "source": "ASHBY",
+      "identifier": "supabase",
+      "runs": 1,
+      "success": 1,
+      "failed": 0,
+      "fetched": 60,
+      "rejected": 0,
+      "duplicates": 0,
+      "consecutive_failures": 0
+    }
+  ]
+}

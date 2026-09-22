@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Preparation — CareerOS{% endblock %}
+{% block content %}
+{% if notice %}
+<div class="card" style="margin-bottom: 16px;">
+    {% if notice.startswith('error:') %}<strong>Not applied:</strong> {{ notice.split(':', 2)[2] }}{% else %}<span class="badge badge-green">{{ notice }}</span>{% endif %}
+</div>
+{% endif %}
+
+<div class="card" style="margin-bottom: 20px;">
+    <h2>{{ opportunity.title if opportunity else prep.opportunity_id }} <span style="color: var(--text-muted); font-weight: 400;">— {{ opportunity.company if opportunity else '' }}</span></h2>
+    <p style="margin-top: 8px;">
+        <span class="badge badge-blue">{{ prep.tailoring_level }}</span>
+        <span class="badge badge-blue">lane {{ prep.lane }}</span>
+        <span class="badge badge-blue">cover letter {{ prep.cover_letter_mode }}</span>
+        <span class="badge {% if prep.status == 'READY' %}badge-green{% elif prep.status in ['NEEDS_USER_INPUT', 'NEEDS_REVIEW'] %}badge-orange{% else %}badge-muted{% endif %}">{{ prep.status }}</span>
+        <span class="badge {% if prep.validation_status == 'PASSED' %}badge-green{% else %}badge-orange{% endif %}">validation {{ prep.validation_status }}</span>
+        version {{ prep.version }}
+        {% if prep.ai_used %}<span class="badge badge-purple">AI {{ prep.ai_provider }} ×{{ prep.ai_calls }}</span>{% else %}<span class="badge badge-muted">no AI</span>{% endif %}
+    </p>
+    <p style="color: var(--text-muted); font-size: 13px; margin-top: 8px;">
+        Positioning: <strong>{% if variant %}{{ variant.role_family }} / {{ variant.name }} (v{{ variant.version }}){% else %}profile statement{% endif %}</strong> — {{ prep.positioning_reason }}
+    </p>
+    <div style="display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;">
+        <form method="POST" action="/dashboard/preparations/{{ prep.id }}/approve"><button type="submit" style="background: var(--accent-green);">Approve</button></form>
+        <form method="POST" action="/dashboard/preparations/{{ prep.id }}/reject" style="display: flex; gap: 6px;"><input name="reason" placeholder="Reason"><button type="submit" style="background: var(--accent-orange);">Reject</button></form>
+        <form method="POST" action="/dashboard/preparations/{{ prep.id }}/regenerate" style="display: flex; gap: 6px;">
+            <select name="tailoring_level"><option value="">Same level</option>{% for l in levels %}<option value="{{ l }}">{{ l }}</option>{% endfor %}</select>
+            <button type="submit">Regenerate</button>
+        </form>
+    </div>
+    {% if prep.validation_report.issues %}
+    <div style="margin-top: 12px;">
+        <strong>Validation issues</strong>
+        <ul>{% for i in prep.validation_report.issues %}<li><code>{{ i.code }}</code> {{ i.message }}</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+</div>
+
+<div class="card" style="margin-bottom: 20px;">
+    <h3>Documents <span style="color: var(--text-muted); font-size: 12px; font-weight: 400;">rendered locally from this preparation; immutable versions, SHA-256 verified before upload</span></h3>
+    <table>
+        <thead><tr><th>Type</th><th>Format</th><th>v</th><th>Status</th><th>Validation</th><th>Pages</th><th>Bytes</th><th>SHA-256</th><th>Renderer</th><th></th></tr></thead>
+        <tbody>
+        {% for d in documents %}
+        <tr>
+            <td>{{ d.artifact_type }}</td><td>{{ d.format }}</td><td>{{ d.version }}</td>
+            <td><span class="badge {% if d.status == 'ACTIVE' %}badge-green{% else %}badge-muted{% endif %}">{{ d.status }}</span></td>
+            <td><span class="badge {% if d.validation_status == 'PASSED' %}badge-green{% else %}badge-orange{% endif %}">{{ d.validation_status }}</span></td>
+            <td>{{ d.page_count }}</td><td>{{ d.byte_size }}</td><td><code>{{ d.content_hash[:12] }}</code></td><td>{{ d.renderer }} {{ d.renderer_version }}</td>
+            <td>{% if d.status == 'ACTIVE' %}<a href="/api/v1/documents/{{ d.id }}/file">download</a>{% endif %}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="10" style="color: var(--text-muted);">No documents yet. Rendering happens automatically when the attempt is executed; you can render now to review.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% if prep.status == 'READY' %}
+    <div style="display: flex; gap: 10px; margin-top: 10px;">
+        {% for t in ['RESUME', 'COVER_LETTER'] %}{% for f in ['PDF', 'DOCX'] %}
+        <form method="POST" action="/dashboard/preparations/{{ prep.id }}/documents/render"><input type="hidden" name="artifact_type" value="{{ t }}"><input type="hidden" name="fmt" value="{{ f }}"><button type="submit">Render {{ t.replace('_', ' ').lower() }} {{ f }}</button></form>
+        {% endfor %}{% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+{% for artifact in prep.artifacts %}
+<div class="card" style="margin-bottom: 20px;">
+    <h3>{{ artifact.artifact_type }} <span style="color: var(--text-muted); font-weight: 400; font-size: 13px;">{{ artifact.template_version }}{% if artifact.ai_used %} · AI polished{% endif %}</span></h3>
+    <table>
+        <thead><tr><th>Section</th><th>Text</th><th>Why it is here (evidence)</th></tr></thead>
+        <tbody>
+        {% for b in artifact.blocks %}
+            <tr>
+                <td><code>{{ b.section }}</code>{% if b.kind == 'FRAMING' %}<br><span class="badge badge-muted">framing</span>{% endif %}{% if b.ai_polished %}<br><span class="badge badge-purple">ai</span>{% endif %}</td>
+                <td>{{ b.text }}</td>
+                <td style="font-size: 12px;">
+                    {% for key in b.evidence_keys %}
+                        {% set n = nodes.get(key) %}
+                        <div><code>{{ key }}</code>{% if n %} <span class="badge {% if n.verification_status == 'VERIFIED' and n.status == 'ACTIVE' %}badge-green{% else %}badge-orange{% endif %}">{{ n.verification_status }}</span> <span style="color: var(--text-muted);">{{ n.label }}</span>{% else %} <span class="badge badge-orange">unresolved</span>{% endif %}</div>
+                    {% else %}
+                        <span style="color: var(--text-muted);">{{ b.source }}</span>
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endfor %}
+
+<div class="card">
+    <h3>Application answers</h3>
+    <table>
+        <thead><tr><th>Question</th><th>Category</th><th>Answer</th><th>Source</th><th>Status</th><th>Evidence</th></tr></thead>
+        <tbody>
+        {% for a in prep.answers %}
+            <tr class="{% if a.status == 'NEEDS_USER_INPUT' %}row-uncertain{% endif %}">
+                <td>{{ a.question }}</td>
+                <td><code>{{ a.category }}</code></td>
+                <td>
+                    {% if a.status == 'ANSWERED' %}{{ a.answer }}{% else %}
+                    <form method="POST" action="/dashboard/preparations/{{ prep.id }}/answers/{{ a.id }}" style="display: grid; gap: 6px;">
+                        <textarea name="answer_text" rows="2" placeholder="{{ a.reason or 'Your answer' }}" style="width: 100%;"></textarea>
+                        <label style="font-size: 12px; color: var(--text-muted);"><input type="checkbox" name="save_to_bank"> Save to answer bank for reuse</label>
+                        <div><button type="submit">Save answer</button></div>
+                    </form>
+                    {% endif %}
+                </td>
+                <td>{{ a.source }}</td>
+                <td><span class="badge {% if a.status == 'ANSWERED' %}badge-green{% else %}badge-orange{% endif %}">{{ a.status }}</span>{% if a.reason %}<div style="font-size: 11px; color: var(--text-muted);">{{ a.reason }}</div>{% endif %}</td>
+                <td style="font-size: 12px;">{% for key in a.evidence_keys %}<code>{{ key }}</code> {% endfor %}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<style>.row-uncertain { box-shadow: inset 3px 0 0 var(--accent-orange); }</style>
+{% endblock %}

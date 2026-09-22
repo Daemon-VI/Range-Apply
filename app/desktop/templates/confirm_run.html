@@ -1,0 +1,158 @@
+{% extends "desktop_base.html" %}
+{% block title %}CareerOS — {% if mode == 'live' %}Submit for real{% else %}Dry run{% endif %} {{ opp.title if opp else '' }}{% endblock %}
+{% block content %}
+<div class="breadcrumb"><a href="/desktop/applications">Applications</a> / <a href="/desktop/applications/{{ attempt.id }}">{{ opp.company if opp else 'Application' }}</a> / {% if mode == 'live' %}Submit for real{% else %}Dry run{% endif %}</div>
+<div class="page-head">
+    <div>
+        <div class="eyebrow">{% if mode == 'live' %}Real submission — confirmation{% else %}Dry run — confirmation{% endif %}</div>
+        <h1>{% if mode == 'live' %}Submit for real{% else %}Dry run{% endif %} <span class="muted">— {{ opp.title if opp else 'this application' }}{% if opp %} at {{ opp.company }}{% endif %}</span></h1>
+        <p>Read this screen before anything happens. Nothing has started yet.</p>
+    </div>
+    <div class="actions">
+        <span class="badge badge-{{ badge.get(attempt.status, 'muted') }}">{{ attempt.status|replace('_', ' ') }}</span>
+        <a class="btn secondary" href="/desktop/applications/{{ attempt.id }}">Back to review</a>
+    </div>
+</div>
+
+{% if mode == 'live' and not execution_mode.live_enabled %}
+<div class="note" role="alert"><strong>SAFE / DRY RUN is active.</strong> A real submission cannot be started until live submission is enabled.</div>
+{% elif mode == 'live' %}
+<div class="note danger" role="alert">
+    <strong>This will submit a real job application to the employer.</strong>
+    It happens once, for this one application, in a browser window you can watch. CareerOS never resubmits an application whose outcome is unknown.
+</div>
+{% else %}
+<div class="note ok"><strong>DRY RUN.</strong> The submit control is never pressed in a dry run: CareerOS opens the page, maps the form, fills what it can and stops.</div>
+{% endif %}
+
+{% if blockers %}
+<div class="note" role="alert">
+    <strong>Nothing can be run from here yet.</strong>
+    <ul>{% for b in blockers %}<li>{{ b }}</li>{% endfor %}</ul>
+    {% if active_run %}<div class="mt-2"><a href="/desktop/applications/{{ attempt.id }}/run/{{ active_run.id }}">Open the run in progress</a>.</div>{% endif %}
+</div>
+{% endif %}
+
+<div class="two">
+    <section class="card" aria-labelledby="target-title">
+        <div class="card-head"><h2 id="target-title">What is being applied to</h2></div>
+        <dl class="kv">
+            <dt>Company</dt><dd class="strong">{{ opp.company if opp else '—' }}</dd>
+            <dt>Role</dt><dd>{{ opp.title if opp else '—' }}</dd>
+            <dt>Application ID</dt><dd><code>{{ attempt.id }}</code> · attempt #{{ attempt.attempt_number }}</dd>
+            <dt>Target URL</dt><dd>{% if target_url %}<code class="small">{{ target_url }}</code> · <a href="{{ target_url }}" target="_blank" rel="noopener">Open in browser</a>{% else %}<span class="muted">no target URL on record</span>{% endif %}</dd>
+            {% if package %}<dt>Target kind</dt><dd class="small muted">{{ package.target.ats_family.value }} · method {{ package.target.method.value }} · executor hint {{ package.target.executor_hint.value }}</dd>{% endif %}
+            <dt>Lane / level</dt><dd>{{ attempt.lane or '—' }} · {{ attempt.tailoring_level or '—' }}{% if prep %} · preparation v{{ prep.version }}{% endif %}</dd>
+        </dl>
+
+        <div class="section-title">Execution mode</div>
+        <dl class="kv">
+            <dt>Executor</dt><dd><span class="badge badge-blue">HEADED PLAYWRIGHT</span> — a visible Chromium window on this machine.</dd>
+            <dt>Mode</dt><dd>{% if mode == 'live' %}<span class="badge badge-red">LIVE</span> submit will be pressed once, by you asking for it.{% else %}<span class="badge badge-green">DRY RUN</span> submit is never pressed.{% endif %}</dd>
+            <dt>If it needs you</dt><dd class="small">A CAPTCHA, a login or a one-time code stops the run and hands it to you; the window waits {{ handoff_wait }}s (<code>PLAYWRIGHT_HANDOFF_WAIT_SECONDS</code>) so you can look at it.</dd>
+        </dl>
+
+        <div class="section-title">Pre-submit preconditions</div>
+        {% if preview %}
+            {% if preview.preconditions.ok %}<span class="badge badge-green">all preconditions pass</span>
+            {% else %}<ul class="small">{% for f in preview.preconditions.failures %}<li><code>{{ f.code }}</code> {{ f.message }}</li>{% endfor %}</ul>{% endif %}
+            {% if preview.preconditions.stale_inputs %}<p class="small muted">stale inputs: {{ preview.preconditions.stale_inputs|join(', ') }}</p>{% endif %}
+            <p class="small muted mt-2">They are checked again at the gate, immediately before submit.</p>
+        {% else %}<div class="empty compact">No preview could be built, so the preconditions were not evaluated.</div>{% endif %}
+    </section>
+
+    <section class="card" aria-labelledby="upload-title">
+        <div class="card-head"><h2 id="upload-title">Exactly what will be uploaded</h2></div>
+        <div class="table-wrap"><table class="table-compact"><thead><tr><th scope="col">Artifact</th><th scope="col">Version</th><th scope="col">SHA-256</th><th scope="col">Size</th></tr></thead><tbody>
+            <tr>
+                <td class="strong">Resume <span class="sub">{{ resume.artifact_type or 'RESUME' }}{% if resume.format %} · {{ resume.format }}{% endif %}</span></td>
+                {% if resume.rendered %}
+                <td>v{{ resume.version }}</td><td><code title="{{ resume.sha256 }}">{{ resume.sha256[:16] }}…</code></td><td class="small nowrap">{{ resume.bytes }} B · <a href="/desktop/documents/{{ resume.document_id }}/file" target="_blank" rel="noopener">open</a></td>
+                {% else %}
+                <td colspan="3" class="small muted">not rendered yet — rendering happens when execution starts{% if resume.template_version %} (template {{ resume.template_version }}, validation {{ resume.validation_status }}){% endif %}</td>
+                {% endif %}
+            </tr>
+            <tr>
+                <td class="strong">Cover letter</td>
+                {% if not cover_letter_enabled %}
+                <td colspan="3" class="small muted">disabled for this band</td>
+                {% elif cover_letter.rendered %}
+                <td>v{{ cover_letter.version }}</td><td><code title="{{ cover_letter.sha256 }}">{{ cover_letter.sha256[:16] }}…</code></td><td class="small nowrap">{{ cover_letter.bytes }} B · <a href="/desktop/documents/{{ cover_letter.document_id }}/file" target="_blank" rel="noopener">open</a></td>
+                {% else %}
+                <td colspan="3" class="small muted">not rendered yet — rendering happens when execution starts</td>
+                {% endif %}
+            </tr>
+        </tbody></table></div>
+
+        <div class="section-title">Prepared answers</div>
+        {% if answers %}
+        <div class="table-wrap"><table class="table-compact"><thead><tr><th scope="col">Question</th><th scope="col">Answer</th><th scope="col">Status</th><th scope="col">Evidence</th></tr></thead><tbody>
+        {% for a in answers %}
+        <tr class="{% if a.status != 'ANSWERED' %}row-uncertain{% endif %}">
+            <td>{{ a.question }}{% if a.required %}<span class="sub">Required</span>{% endif %}</td>
+            <td>{% if a.status == 'ANSWERED' %}{{ a.answer }}{% else %}<em class="muted">no answer</em>{% endif %}</td>
+            <td><span class="badge {% if a.status == 'ANSWERED' %}badge-green{% else %}badge-orange{% endif %}">{{ a.label }}</span><span class="sub">{{ a.source }}</span></td>
+            <td>{% for key in a.evidence_keys %}<div><code>{{ key }}</code> <span class="badge badge-{{ grade_badge.get(grades.get(key, 'UNVERIFIED'), 'orange') }}">{{ grades.get(key, 'UNVERIFIED') }}</span></div>{% endfor %}</td>
+        </tr>
+        {% endfor %}</tbody></table></div>
+        {% else %}<div class="empty compact">No screening questions were prepared.</div>{% endif %}
+
+        {% if fields %}
+        <div class="section-title">Mapped form fields ({{ fields|length }})</div>
+        <div class="table-wrap"><table class="table-compact"><thead><tr><th scope="col">Field</th><th scope="col">Mapped answer</th><th scope="col">Status</th></tr></thead><tbody>
+        {% for r in field_rows %}{% set f = r.field %}
+        <tr><td>{{ f.label }}<span class="sub">{{ f.field_type }}{% if f.required %} · required{% endif %}</span></td>
+            <td>{% if f.status == 'ANSWERED' %}{% if f.artifact_type %}<span class="badge badge-blue">{{ f.artifact_type }}</span>{% elif r.masked %}<span class="masked-value"><span data-masked>{{ r.display }}</span><span data-full hidden>{{ r.value }}</span><button type="button" class="reveal" data-reveal aria-expanded="false">Show</button></span>{% else %}{{ r.display }}{% endif %}{% else %}<em class="muted">nothing will be typed</em>{% endif %}</td>
+            <td><span class="badge {% if f.status == 'ANSWERED' %}badge-green{% elif f.status == 'SKIPPED' %}badge-muted{% else %}badge-orange{% endif %}">{% if f.status == 'NEEDS_USER_INPUT' %}NEEDS USER INPUT{% else %}{{ f.status }}{% endif %}</span></td>
+        </tr>
+        {% endfor %}</tbody></table></div>
+        {% else %}
+        <p class="small muted mt-3">No form has been discovered yet — the run maps the form itself when it opens the page.</p>
+        {% endif %}
+    </section>
+</div>
+
+<section class="card mt-4 {% if mode == 'live' and can_run %}live-zone{% endif %}" aria-labelledby="start-title">
+    <h2 id="start-title">Start</h2>
+    {% if not can_run %}
+    <div class="empty compact mt-3">Nothing to start from this screen. Fix the reason(s) above on the review page first.</div>
+    {% elif mode == 'live' and not execution_mode.live_enabled %}
+    <div class="note" role="alert" id="live-disabled">
+        <strong>Live submission is switched off (SAFE / DRY RUN).</strong>
+        The server refuses a real submission in this mode, so there is nothing to confirm here.
+        Switch to LIVE SUBMISSION ENABLED first; this screen then asks you to type SUBMIT.
+    </div>
+    <div class="actions mt-3">
+        <button type="button" class="danger" data-action data-method="POST" data-url="/desktop/api/submission-mode" data-body='{"mode": "live"}' data-done="Live submission enabled" data-next="/desktop/applications/{{ attempt.id }}/confirm?mode=live">Enable live submission</button>
+        <a class="btn secondary" href="/desktop/applications/{{ attempt.id }}/confirm?mode=dry_run">Do a dry run instead</a>
+        <a class="btn subtle" href="/desktop/applications/{{ attempt.id }}">Cancel</a>
+    </div>
+    {% elif mode == 'live' %}
+    <p class="mt-2">One application, one run, in a window you can watch. Type <code>SUBMIT</code> to unlock the button.</p>
+    <form id="run-form" onsubmit="return false" class="actions" style="margin: 12px 0 14px">
+        <input type="hidden" name="mode" value="live">
+        <label class="strong" for="confirm-phrase">Confirmation phrase</label>
+        <input id="confirm-phrase" class="confirm-input" name="confirm" autocomplete="off" spellcheck="false" placeholder="SUBMIT" aria-describedby="confirm-help"
+               oninput="document.getElementById('confirm-live').disabled = (this.value !== 'SUBMIT')">
+        <span id="confirm-help" class="hint">Exactly SUBMIT, in capitals. Pressing Enter does nothing.</span>
+    </form>
+    <div class="actions">
+        <button id="confirm-live" class="danger-solid lg" disabled data-action data-method="POST"
+                data-url="/desktop/api/attempts/{{ attempt.id }}/run" data-form="run-form"
+                data-require-input="confirm-phrase" data-require-value="SUBMIT"
+                data-next-from="job_url" data-done="Run started">Submit for real — I understand</button>
+        <a class="btn secondary" href="/desktop/applications/{{ attempt.id }}/confirm?mode=dry_run">Do a dry run instead</a>
+        <a class="btn subtle" href="/desktop/applications/{{ attempt.id }}">Cancel</a>
+    </div>
+    {% else %}
+    <p class="mt-2">The submit control is never pressed in a dry run.</p>
+    <div class="actions mt-3">
+        <button class="primary lg" data-action data-method="POST" data-url="/desktop/api/attempts/{{ attempt.id }}/run"
+                data-body='{"mode": "dry_run"}' data-next-from="job_url" data-done="Dry run started">Start dry run</button>
+        <a class="btn subtle" href="/desktop/applications/{{ attempt.id }}">Cancel</a>
+        <span class="spacer"></span>
+        <a class="btn danger" href="/desktop/applications/{{ attempt.id }}/confirm?mode=live">Submit for real instead</a>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

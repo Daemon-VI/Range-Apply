@@ -1,7 +1,6 @@
 """Truth and verification validation layer."""
 
-import logging
-from typing import Optional, Union
+from typing import Union
 
 from app.models.career_fact import CareerFact
 from app.models.claim import Claim

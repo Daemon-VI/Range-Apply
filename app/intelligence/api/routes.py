@@ -7,6 +7,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, R
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+from app.api.deps import get_tenant_id
 from app.database import get_db, get_session_factory
 from app.intelligence.database.models import JobMatchRow, MatchRunRow, RequirementAssessmentRow
 from app.intelligence.models.enums import EligibilityStatus
@@ -235,11 +236,16 @@ def recalculate_matches(
     response: Response,
     wait: bool = Query(default=False, description="Run synchronously and return the finished run."),
     db: Session = Depends(get_db),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """Recompute matches for stored jobs.
 
     Runs in the background by default: scoring the whole table can take longer
     than an HTTP request should live. Poll ``/api/v3/matches/runs``.
+
+    The run scores against the requesting tenant's Career Brain and projects
+    into that tenant's candidate opportunities; the tenant is explicit here
+    and never falls back to the default inside the pipeline.
     """
     job_ids = request.job_ids
     if request.only_stale and not job_ids:
@@ -252,12 +258,14 @@ def recalculate_matches(
         response.status_code = status.HTTP_200_OK
         run = run_matching(
             db=db,
-            orchestrator=build_orchestrator(),
+            orchestrator=_orchestrator_for(db, tenant_id),
             job_ids=job_ids,
             trigger="manual",
             include_closed=request.include_closed,
             limit=request.limit,
+            tenant_id=tenant_id,
         )
+        _sync_opportunities(db, run.id, tenant_id)
         return MatchRunResponse(
             id=run.id,
             status=run.status,
@@ -274,7 +282,7 @@ def recalculate_matches(
         )
 
     background_tasks.add_task(
-        _background_match, job_ids, request.include_closed, request.limit, "manual"
+        _background_match, job_ids, request.include_closed, request.limit, "manual", tenant_id
     )
     return {
         "status": "accepted",
@@ -283,24 +291,57 @@ def recalculate_matches(
     }
 
 
+def _orchestrator_for(db: Session, tenant_id: str):
+    """Match orchestrator bound to one tenant's Career Brain (never the default by accident)."""
+    from app.services.career_brain import CareerBrainService
+
+    brain = CareerBrainService(db=db, tenant_id=tenant_id)
+    brain.load()
+    return build_orchestrator(brain)
+
+
 def _background_match(
-    job_ids: Optional[List[str]], include_closed: bool, limit: Optional[int], trigger: str
+    job_ids: Optional[List[str]],
+    include_closed: bool,
+    limit: Optional[int],
+    trigger: str,
+    tenant_id: str,
 ) -> None:
     """Background entry point with its own session."""
     session = get_session_factory()()
     try:
-        run_matching(
+        run = run_matching(
             db=session,
-            orchestrator=build_orchestrator(),
+            orchestrator=_orchestrator_for(session, tenant_id),
             job_ids=job_ids,
             trigger=trigger,
             include_closed=include_closed,
             limit=limit,
+            tenant_id=tenant_id,
         )
+        _sync_opportunities(session, run.id, tenant_id)
     except Exception:  # noqa: BLE001 - never kill the worker
         logger.exception("Background match run failed")
     finally:
         session.close()
+
+
+def _sync_opportunities(db: Session, run_id: str, tenant_id: str) -> None:
+    """Project a finished match run into one tenant's candidate opportunities.
+
+    ``match_runs`` itself has no tenant column (the matcher scores jobs against
+    the Career Brain it was handed); the tenant is therefore carried explicitly
+    from the request to here. A failure is logged and never fails the run.
+    """
+    from app.pipeline.sync import sync_run
+
+    if not tenant_id:
+        logger.error("Opportunity sync skipped for match run %s: no tenant given", run_id)
+        return
+    try:
+        sync_run(db, tenant_id, run_id)
+    except Exception:  # noqa: BLE001 - the match run already succeeded
+        logger.exception("Opportunity sync failed for match run %s", run_id)
 
 
 @router.get("/{job_id}", response_model=MatchDetail)

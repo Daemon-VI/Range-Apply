@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Jobs</title></head>
+<body>
+<div id="root"><p>Loading…</p></div>
+<script src="_shared.js"></script>
+<script>
+  // A client-rendered application page: nothing is in the DOM at the load
+  // event; the form (and the title) appear after the "API call" completes.
+  const delay = parseInt(window.fixture.param('delay') || '1500', 10);
+  setTimeout(function () {
+    document.title = 'Software Engineer @ Foxtrot';
+    document.getElementById('root').innerHTML =
+      '<form id="apply" novalidate>' +
+      '<label>Name *<input type="text" name="_systemfield_name" required></label>' +
+      '<label>Email *<input type="email" name="_systemfield_email" required></label>' +
+      '<label>Resume<input type="file" name="_systemfield_resume"></label>' +
+      '<button type="submit">Submit application</button>' +
+      '</form>';
+    document.getElementById('apply').addEventListener('submit', function (e) {
+      e.preventDefault();
+      window.fixture.confirm('SPA-' + Math.random().toString(36).slice(2, 8).toUpperCase());
+    });
+  }, delay);
+</script>
+</body>
+</html>

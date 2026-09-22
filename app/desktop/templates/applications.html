@@ -1,0 +1,19 @@
+{% extends "desktop_base.html" %}
+{% block title %}CareerOS — Applications{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <div class="eyebrow">Prepare · Apply</div>
+        <h1>Applications</h1>
+        <p>Grouped by what each application needs from you. Actions go through the existing execution service; nothing on this page presses submit — real submission always goes through a confirmation screen.</p>
+    </div>
+</div>
+<nav class="tabs" aria-label="Application groups" hx-boost="true">
+    <a href="/desktop/applications"{% if not group %} aria-current="page"{% endif %}>All <span class="count">{{ counts.values()|sum }}</span></a>
+    {% for g in groups %}<a href="/desktop/applications?group={{ g }}"{% if group == g %} aria-current="page"{% endif %}>{{ group_meta[g].label }} <span class="count">{{ counts.get(g, 0) }}</span></a>{% endfor %}
+</nav>
+{% if legacy %}<div class="note info">Showing the legacy filter <code>{{ group }}</code> ({{ total }} attempt(s)).</div>{% endif %}
+<div id="application-rows" hx-get="/desktop/partials/applications?group={{ group }}" hx-trigger="careeros:refresh from:body" hx-swap="innerHTML">
+    {% include "_application_rows.html" %}
+</div>
+{% endblock %}

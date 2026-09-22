@@ -15,6 +15,12 @@ import re
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
+from app.intelligence.services.role_relevance import (
+    RoleAssessment,
+    assess_relevance,
+    technology_count,
+)
+from app.jobs.geography import GeoClass, GeoTier, job_location_texts, policy_from_preferences
 from app.jobs.models.enums import EmploymentType, RemoteType
 from app.jobs.models.job import NormalizedJob
 from app.models.preference import Preference
@@ -38,6 +44,10 @@ class PreferenceAssessment:
     # may choose to treat as a filter rather than a score.
     excluded: bool = False
     exclusion_reason: Optional[str] = None
+    #: False when the title shares nothing with any target role family (None: not evaluated).
+    role_family_matched: Optional[bool] = None
+    #: Role-family relevance against the candidate's target families (app/intelligence/services/role_relevance.py).
+    role: Optional[RoleAssessment] = None
 
     @property
     def applicable(self) -> bool:
@@ -65,7 +75,7 @@ class PreferenceEvaluator:
         "domain": 1.0,
     }
 
-    def evaluate(self, job: NormalizedJob, preferences: Preference) -> PreferenceAssessment:
+    def evaluate(self, job: NormalizedJob, preferences: Preference, profile_location: Optional[str] = None) -> PreferenceAssessment:
         assessment = PreferenceAssessment(score=0.0)
 
         # --- hard user exclusion (not an eligibility gate, a user filter) ---
@@ -76,9 +86,10 @@ class PreferenceEvaluator:
                 assessment.mismatches.append(assessment.exclusion_reason)
 
         self._role_signal(job, preferences, assessment)
+        assessment.role = assess_relevance(job.title, job.description, technology_count(job.technologies, job.required_skills), preferences)
         self._employment_signal(job, preferences, assessment)
         self._work_mode_signal(job, preferences, assessment)
-        self._location_signal(job, preferences, assessment)
+        self._location_signal(job, preferences, assessment, profile_location)
         self._target_company_signal(job, preferences, assessment)
         self._domain_signal(job, preferences, assessment)
 
@@ -121,6 +132,7 @@ class PreferenceEvaluator:
                         score,
                         f"Title matches {label} target role '{role}'.",
                     )
+                    assessment.role_family_matched = True
                     return
 
         # Partial overlap on a distinctive token ("engineer", "scientist").
@@ -134,8 +146,11 @@ class PreferenceEvaluator:
                         score * 0.6,
                         f"Title partially overlaps {label} target role '{role}' ({', '.join(sorted(overlap))}).",
                     )
+                    assessment.role_family_matched = True
                     return
 
+        if preferences.all_target_roles:
+            assessment.role_family_matched = False
         self._add(
             assessment,
             "role_family",
@@ -211,7 +226,20 @@ class PreferenceEvaluator:
                 f"Hybrid role vs hybrid preference '{preferences.hybrid_preference}'.",
             )
 
-    def _location_signal(self, job, preferences, assessment) -> None:
+    def _location_signal(self, job, preferences, assessment, profile_location: Optional[str] = None) -> None:
+        """Against the candidate's geographic target when one is known (``app/jobs/geography.py``).
+
+        A US posting used to be skipped (no preferred locations) or score 0.8 as
+        "remote, so location is moot"; it now scores as outside the target.
+        """
+        policy = policy_from_preferences(preferences, profile_location)
+        if policy.active:
+            geo = policy.assess_job(job.location, job.locations, job.metadata)
+            if geo.geo_class is GeoClass.UNKNOWN and not job_location_texts(job.location, job.locations, job.metadata):
+                return  # nothing stated: skipped, never penalised
+            score = {GeoTier.PRIMARY: 1.0, GeoTier.SECONDARY: 0.8, GeoTier.INTERNATIONAL: 0.5, GeoTier.UNCONFIRMED: 0.4}.get(geo.tier, 0.0)
+            self._add(assessment, "location", score, f"Location: {geo.detail}.")
+            return
         preferred = [p for p in (preferences.preferred_locations or []) if p]
         if not preferred or not job.location:
             return

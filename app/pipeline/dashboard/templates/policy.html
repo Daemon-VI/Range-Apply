@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Application policy — CareerOS{% endblock %}
+{% block content %}
+{% if notice %}
+<div class="card" style="margin-bottom: 16px;">
+    {% if notice.startswith('error:') %}<strong>Not applied:</strong> {{ notice.split(':', 2)[2] }}{% else %}<span class="badge badge-green">{{ notice }}</span>{% endif %}
+</div>
+{% endif %}
+
+<div class="card">
+    <h2>Application policy <span class="badge badge-blue">v{{ policy.version }}</span></h2>
+    <p style="color: var(--text-muted); font-size: 13px;">These are the only rules that keep an eligible job out of your pipeline. Priority never does.</p>
+    <form method="POST" action="/dashboard/policy" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 14px;">
+        <fieldset style="border: 1px solid var(--border); border-radius: 6px; padding: 10px;">
+            <legend>Enabled fit bands</legend>
+            {% for b in bands %}
+            <label style="display: block;"><input type="checkbox" name="enabled_bands" value="{{ b }}" {% if b in policy.enabled_bands|map(attribute='value')|list %}checked{% endif %}> {{ b }}</label>
+            {% endfor %}
+        </fieldset>
+        <fieldset style="border: 1px solid var(--border); border-radius: 6px; padding: 10px;">
+            <legend>Band thresholds (fit score) — config v{{ fit_bands.version }}</legend>
+            <label>HIGH above <input type="number" name="high_threshold" value="{{ policy.band_thresholds.get('HIGH', 70) }}" min="1" max="100" style="width: 80px;"></label><br>
+            <label>MEDIUM from <input type="number" name="medium_threshold" value="{{ policy.band_thresholds.get('MEDIUM', 45) }}" min="0" max="99" style="width: 80px;"></label><br>
+            <label>Optional fit floor <input type="number" name="minimum_fit_score" value="{{ policy.minimum_fit_score if policy.minimum_fit_score is not none else '' }}" min="0" max="100" style="width: 80px;" placeholder="none"></label>
+            <p style="color: var(--text-muted); font-size: 12px;">{% for r in fit_bands.bands %}{{ r.band.value }} {{ r.min_score }}–{{ r.max_score }}{% if not r.enabled %} (off){% endif %}{% if not loop.last %} · {% endif %}{% endfor %}. Changing thresholds bumps the policy version; stored matches and past decisions keep the version they were made under.</p>
+        </fieldset>
+        <fieldset style="border: 1px solid var(--border); border-radius: 6px; padding: 10px;">
+            <legend>AI (optional) — {% if ai.enabled %}<span class="badge badge-green">on: {{ ai.provider }}{% if ai.model %} / {{ ai.model }}{% endif %}</span>{% else %}<span class="badge badge-orange">off</span>{% endif %}</legend>
+            <label style="display: block;"><input type="checkbox" name="ai_enabled" {% if policy.ai_settings.enabled %}checked{% endif %}> Allow AI polish (L2) for this candidate</label>
+            <label>Provider <select name="ai_provider"><option value="">global ({{ ai.provider }})</option>{% for p in ai_providers %}<option value="{{ p }}" {% if policy.ai_settings.provider == p %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></label><br>
+            <label>Max provider calls per package <input type="number" name="ai_max_calls_per_run" value="{{ policy.ai_settings.max_calls_per_run if policy.ai_settings.max_calls_per_run is not none else '' }}" min="0" style="width: 80px;" placeholder="{{ ai.max_calls_per_run }}"></label><br>
+            <label style="display: block;"><input type="checkbox" name="ai_cache_enabled" {% if policy.ai_settings.cache_enabled is none or policy.ai_settings.cache_enabled %}checked{% endif %}> Use the local answer cache</label>
+            <p style="color: var(--text-muted); font-size: 12px;">{% if ai.reason %}{{ ai.reason }}.{% endif %} Everything runs without AI; AI only rewords sentences that already validate, and every rewrite is checked again against your evidence. Global switch: <code>AI_ENABLED</code> in <code>.env</code>.</p>
+        </fieldset>
+        <fieldset style="border: 1px solid var(--border); border-radius: 6px; padding: 10px;">
+            <legend>Caps</legend>
+            <label>Daily <input type="number" name="daily_cap" value="{{ policy.daily_cap }}" min="0" style="width: 90px;"></label><br>
+            <label>Weekly <input type="number" name="weekly_cap" value="{{ policy.weekly_cap }}" min="0" style="width: 90px;"></label><br>
+            <label>Company cool-down (days) <input type="number" name="cooldown_days" value="{{ policy.cooldown_days }}" min="0" style="width: 90px;"></label>
+        </fieldset>
+        <fieldset style="border: 1px solid var(--border); border-radius: 6px; padding: 10px;">
+            <legend>Minimum eligibility</legend>
+            <select name="minimum_eligibility">{% for d in decisions %}<option value="{{ d }}" {% if policy.minimum_eligibility.value == d %}selected{% endif %}>{{ d }}</option>{% endfor %}</select>
+            <p style="color: var(--text-muted); font-size: 12px;">UNCERTAIN admits jobs the description did not settle; they go to review, never to the bin.</p>
+        </fieldset>
+        <fieldset style="border: 1px solid var(--border); border-radius: 6px; padding: 10px;">
+            <legend>Lanes by band</legend>
+            {% for b in bands %}
+            <label style="display: block;">{{ b }}
+                <select name="lane_{{ b|lower }}">{% for lane in lanes %}<option value="{{ lane }}" {% if policy.lane_by_band.get(b) and policy.lane_by_band.get(b).value == lane %}selected{% endif %}>{{ lane }}</option>{% endfor %}</select>
+            </label>
+            {% endfor %}
+        </fieldset>
+        <fieldset style="border: 1px solid var(--border); border-radius: 6px; padding: 10px;">
+            <legend>Tailoring by band</legend>
+            {% for b in bands %}
+            <label style="display: block;">{{ b }}
+                <select name="tailoring_{{ b|lower }}">{% for lvl in levels %}<option value="{{ lvl }}" {% if policy.tailoring_by_band.get(b) and policy.tailoring_by_band.get(b).value == lvl %}selected{% endif %}>{{ lvl }}</option>{% endfor %}</select>
+            </label>
+            {% endfor %}
+        </fieldset>
+        <fieldset style="border: 1px solid var(--border); border-radius: 6px; padding: 10px; grid-column: 1 / -1;">
+            <legend>Blocked companies (comma-separated)</legend>
+            <input name="blocked_companies" value="{{ policy.blocked_companies|join(', ') }}" style="width: 100%;">
+        </fieldset>
+        <div><button type="submit">Save policy</button></div>
+    </form>
+</div>
+
+<div class="card" style="margin-top: 16px;">
+    <h3>Tier-1 gates <span class="badge badge-blue">{{ gate_ruleset_version }}</span></h3>
+    <p style="color: var(--text-muted); font-size: 13px;">Deterministic, ordered, versioned. A failing gate gives the reason code shown; priority never decides and there is no hidden top-N. Stateful gates are enforced where the state lives (scheduler, preparation, execution).</p>
+    <table>
+        <thead><tr><th>#</th><th>Gate</th><th>Passes when</th><th>Code on failure</th><th>Enforced at</th><th>Setting</th></tr></thead>
+        <tbody>
+        {% for g in gates %}
+        <tr><td>{{ loop.index }}</td><td><code>{{ g.gate }}</code></td><td>{{ g.description }}</td><td><code>{{ g.code }}</code></td><td>{{ g.enforced_at }}</td><td>{% if g.parameter %}<code>{{ g.parameter }}</code> = {{ g.value }}{% else %}—{% endif %}</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

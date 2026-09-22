@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CareerOS{% endblock %}</title>
+    <link rel="icon" href="/desktop/static/careeros.ico">
+    <link rel="stylesheet" href="/desktop/static/careeros.css">
+    <script src="/desktop/static/htmx.min.js" defer></script>
+    <script src="/desktop/static/desktop.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="app">
+    <header class="app-header">
+        {# The execution mode is permanently visible on every page. #}
+        <div class="safety-banner {% if execution_mode.dry_run %}safe{% else %}live{% endif %}" role="status" aria-label="Execution mode">
+            {% set here = request.url.path ~ ('?' ~ request.url.query if request.url.query else '') %}
+            {% if execution_mode.dry_run %}
+            <span class="mode-label" id="submission-mode" data-mode="SAFE">SAFE / DRY RUN</span>
+            <span class="explain">Real submission is switched off on the server: only dry runs can start. Nothing is ever submitted in this mode.</span>
+            <button type="button" class="btn danger sm" data-action data-method="POST" data-url="/desktop/api/submission-mode" data-body='{"mode": "live"}' data-done="Live submission enabled" data-next="{{ here }}">Enable live submission</button>
+            {% else %}
+            <span class="mode-label" id="submission-mode" data-mode="LIVE">LIVE SUBMISSION ENABLED</span>
+            <span class="explain">A real submission can be started — still one application at a time, from its confirmation screen, after typing SUBMIT.</span>
+            <button type="button" class="btn secondary sm" data-action data-method="POST" data-url="/desktop/api/submission-mode" data-body='{"mode": "safe"}' data-done="Back to SAFE / DRY RUN" data-next="{{ here }}">Return to SAFE</button>
+            {% endif %}
+            {% if execution_mode.kill_switch %}<span class="kill">KILL SWITCH ON — nothing executes</span>{% endif %}
+        </div>
+    </header>
+
+    <nav class="sidebar" aria-label="Main">
+        <div class="brand"><span class="brand-mark" aria-hidden="true">C</span><span>CareerOS<small>Job-application OS</small></span></div>
+        <div hx-boost="true">
+            <div class="nav-group">
+                <div class="nav-group-label" id="nav-search">Job search</div>
+                <ul class="nav-list" aria-labelledby="nav-search">
+                    <li><a href="/desktop/"{% if nav == 'home' %} aria-current="page"{% endif %}>Home</a></li>
+                    <li><a href="/desktop/opportunities"{% if nav == 'opportunities' %} aria-current="page"{% endif %}>Opportunities</a></li>
+                    <li><a href="/desktop/applications"{% if nav == 'applications' %} aria-current="page"{% endif %}>Applications</a></li>
+                    <li><a href="/desktop/attention"{% if nav == 'attention' %} aria-current="page"{% endif %}>Needs you{% if attention_count %} <span class="badge badge-orange">{{ attention_count }}</span><span class="sr-only"> items need you</span>{% endif %}</a></li>
+                    <li><a href="/dashboard/profile/"{% if nav == 'profile' %} aria-current="page"{% endif %}>Career Brain</a></li>
+                    <li><a href="/desktop/documents"{% if nav == 'documents' %} aria-current="page"{% endif %}>Documents</a></li>
+                    <li><a href="/desktop/notifications"{% if nav == 'notifications' %} aria-current="page"{% endif %}>Notifications{% if notification_count %} <span class="badge badge-blue">{{ notification_count }}</span><span class="sr-only"> unseen</span>{% endif %}</a></li>
+                </ul>
+            </div>
+            <div class="nav-group secondary">
+                <div class="nav-group-label" id="nav-more">More</div>
+                <ul class="nav-list" aria-labelledby="nav-more">
+                    <li><a href="/dashboard/signals">Signals</a></li>
+                    <li><a href="/dashboard/learning">Learning</a></li>
+                    <li><a href="/desktop/system"{% if nav == 'system' %} aria-current="page"{% endif %}>System</a></li>
+                    <li><a href="/dashboard/ops">Diagnostics</a></li>
+                    <li><a href="/dashboard/scheduler">Scheduler</a></li>
+                    <li><a href="/dashboard/queue">Queue</a></li>
+                    <li><a href="/dashboard/policy">Policy</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main id="main" class="main" tabindex="-1">
+        {% if notice %}
+        <div class="note {% if not notice.startswith('error:') %}ok{% else %}danger{% endif %}" role="alert">{% if notice.startswith('error:') %}Not applied: {{ notice.split(':', 2)[2] }}{% else %}{{ notice }}{% endif %}</div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+</div>
+<div id="toasts" role="status" aria-live="polite" aria-atomic="false"></div>
+</body>
+</html>

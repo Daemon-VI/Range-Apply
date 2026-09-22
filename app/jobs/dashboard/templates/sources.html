@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Source health — CareerOS{% endblock %}
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <h2 style="font-size: 18px;">Source health</h2>
+        <a href="/dashboard/runs">Runs →</a>
+    </div>
+    <p style="color: var(--text-muted); font-size: 13px;">Reliability is recorded, never used to drop jobs. Failing boards back off automatically (interval doubles per failure, max 24h) and are never disabled without you.</p>
+    <div style="overflow-x: auto;">
+    <table>
+        <thead><tr><th>Source</th><th>Board</th><th>Company</th><th>Enabled</th><th>Last run</th><th>Success rate</th><th>Consecutive failures</th><th>Last failure</th><th>Rate limited</th><th>Fetched / parsed / rejected</th><th>Last new</th><th>Freshest posting</th><th>Next poll</th><th>Circuit</th></tr></thead>
+        <tbody>
+        {% for row in rows %}
+            <tr>
+                <td><span class="badge badge-blue">{{ row.source }}</span></td>
+                <td><strong>{{ row.source_identifier }}</strong></td>
+                <td>{{ row.company_name or '' }}</td>
+                <td>{% if row.enabled %}<span class="badge badge-green">on</span>{% else %}<span class="badge badge-muted">off</span>{% endif %}</td>
+                <td style="white-space: nowrap;">{{ row.last_run_at.strftime('%Y-%m-%d %H:%M') if row.last_run_at else '—' }}</td>
+                <td>{% if row.runs_total %}{{ '%.0f' % (100 * row.runs_success / row.runs_total) }}% ({{ row.runs_success }}/{{ row.runs_total }}){% else %}—{% endif %}</td>
+                <td>{% if row.consecutive_failures %}<span class="badge badge-orange">{{ row.consecutive_failures }}</span>{% else %}0{% endif %}</td>
+                <td style="font-size: 12px; color: var(--text-muted);">{{ row.last_failure_kind or '' }}{% if row.last_error %}<br>{{ row.last_error[:80] }}{% endif %}</td>
+                <td>{{ row.runs_rate_limited }}</td>
+                <td>{{ row.jobs_fetched_total }} / {{ row.jobs_parsed_total }} / {{ row.jobs_rejected_total }}</td>
+                <td>{{ row.last_jobs_new }}</td>
+                <td style="white-space: nowrap;">{{ row.last_fresh_posted_at.strftime('%Y-%m-%d') if row.last_fresh_posted_at else 'unknown' }}</td>
+                <td style="white-space: nowrap;">{{ row.next_poll_at.strftime('%Y-%m-%d %H:%M') if row.next_poll_at else 'now' }}</td>
+                <td>{% set c = circuits.get(row.source) %}{% if c and c.open_for_seconds > 0 %}<span class="badge badge-orange">open {{ '%.0f' % c.open_for_seconds }}s</span>{% else %}<span class="badge badge-green">closed</span>{% endif %}</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="14" style="text-align: center; color: var(--text-muted);">No sources tracked yet. Boards are registered by <code>POST /api/v2/discovery/run-batch</code> or <code>POST /api/v2/discovery/sources</code>.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+{% endblock %}

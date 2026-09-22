@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Opportunities — CareerOS{% endblock %}
+{% block content %}
+<div class="grid">
+    {% for name in ['DISCOVERED', 'ELIGIBLE', 'UNCERTAIN', 'INELIGIBLE', 'QUEUED', 'SUBMITTED'] %}
+    <div class="card"><div class="stat-label">{{ name }}</div><div class="stat-value">{{ counts.get(name, 0) }}</div></div>
+    {% endfor %}
+</div>
+
+<div class="card" style="margin-bottom: 20px;">
+    <form method="GET" action="/dashboard/opportunities" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+        <select name="state"><option value="">Any state</option>{% for s in states %}<option value="{{ s }}" {% if filters.state == s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
+        <select name="fit_band"><option value="">Any band</option>{% for b in bands %}<option value="{{ b }}" {% if filters.fit_band == b %}selected{% endif %}>{{ b }}</option>{% endfor %}</select>
+        <select name="eligibility"><option value="">Any eligibility</option>{% for d in decisions %}<option value="{{ d }}" {% if filters.eligibility == d %}selected{% endif %}>{{ d }}</option>{% endfor %}</select>
+        <select name="admitted"><option value="">Admitted: any</option><option value="true" {% if filters.admitted == 'true' %}selected{% endif %}>Admitted</option><option value="false" {% if filters.admitted == 'false' %}selected{% endif %}>Not admitted</option></select>
+        <input type="number" name="limit" value="{{ filters.limit }}" min="1" max="500" style="width: 80px;">
+        <button type="submit">Apply</button>
+        <span style="color: var(--text-muted); font-size: 13px;">{{ total }} matching</span>
+    </form>
+</div>
+
+<div class="card">
+    <h3>Opportunities (ordered by priority, then fit)</h3>
+    <p style="color: var(--text-muted); font-size: 13px;">Priority orders processing. Eligibility and your policy decide admission. Nothing here is hidden because of low priority.</p>
+    <table>
+        <thead><tr><th>Title</th><th>Company</th><th>Fresh</th><th>Eligibility</th><th>Fit</th><th>Band</th><th>Priority</th><th>Admitted</th><th>State</th><th>Src</th></tr></thead>
+        <tbody>
+        {% for co, opp, job, fresh in items %}
+            <tr class="{% if co.eligibility_status == 'INELIGIBLE' %}row-ineligible{% elif co.eligibility_status in ['UNCERTAIN', 'REVIEW'] %}row-uncertain{% endif %}">
+                <td>{% if job %}<a href="/dashboard/jobs/{{ job.id }}">{{ opp.title }}</a>{% else %}{{ opp.title }}{% endif %}{% if opp.repost_count %} <span class="badge badge-purple">repost ×{{ opp.repost_count }}</span>{% endif %}</td>
+                <td>{{ opp.company }}</td>
+                <td>{{ fresh }}</td>
+                <td>{% if co.eligibility_status %}<span class="badge {% if co.eligibility_status in ['ELIGIBLE', 'LIKELY'] %}badge-green{% elif co.eligibility_status == 'INELIGIBLE' %}badge-orange{% else %}badge-purple{% endif %}">{{ co.eligibility_status }}</span>{% else %}—{% endif %}</td>
+                <td>{{ co.fit_score if co.fit_score is not none else '—' }}</td>
+                <td>{% if co.fit_band %}<span class="badge badge-blue">{{ co.fit_band }}</span>{% endif %}</td>
+                <td><strong>{{ co.priority_score if co.priority_score is not none else '—' }}</strong></td>
+                <td>{% if co.policy_admitted %}<span class="badge badge-green">yes</span>{% elif co.policy_admitted is not none %}<span class="badge badge-orange" title="{{ co.policy_reason }}">no</span>{% else %}—{% endif %}</td>
+                <td><code>{{ co.state }}</code></td>
+                <td style="font-size: 12px; color: var(--text-muted);">{{ job.source if job else '' }}</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="10" style="color: var(--text-muted);">No candidate opportunities yet. Run discovery, then <code>POST /api/v3/matches/recalculate</code>; the match run syncs opportunities automatically.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<style>.row-ineligible td { opacity: 0.55; } .row-uncertain { box-shadow: inset 3px 0 0 var(--accent-orange); }</style>
+{% endblock %}

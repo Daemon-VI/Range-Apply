@@ -30,10 +30,19 @@ from app.intelligence.models.enums import (
 from app.intelligence.models.requirements import RequirementAssessment
 from app.intelligence.services.eligibility_engine import EligibilityEvaluation
 from app.intelligence.services.preference_evaluator import PreferenceAssessment
+from app.intelligence.services.role_relevance import Relevance
 
 #: Bump when the scoring arithmetic changes so old scores stay identifiable.
 POLICY_VERSION = "v1"
-ENGINE_VERSION = "1.1.0"
+ENGINE_VERSION = "1.3.0"
+#: Ceiling for an unread JD whose title matches no target role family (below the default MEDIUM band of 45).
+UNRELATED_ROLE_FIT_CAP = 30
+#: Ceiling for a potentially technical role without technical evidence (sales engineer, product builder...).
+WEAK_ROLE_FIT_CAP = 55
+#: Weight of the neutral prior on the technical component (one REQUIRED requirement).
+TECHNICAL_EVIDENCE_PRIOR = 3.0
+#: Ceiling for any JD from which no technical requirement was read (below the default HIGH band of 70).
+LOW_COVERAGE_FIT_CAP = 60
 
 DEFAULT_POLICY_WEIGHTS: Dict[str, float] = {
     "technical": 0.40,
@@ -177,6 +186,13 @@ class FitScoringEngine:
                 component_scores[component] = ELIGIBILITY_CREDIT.get(eligibility.status, 0.0)
             elif component == "preferences":
                 component_scores[component] = preferences.score if preferences else 0.5
+            elif possible[component] > 0 and component == "technical":
+                # Thin evidence (2026-09-14): "Python" and "SQL" matched made the
+                # technical component 100%. A neutral prior worth one required
+                # requirement keeps a two-keyword match from reading as complete.
+                component_scores[component] = (earned[component] + 0.5 * TECHNICAL_EVIDENCE_PRIOR) / (possible[component] + TECHNICAL_EVIDENCE_PRIOR)
+                if possible[component] < 3 * TECHNICAL_EVIDENCE_PRIOR:
+                    uncertainties.append("Few technical requirements were read, so the technical score is weighted toward neutral.")
             elif possible[component] > 0:
                 component_scores[component] = earned[component] / possible[component]
             else:
@@ -229,6 +245,23 @@ class FitScoringEngine:
                 "No recognizable technical requirements were extracted from this job "
                 "description, so the score reflects only preferences and eligibility."
             )
+
+        # Selection quality (2026-09-14): role-family relevance and unread
+        # descriptions cap fit. Perplexity "Motion Designer" scored 69 and Zeta
+        # "Cloud Network Engineer II" 100 on employment type, location and
+        # eligibility alone. Every cap is recorded so the score explains itself.
+        role = getattr(preferences, "role", None) if preferences is not None else None
+        caps = []
+        if role is not None and role.relevance is Relevance.UNRELATED:
+            caps.append((UNRELATED_ROLE_FIT_CAP, f"{role.detail}, so fit is capped at {UNRELATED_ROLE_FIT_CAP}."))
+        elif role is not None and role.relevance is Relevance.WEAK:
+            caps.append((WEAK_ROLE_FIT_CAP, f"{role.detail}, so fit is capped at {WEAK_ROLE_FIT_CAP}."))
+        if low_coverage:
+            caps.append((LOW_COVERAGE_FIT_CAP, f"No technical requirement was read, so fit is capped at {LOW_COVERAGE_FIT_CAP}."))
+        for cap, note in sorted(caps):
+            if fit_score > cap:
+                uncertainties.append(note[0].upper() + note[1:])
+                fit_score = cap
 
         confidence = _score_confidence(assessments, eligibility, uncertainties)
         priority = _priority(fit_score, eligibility.status)

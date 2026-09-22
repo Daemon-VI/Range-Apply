@@ -20,7 +20,6 @@ from app.database import get_db
 from app.intelligence.database.models import JobMatchRow, MatchRunRow, RequirementAssessmentRow
 from app.jobs.database.models import Base, JobRow
 from app.tailoring.api.routes import router as tailoring_router
-from app.tailoring.database.models import TailoredArtifactRow
 from app.tailoring.generator import TailoringEngine
 from tests.conftest import AUTH_HEADERS
 

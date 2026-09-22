@@ -2,14 +2,22 @@ from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
 
-from alembic import context
-
-from app.config import settings
-from app.jobs.database.models import Base
-import app.intelligence.database.models  # noqa: F401
-import app.tailoring.database.models  # noqa: F401
+import app.ai.database.models  # noqa: F401
 import app.application.database.models  # noqa: F401
 import app.application.killswitch  # noqa: F401
+import app.career.database.models  # noqa: F401
+import app.documents.database.models  # noqa: F401
+import app.execution.database.models  # noqa: F401
+import app.intelligence.database.models  # noqa: F401
+import app.learning.database.models  # noqa: F401
+import app.pipeline.database.models  # noqa: F401
+import app.preparation.database.models  # noqa: F401
+import app.scheduler.database.models  # noqa: F401
+import app.signals.database.models  # noqa: F401
+import app.tailoring.database.models  # noqa: F401
+from alembic import context
+from app.config import settings
+from app.jobs.database.models import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

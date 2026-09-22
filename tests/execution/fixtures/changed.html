@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Apply - Theta (form changed)</title></head>
+<body>
+  <h1>Apply</h1>
+  <form novalidate>
+    <p><label>Full name *<input type="text" name="fullname" required></label></p>
+    <p><label>Email *<input type="email" name="email" required></label></p>
+    <p><label>Security clearance level *<input type="text" name="clearance" required></label></p>
+    <button type="submit">Submit</button>
+  </form>
+  <script src="_shared.js"></script>
+  <script>
+    document.querySelector('form').addEventListener('submit', function (e) { e.preventDefault(); window.fixture.confirm('TH-1'); });
+  </script>
+</body>
+</html>

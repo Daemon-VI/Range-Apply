@@ -1,6 +1,5 @@
 """Tests for deterministic extraction (Milestone 6)."""
 
-import pytest
 
 from app.jobs.extraction.deterministic import (
     extract_employment_type,
