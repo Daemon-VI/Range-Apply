@@ -1,0 +1,62 @@
+<div id="run-status" aria-live="polite"{% if job.state == 'running' %} aria-busy="true" hx-get="/desktop/partials/run/{{ job.id }}" hx-trigger="every 2s" hx-swap="outerHTML"{% endif %}>
+{% if job.state == 'running' %}
+<section class="card tone-blue" aria-labelledby="run-headline">
+    <div class="section-title">In progress</div>
+    <div id="run-headline" class="run-headline tone-blue"><span class="spinner" aria-hidden="true"></span> Running — watch the browser window. Do not close it.</div>
+    <p class="small muted mt-2">{% if job.mode == 'live' %}LIVE — submit will be pressed once.{% else %}DRY RUN — the submit control is never pressed.{% endif %} Started {{ job.started_at.strftime('%Y-%m-%d %H:%M:%S') if job.started_at else '—' }} · worker <code>{{ job.worker_id }}</code>. This page refreshes itself every 2 seconds.</p>
+</section>
+{% else %}
+<section class="card tone-{{ headline.tone }}" aria-labelledby="run-headline">
+    <div class="section-title">Result</div>
+    <div id="run-headline" class="run-headline tone-{{ headline.tone }}">{{ headline.label }}</div>
+    {% if headline.detail %}<p class="mt-2">{{ headline.detail }}</p>{% endif %}
+    {% if headline.code == 'DRY_RUN' %}
+    <p class="small muted mt-2">{{ diagnostics.get('fields_filled', 0) }} field(s) filled, {{ diagnostics.get('fields_skipped', 0) }} skipped, submit not pressed.{% if diagnostics.get('missing_required') %} Missing required: {{ diagnostics.get('missing_required')|join(', ') }}.{% endif %}</p>
+    {% endif %}
+    {% if headline.code in ['RETRYABLE', 'PERMANENT'] and run %}
+    <p class="small mt-2"><code>{{ run.error_class or 'UNKNOWN' }}</code> {{ run.error_message or '' }}</p>
+    {% endif %}
+    {% if headline.code == 'RUN_DID_NOT_START' %}
+    <p class="small mt-2">{{ job.error or 'No reason was recorded.' }}</p>
+    {% endif %}
+    {% if headline.code == 'BLOCKED' %}
+    <div class="task-body">
+        <p><span class="label">What happened</span>{{ handoff.what if handoff else (handoff_message or 'The run stopped before submitting.') }}</p>
+        <p><span class="label">Why it needs you</span>{{ handoff.why if handoff else 'Only a person may carry this step out.' }}</p>
+        <p><span class="label">What you can do</span>{{ handoff.do if handoff else 'Open the page, finish the application by hand, then confirm the outcome here.' }}</p>
+    </div>
+    <dl class="kv mt-3 small">
+        {% if handoff_message %}<dt>Detail</dt><dd class="muted">{{ handoff_message }}</dd>{% endif %}
+        {% if remaining_steps %}<dt>Remaining steps</dt><dd>{{ remaining_steps|join(' · ') }}</dd>{% endif %}
+    </dl>
+    {% endif %}
+    <div class="actions mt-3">
+        {% if headline.code == 'DRY_RUN' %}<a class="btn primary" href="/desktop/applications/{{ attempt.id }}">Back to review</a>{% endif %}
+        {% if open_url %}<a class="btn secondary" href="{{ open_url }}" target="_blank" rel="noopener">Open in browser</a>{% endif %}
+        {% if headline.code == 'UNKNOWN' and run %}
+        <button class="primary" data-action data-method="POST" data-url="/api/v1/execution/runs/{{ run.id }}/confirm" data-body='{"submitted": true, "note": "confirmed from the desktop"}' data-confirm="Confirm that this application WAS submitted to the employer?" data-done="Submission confirmed">It was submitted</button>
+        <button class="secondary" data-action data-method="POST" data-url="/api/v1/execution/runs/{{ run.id }}/confirm" data-body='{"submitted": false, "note": "rejected from the desktop"}' data-confirm="Confirm that this application was NOT submitted?" data-done="Marked as not submitted">It was not submitted</button>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+<section class="card mt-4" aria-labelledby="run-details">
+    <details open>
+        <summary id="run-details">Details</summary>
+        <dl class="kv mt-3">
+            <dt>Desktop job</dt><dd><code>{{ job.id }}</code> · {{ job.mode }} · state {{ job.state }} · worker <code>{{ job.worker_id }}</code></dd>
+            <dt>Execution run</dt><dd>{% if run %}<code>{{ run.id }}</code> · run #{{ run.run_number }} · {{ run.executor_kind }} {{ run.executor_version }} · worker <code>{{ run.worker_id or '—' }}</code>{% else %}<span class="muted">no execution run was created</span>{% endif %}</dd>
+            <dt>Attempt</dt><dd><code>{{ attempt.id }}</code> · <span class="badge badge-{{ badge.get(attempt.status, 'muted') }}">{{ attempt.status }}</span>{% if attempt.status_reason %} <span class="small muted">{{ attempt.status_reason }}</span>{% endif %}</dd>
+            <dt>Submission status</dt><dd>{% if run %}{{ run.status }}{% if run.outcome %} · outcome {{ run.outcome }}{% endif %} · Submit pressed: {% if submit_pressed %}<span class="badge badge-orange">yes</span>{% else %}<span class="badge badge-muted">no</span>{% endif %}{% else %}<span class="muted">—</span>{% endif %}</dd>
+            <dt>Verification</dt><dd>{% if run %}{{ run.verification_status }}{% if run.verification_method %} ({{ run.verification_method }}){% endif %}{% if run.verification_detail %}<div class="small muted">{{ run.verification_detail }}</div>{% endif %}{% else %}<span class="muted">—</span>{% endif %}</dd>
+            {% if run and run.confirmation_reference %}<dt>Confirmation reference</dt><dd><code>{{ run.confirmation_reference }}</code></dd>{% endif %}
+            {% if run and run.application_url %}<dt>Application URL</dt><dd><a href="{{ run.application_url }}" target="_blank" rel="noopener">{{ run.application_url }}</a></dd>{% endif %}
+            <dt>Signal created</dt><dd>{% if signal %}<span class="badge badge-blue">{{ signal.category }}</span> <span class="badge badge-muted">{{ signal.status }}</span>{% else %}<span class="muted">none from this run</span>{% endif %}</dd>
+            <dt>Current outcome</dt><dd>{% if outcome_row %}<span class="badge badge-muted">{{ outcome_row.current_outcome }}</span>{% if outcome_row.needs_review %} <span class="badge badge-orange">needs review</span>{% endif %}{% else %}<span class="muted">not derived yet</span>{% endif %}</dd>
+            <dt>Started</dt><dd class="small">{{ job.started_at.strftime('%Y-%m-%d %H:%M:%S') if job.started_at else '—' }}{% if run and run.started_at %} <span class="muted">(run {{ run.started_at.strftime('%H:%M:%S') }})</span>{% endif %}</dd>
+            <dt>Finished</dt><dd class="small">{{ job.finished_at.strftime('%Y-%m-%d %H:%M:%S') if job.finished_at else '—' }}{% if run and run.finished_at %} <span class="muted">(run {{ run.finished_at.strftime('%H:%M:%S') }})</span>{% endif %}</dd>
+        </dl>
+    </details>
+</section>
+</div>

@@ -1,0 +1,25 @@
+body { width: 340px; margin: 0; font: 13px/1.45 system-ui, sans-serif; color: #1b1b1b; background: #fff; }
+header, footer { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; }
+header { border-bottom: 1px solid #e3e3e3; }
+footer { border-top: 1px solid #e3e3e3; gap: 12px; }
+footer a { color: #1a5fb4; text-decoration: none; }
+main { padding: 12px; }
+.pill { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #eee; }
+.pill.ok { background: #d9f2dc; color: #14532d; }
+.pill.bad { background: #ffe0e0; color: #7f1d1d; }
+.muted { color: #666; }
+.small { font-size: 12px; }
+.warn { color: #9a3412; }
+.job { margin-bottom: 8px; font-size: 14px; }
+.phase { margin: 8px 0; padding: 8px 10px; border-radius: 6px; background: #f3f6fb; }
+.phase.ok { background: #e6f7e6; }
+.phase.bad { background: #ffe8e8; }
+.phase.warn { background: #fff4e0; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+button { flex: 1; padding: 8px 10px; border: 0; border-radius: 6px; background: #1a5fb4; color: #fff; font: inherit; cursor: pointer; }
+button.secondary { background: #e9ecef; color: #1b1b1b; }
+button:disabled { opacity: .5; cursor: default; }
+label { display: block; font-size: 12px; margin: 6px 0; }
+input[type=text], input:not([type]) { width: 100%; box-sizing: border-box; padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px; font: inherit; }
+.pending { border: 1px solid #e3e3e3; border-radius: 6px; padding: 8px; margin: 6px 0; }
+.pending .why { font-size: 11px; color: #666; }

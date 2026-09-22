@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Application submitted</title></head>
+<body>
+  <h1>Thank you for applying!</h1>
+  <p>Your application has been submitted. Application ID: <strong id="ref"></strong></p>
+  <script>
+    document.getElementById('ref').textContent = new URLSearchParams(location.search).get('ref') || 'UNKNOWN';
+  </script>
+</body>
+</html>

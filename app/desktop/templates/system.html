@@ -1,0 +1,61 @@
+{% extends "desktop_base.html" %}
+{% block title %}CareerOS — System{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <div class="eyebrow">Advanced</div>
+        <h1>System</h1>
+        <p>Local services, safety switches and the operations diagnostics. For troubleshooting; day-to-day work lives under Jobs and Prepare. No secrets are shown here.</p>
+    </div>
+    <div class="actions">
+        <a class="btn secondary" href="/dashboard/ops">Full diagnostics</a>
+        <a class="btn subtle" href="/dashboard/scheduler">Scheduler</a>
+        <a class="btn subtle" href="/dashboard/policy">Policy</a>
+        <a class="btn subtle" href="/dashboard/queue">Queue</a>
+    </div>
+</div>
+
+<section aria-labelledby="services-title">
+    <h2 id="services-title" class="section-title">Services &amp; safety</h2>
+    <div class="grid">
+        <div class="card"><div class="stat"><span class="stat-label">Execution mode</span><span class="mt-2">{% if settings_view.playwright_dry_run %}<span class="badge badge-green">SAFE / DRY RUN</span>{% else %}<span class="badge badge-red">LIVE</span>{% endif %}</span><span class="stat-sub mt-2">kill switch {% if execution_mode.kill_switch %}<span class="badge badge-red">ON</span>{% else %}off{% endif %} · API key {% if settings_view.api_key_configured %}configured{% else %}not set{% endif %} · AI {% if settings_view.ai_enabled %}on{% else %}off{% endif %}</span></div></div>
+        <div class="card"><div class="stat"><span class="stat-label">API</span><span class="mt-2"><span class="badge badge-green">healthy</span></span><span class="stat-sub mt-2">{{ settings_view.app_env }} · {{ settings_view.deployment_mode }}</span></div></div>
+        <div class="card"><div class="stat"><span class="stat-label">Database</span><span class="mt-2">{% if database.reachable and database.migrated %}<span class="badge badge-green">healthy</span>{% elif database.reachable %}<span class="badge badge-orange">not migrated</span>{% else %}<span class="badge badge-red">unreachable</span>{% endif %}</span><span class="stat-sub mt-2"><code>{{ database.url }}</code>{% if database.missing %} · missing {{ database.missing|length }} table(s){% endif %}</span></div></div>
+        <div class="card"><div class="stat"><span class="stat-label">Worker</span><span class="mt-2">{% if shell and shell.worker.state == 'running' %}<span class="badge badge-green">running</span>{% elif shell %}<span class="badge badge-muted">{{ shell.worker.state }}</span>{% else %}<span class="badge badge-muted">external</span>{% endif %}</span><span class="stat-sub mt-2">{% if shell and shell.worker.totals %}{{ shell.worker.totals }}{% elif shell and shell.worker.error %}{{ shell.worker.error }}{% else %}start with <code>python -m app.desktop --worker</code>{% endif %}</span></div></div>
+        <div class="card"><div class="stat"><span class="stat-label">Browser execution</span><span class="mt-2">{% if browser_available %}<span class="badge badge-green">available</span>{% else %}<span class="badge badge-orange">unavailable</span>{% endif %}</span><span class="stat-sub mt-2">Playwright {% if browser_available %}installed{% else %}not installed{% endif %} · headless {{ settings_view.playwright_headless }}</span></div></div>
+        <div class="card"><div class="stat"><span class="stat-label">Notifications</span><span class="mt-2">{% if notifications_view.native.available %}<span class="badge badge-green">{{ notifications_view.native.name }}</span>{% else %}<span class="badge badge-muted">in-app only</span>{% endif %}</span><span class="stat-sub mt-2">{{ notifications_view.unseen }} unseen · {{ notifications_view.held }} held in memory · <a href="/desktop/notifications">open</a></span></div></div>
+    </div>
+</section>
+
+{% if health.get('warnings') %}
+<div class="note" role="alert"><strong>Warnings</strong><ul>{% for w in health['warnings'] %}<li>{{ w }}</li>{% endfor %}</ul></div>
+{% endif %}
+
+<div class="two">
+    <section class="card" aria-labelledby="queue-title">
+        <div class="card-head"><h2 id="queue-title">Queue and execution</h2></div>
+        <dl class="kv">
+            <dt>Queue depth</dt><dd>{% for s, n in queue.items() %}{{ s }} {{ n }}{% if not loop.last %} · {% endif %}{% else %}empty{% endfor %}</dd>
+            <dt>Stale leases</dt><dd>{{ health.get('queue', {}).get('stale_leases', 0) }}</dd>
+            <dt>Running attempts</dt><dd>{{ running }}</dd>
+            <dt>Execution runs</dt><dd>{% for s, n in health.get('executions', {}).get('by_status', {}).items() %}{{ s }} {{ n }}{% if not loop.last %} · {% endif %}{% else %}none{% endfor %}</dd>
+            <dt>Throughput (24 h)</dt><dd>{% set t = health.get('executions', {}).get('last_24h', {}) %}{% if t is mapping %}{% for s, n in t.items() %}{{ s }} {{ n }}{% if not loop.last %} · {% endif %}{% else %}no runs{% endfor %}{% else %}{{ t }} run(s){% endif %}</dd>
+            <dt>Unknown outcomes</dt><dd>{{ health.get('executions', {}).get('unknown', 0) }}</dd>
+            <dt>Lease / retries</dt><dd class="small muted">{{ settings_view.execution_lease_seconds }} s · {{ settings_view.execution_max_attempts }} attempts</dd>
+        </dl>
+    </section>
+    <section class="card" aria-labelledby="ops-title">
+        <div class="card-head"><h2 id="ops-title">Signals, discovery, AI, caps, learning</h2></div>
+        <dl class="kv">
+            <dt>Review signals</dt><dd>{{ health.get('signals', {}).get('review_queue', 0) }}</dd>
+            <dt>Discovery runs (24 h)</dt><dd>{% set d = health.get('discovery', {}).get('runs_last_24h', {}) %}{% if d is mapping %}{% for s, n in d.items() %}{{ s }} {{ n }}{% if not loop.last %} · {% endif %}{% else %}none{% endfor %}{% else %}{{ d }}{% endif %}</dd>
+            <dt>Failing sources</dt><dd>{{ health.get('discovery', {}).get('sources_failing', 0) }}</dd>
+            <dt>AI counters</dt><dd class="small">{% set g = health.get('ai', {}).get('gateway', {}) %}requests {{ g.get('requests', 0) }} · provider calls {{ g.get('provider_calls', 0) }} · cache hits {{ g.get('cache_hits', 0) }} · failures 24 h {{ health.get('ai', {}).get('failures_last_24h', 0) }}</dd>
+            <dt>Caps</dt><dd>{% set caps = health.get('caps', {}) %}day {{ caps.get('day', {}).get('used', '?') }}/{{ caps.get('day', {}).get('cap', '?') }} · week {{ caps.get('week', {}).get('used', '?') }}/{{ caps.get('week', {}).get('cap', '?') }}</dd>
+            <dt>Kill switches</dt><dd class="small">{% for k in health.get('kill_switches', []) %}{{ k.id }}: {% if k.paused %}<span class="badge badge-red">paused</span>{% else %}active{% endif %}{% if not loop.last %} · {% endif %}{% else %}none set{% endfor %}</dd>
+            <dt>Learning snapshot</dt><dd>{% set l = health.get('learning', {}) %}{% if l.get('latest_snapshot_id') %}{{ l.get('age_hours') }} h old{% else %}none yet{% endif %}</dd>
+            <dt>Migrations</dt><dd>{% if database.migrated %}<span class="badge badge-green">up to date</span>{% else %}<span class="badge badge-orange">{{ database.missing|length }} table(s) missing</span>{% endif %}</dd>
+        </dl>
+    </section>
+</div>
+{% endblock %}

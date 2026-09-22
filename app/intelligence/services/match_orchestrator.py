@@ -174,7 +174,11 @@ class MatchOrchestrator:
         except Exception:  # noqa: BLE001 - preferences are optional context
             logger.exception("Could not load preferences; scoring without them")
             return None
-        return self.preference_evaluator.evaluate(job, preference_model)
+        try:
+            profile_location = self.evidence_resolver.career_brain.get_profile().location
+        except Exception:  # noqa: BLE001 - the location target is optional context too
+            profile_location = None
+        return self.preference_evaluator.evaluate(job, preference_model, profile_location=profile_location)
 
     def _assess(self, requirement) -> RequirementAssessment:
         """Resolve one requirement into a typed assessment."""

@@ -1,8 +1,13 @@
 """Claim model — statement with verification metadata."""
 
+from typing import TYPE_CHECKING
+
 from pydantic import BaseModel, Field
 
 from app.models.enums import VerificationStatus
+
+if TYPE_CHECKING:
+    from app.models.career_fact import CareerFact
 
 
 class Claim(BaseModel):
@@ -15,8 +20,6 @@ class Claim(BaseModel):
 
     @classmethod
     def from_fact(cls, fact: "CareerFact") -> "Claim":
-        from app.models.career_fact import CareerFact
-
         return cls(
             statement=fact.statement,
             source=fact.source,

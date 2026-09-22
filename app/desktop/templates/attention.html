@@ -1,0 +1,17 @@
+{% extends "desktop_base.html" %}
+{% block title %}CareerOS — Attention{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <div class="eyebrow">Task inbox</div>
+        <h1>Attention center</h1>
+        <p>{{ items|length }} item(s) need a person. CareerOS never bypasses challenges, logins, codes or employer rules; it stops and tells you what happened, why, and what to do.</p>
+    </div>
+</div>
+<nav class="tabs" aria-label="Attention groups">
+    {% for g in attention_groups %}<a href="#bucket-{{ g.key }}">{{ g.label }} <span class="count">{{ g['items']|length }}</span></a>{% endfor %}
+</nav>
+<div id="attention-items" hx-get="/desktop/partials/attention" hx-trigger="careeros:refresh from:body" hx-swap="innerHTML">
+    {% include "_attention_items.html" %}
+</div>
+{% endblock %}

@@ -1,4 +1,25 @@
-"""Career Brain service — programmatic career information interface."""
+"""Career Brain service — the stable read interface over candidate evidence.
+
+Phase 1 of the blueprint moved the data underneath this class from a JSON
+file into the tenant-scoped Evidence Graph (``app/career``). The public
+surface every consumer relies on (``get_profile``, ``get_skills``,
+``get_projects``, ``get_experience``, ``get_preferences``, ``get_facts``, the
+``*_safe`` filters, search and summary) is unchanged.
+
+Two modes:
+
+* **Database mode** (default, ``CareerBrainService()``): reads the tenant's
+  graph. If the tenant has no profile yet, the seed file at
+  ``settings.career_data_path`` is imported first (bootstrap), so a fresh
+  clone still works with zero manual steps. Pass ``db=`` to reuse a request
+  session, otherwise a short-lived session is opened for the load.
+* **Legacy JSON mode** (``CareerBrainService(data_path=...)``): reads the
+  file directly, read-only. Kept for fixtures and tests that supply their
+  own seed; nothing in the app uses it at runtime.
+
+Both modes materialise a snapshot in memory on ``load()``; call ``reload()``
+after a write to see it.
+"""
 
 import json
 import logging
@@ -6,6 +27,7 @@ from pathlib import Path
 from typing import Optional, Union
 
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.models import (
@@ -46,10 +68,15 @@ class CareerBrainService:
         self,
         data_path: Union[str, Path, None] = None,
         validator: Optional[TruthValidator] = None,
+        *,
+        db: Optional[Session] = None,
+        tenant_id: Optional[str] = None,
     ):
         self._data_path = Path(data_path or settings.career_data_path)
+        self._legacy_json = data_path is not None
+        self._db = db
+        self._tenant_id = tenant_id or settings.default_tenant_id
         self._validator = validator or TruthValidator()
-        self._data: dict = {}
         self._profile: Optional[Profile] = None
         self._skills: list[Skill] = []
         self._projects: list[Project] = []
@@ -59,26 +86,90 @@ class CareerBrainService:
         self._facts: list[CareerFact] = []
         self._loaded = False
 
+    # ------------------------------------------------------------------ #
+    # loading
+    # ------------------------------------------------------------------ #
+
+    @property
+    def tenant_id(self) -> str:
+        return self._tenant_id
+
+    @property
+    def mode(self) -> str:
+        return "json" if self._legacy_json else "db"
+
     def load(self) -> None:
+        if self._legacy_json:
+            self._load_json()
+        else:
+            self._load_db()
+        self._loaded = True
+
+    def reload(self) -> None:
+        self._loaded = False
+        self.load()
+
+    def _load_json(self) -> None:
         if not self._data_path.exists():
             raise FileNotFoundError(f"Career data file not found: {self._data_path}")
-
         with open(self._data_path, encoding="utf-8") as f:
-            self._data = json.load(f)
+            data = json.load(f)
+        self._profile = Profile(**data["profile"])
+        self._skills = [Skill(**s) for s in data.get("skills", [])]
+        self._projects = [Project(**p) for p in data.get("projects", [])]
+        self._experience = [Experience(**e) for e in data.get("experience", [])]
+        self._achievements = [Achievement(**a) for a in data.get("achievements", [])]
+        self._preferences = Preference(**data["preferences"])
+        self._facts = [CareerFact(**f) for f in data.get("facts", [])]
+        logger.info("Career data loaded from %s (legacy JSON mode)", self._data_path)
 
-        self._profile = Profile(**self._data["profile"])
-        self._skills = [Skill(**s) for s in self._data.get("skills", [])]
-        self._projects = [Project(**p) for p in self._data.get("projects", [])]
-        self._experience = [Experience(**e) for e in self._data.get("experience", [])]
-        self._achievements = [Achievement(**a) for a in self._data.get("achievements", [])]
-        self._preferences = Preference(**self._data["preferences"])
-        self._facts = [CareerFact(**f) for f in self._data.get("facts", [])]
-        self._loaded = True
-        logger.info("Career data loaded from %s", self._data_path)
+    def _load_db(self) -> None:
+        # Local imports keep app.models/app.services importable without the
+        # database layer (fixtures, scripts).
+        from app.career.importer import SeedImporter
+        from app.career.read_model import build_snapshot
+        from app.career.repository import EvidenceRepository
+        from app.database import get_session_factory
+
+        session = self._db or get_session_factory()()
+        owns_session = self._db is None
+        try:
+            repo = EvidenceRepository(session, self._tenant_id)
+            if repo.get_profile_row() is None:
+                if not self._data_path.exists():
+                    raise FileNotFoundError(
+                        f"Tenant '{self._tenant_id}' has no profile and no seed file exists "
+                        f"at {self._data_path}"
+                    )
+                report = SeedImporter(repo).import_file(self._data_path)
+                logger.info(
+                    "Bootstrapped tenant %s from %s: %s",
+                    self._tenant_id,
+                    self._data_path.name,
+                    report.counts(),
+                )
+            snapshot = build_snapshot(repo)
+        finally:
+            if owns_session:
+                session.close()
+
+        if snapshot.profile is None or snapshot.preferences is None:
+            raise RuntimeError(f"Tenant '{self._tenant_id}' has no candidate profile")
+        self._profile = snapshot.profile
+        self._preferences = snapshot.preferences
+        self._skills = snapshot.skills
+        self._projects = snapshot.projects
+        self._experience = snapshot.experience
+        self._achievements = snapshot.achievements
+        self._facts = snapshot.facts
 
     def _ensure_loaded(self) -> None:
         if not self._loaded:
             self.load()
+
+    # ------------------------------------------------------------------ #
+    # read surface (unchanged contract)
+    # ------------------------------------------------------------------ #
 
     def get_profile(self) -> Profile:
         self._ensure_loaded()
@@ -128,12 +219,10 @@ class CareerBrainService:
         ]
 
     def get_application_safe_facts(self) -> list[CareerFact]:
-        facts = self.get_facts()
-        return self._validator.filter_application_safe(facts)
+        return self._validator.filter_application_safe(self.get_facts())
 
     def get_resume_safe_facts(self) -> list[CareerFact]:
-        facts = self.get_facts()
-        return self._validator.filter_resume_safe(facts)
+        return self._validator.filter_resume_safe(self.get_facts())
 
     def get_needs_review_facts(self) -> list[CareerFact]:
         return self._validator.surface_needs_review(self.get_facts())
@@ -157,7 +246,6 @@ class CareerBrainService:
         assert self._profile is not None
         assert self._preferences is not None
 
-        facts = self.get_facts()
         verified_facts = self.get_verified_facts()
         app_safe = self.get_application_safe_facts()
 

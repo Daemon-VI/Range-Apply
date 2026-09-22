@@ -1,0 +1,63 @@
+{
+  "rounds": [
+    {
+      "cycle": 0,
+      "pages": 10,
+      "seconds": 77.5,
+      "outcomes": {
+        "discovered": 1,
+        "handoff": 9
+      },
+      "chromium_processes": 6,
+      "python_rss_mb": 85.5,
+      "db_mb": 17.14,
+      "documents_mb": 0.12,
+      "ai_cache_mb": 0.0,
+      "browser_launches": 1
+    },
+    {
+      "cycle": 1,
+      "pages": 10,
+      "seconds": 76.9,
+      "outcomes": {
+        "handoff": 10
+      },
+      "chromium_processes": 6,
+      "python_rss_mb": 89.7,
+      "db_mb": 17.14,
+      "documents_mb": 0.12,
+      "ai_cache_mb": 0.0,
+      "browser_launches": 1
+    },
+    {
+      "cycle": 2,
+      "pages": 10,
+      "seconds": 75.2,
+      "outcomes": {
+        "handoff": 10
+      },
+      "chromium_processes": 6,
+      "python_rss_mb": 89.9,
+      "db_mb": 17.14,
+      "documents_mb": 0.12,
+      "ai_cache_mb": 0.0,
+      "browser_launches": 1
+    },
+    {
+      "cycle": 3,
+      "pages": 10,
+      "seconds": 77.1,
+      "outcomes": {
+        "handoff": 9,
+        "discovered": 1
+      },
+      "chromium_processes": 6,
+      "python_rss_mb": 91.6,
+      "db_mb": 17.14,
+      "documents_mb": 0.12,
+      "ai_cache_mb": 0.0,
+      "browser_launches": 1
+    }
+  ],
+  "after_close_chromium_processes": 0
+}

@@ -1,0 +1,1536 @@
+{
+  "pages": [
+    {
+      "source": "GREENHOUSE",
+      "company": "Discord",
+      "title": "Software Engineer, Notifications",
+      "url": "https://job-boards.greenhouse.io/discord/jobs/8642213002",
+      "attempt_id": "5aac39c7-a877-4b78-a11e-f775e8f0e022",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "a7286fb1d0dc",
+            2382
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "4078784fd860",
+            1842
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "greenhouse",
+      "discover_seconds": 3.72,
+      "mapping_seconds": 0.029,
+      "gate_seconds": 0.063,
+      "result": {
+        "fields": 34,
+        "by_type": {
+          "text": 30,
+          "phone": 1,
+          "file": 2,
+          "textarea": 1
+        },
+        "required": 23,
+        "required_answered": 6,
+        "missing_required": [
+          "Country*",
+          "Country*",
+          "Location (City)*",
+          "Location (City)*",
+          "Why do you want to work at Discord?*",
+          "Are you currently located in the US?*",
+          "Are you currently located in the US?*",
+          "Are you currently based in or willing to relocate to the Bay",
+          "Are you currently based in or willing to relocate to the Bay",
+          "Gender*",
+          "Gender*",
+          "Race and Ethnicity*"
+        ],
+        "optional_skipped": 11,
+        "file_fields": [
+          "Attach",
+          "Attach"
+        ],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "PROFILE": 4,
+          "NONE": 28,
+          "PREPARATION": 2
+        },
+        "answer_statuses": {
+          "ANSWERED": 6,
+          "NEEDS_REVIEW": 5,
+          "NEEDS_USER_INPUT": 12,
+          "SKIPPED": 11
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "Apply",
+          "",
+          "Locate me",
+          "Attach",
+          "Dropbox"
+        ],
+        "handoff": null,
+        "strategy": "greenhouse",
+        "page_title": "Job Application for Software Engineer, Notifications at Discord",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": [
+          "First Name* [text*]",
+          "Last Name* [text*]",
+          "Email* [text*]",
+          "Country* [text*]",
+          "Country* [text*]",
+          "Phone* [phone*]",
+          "Location (City)* [text*]",
+          "Location (City)* [text*]",
+          "Attach [file]",
+          "Attach [file]",
+          "School [text]",
+          "Degree [text]",
+          "Discipline [text]",
+          "Why do you want to work at Discord?* [textarea*]"
+        ]
+      },
+      "outcome": "discovered",
+      "seconds_total": 4.42
+    },
+    {
+      "source": "GREENHOUSE",
+      "company": "Discord",
+      "title": "Senior Software Engineer, Machine Learning (Safety)",
+      "url": "https://job-boards.greenhouse.io/discord/jobs/8369347002",
+      "attempt_id": "b25abfe3-94fb-4d9a-add6-10fb6eebc756",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "7a438d0f2e1d",
+            2382
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "3c74fc3fb03e",
+            1869
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "greenhouse",
+      "discover_seconds": 0.91,
+      "mapping_seconds": 0.011,
+      "gate_seconds": 0.011,
+      "result": {
+        "fields": 34,
+        "by_type": {
+          "text": 30,
+          "phone": 1,
+          "file": 2,
+          "textarea": 1
+        },
+        "required": 23,
+        "required_answered": 6,
+        "missing_required": [
+          "Country*",
+          "Country*",
+          "Location (City)*",
+          "Location (City)*",
+          "Why do you want to work at Discord?*",
+          "Are you currently located in the US?*",
+          "Are you currently located in the US?*",
+          "Are you currently based in or willing to relocate to the Bay",
+          "Are you currently based in or willing to relocate to the Bay",
+          "Disability Status*",
+          "Disability Status*",
+          "Veteran Status*"
+        ],
+        "optional_skipped": 11,
+        "file_fields": [
+          "Attach",
+          "Attach"
+        ],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "PROFILE": 4,
+          "NONE": 28,
+          "PREPARATION": 2
+        },
+        "answer_statuses": {
+          "ANSWERED": 6,
+          "NEEDS_REVIEW": 5,
+          "NEEDS_USER_INPUT": 12,
+          "SKIPPED": 11
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "Apply",
+          "",
+          "Locate me",
+          "Attach",
+          "Dropbox"
+        ],
+        "handoff": null,
+        "strategy": "greenhouse",
+        "page_title": "Job Application for Senior Software Engineer, Machine Learning (Safety) at Discord",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": [
+          "First Name* [text*]",
+          "Last Name* [text*]",
+          "Email* [text*]",
+          "Country* [text*]",
+          "Country* [text*]",
+          "Phone* [phone*]",
+          "Location (City)* [text*]",
+          "Location (City)* [text*]",
+          "Attach [file]",
+          "Attach [file]",
+          "School [text]",
+          "Degree [text]",
+          "Discipline [text]",
+          "Why do you want to work at Discord?* [textarea*]"
+        ]
+      },
+      "outcome": "discovered",
+      "seconds_total": 1.04
+    },
+    {
+      "source": "GREENHOUSE",
+      "company": "Duolingo",
+      "title": "Senior Site Reliability Engineer",
+      "url": "https://careers.duolingo.com/jobs/8784381002?gh_jid=8784381002",
+      "attempt_id": "f075a5c9-4e26-4251-8f83-0f3bea48a4aa",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "2ebff21545e0",
+            2403
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "6596b8033cb0",
+            1874
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "greenhouse",
+      "discover_seconds": 3.57,
+      "mapping_seconds": 0.004,
+      "gate_seconds": 0.008,
+      "result": {
+        "fields": 0,
+        "by_type": {},
+        "required": 0,
+        "required_answered": 0,
+        "missing_required": [],
+        "optional_skipped": 0,
+        "file_fields": [],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {},
+        "answer_statuses": {},
+        "custom_widgets": 0,
+        "submit_buttons": [],
+        "handoff": "AMBIGUOUS_FORM",
+        "strategy": "greenhouse",
+        "page_title": "Duolingo Careers",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": []
+      },
+      "outcome": "handoff:AMBIGUOUS_FORM",
+      "seconds_total": 3.7
+    },
+    {
+      "source": "GREENHOUSE",
+      "company": "Discord",
+      "title": "Senior Platform Security Engineer",
+      "url": "https://job-boards.greenhouse.io/discord/jobs/8769799002",
+      "attempt_id": "f43eb99c-5153-47de-a147-e55693bd0a57",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "70cf6042861f",
+            2387
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "4ca58b274317",
+            1863
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "greenhouse",
+      "discover_seconds": 1.93,
+      "mapping_seconds": 0.016,
+      "gate_seconds": 0.014,
+      "result": {
+        "fields": 34,
+        "by_type": {
+          "text": 30,
+          "phone": 1,
+          "file": 2,
+          "textarea": 1
+        },
+        "required": 23,
+        "required_answered": 6,
+        "missing_required": [
+          "Country*",
+          "Country*",
+          "Location (City)*",
+          "Location (City)*",
+          "Why do you want to work at Discord?*",
+          "Are you currently located in the US?*",
+          "Are you currently located in the US?*",
+          "Are you currently based in or willing to relocate to the Bay",
+          "Are you currently based in or willing to relocate to the Bay",
+          "Gender*",
+          "Gender*",
+          "Race and Ethnicity*"
+        ],
+        "optional_skipped": 11,
+        "file_fields": [
+          "Attach",
+          "Attach"
+        ],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "PROFILE": 4,
+          "NONE": 28,
+          "PREPARATION": 2
+        },
+        "answer_statuses": {
+          "ANSWERED": 6,
+          "NEEDS_REVIEW": 5,
+          "NEEDS_USER_INPUT": 12,
+          "SKIPPED": 11
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "Apply",
+          "",
+          "Locate me",
+          "Attach",
+          "Dropbox"
+        ],
+        "handoff": null,
+        "strategy": "greenhouse",
+        "page_title": "Job Application for Senior Platform Security Engineer at Discord",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": [
+          "First Name* [text*]",
+          "Last Name* [text*]",
+          "Email* [text*]",
+          "Country* [text*]",
+          "Country* [text*]",
+          "Phone* [phone*]",
+          "Location (City)* [text*]",
+          "Location (City)* [text*]",
+          "Attach [file]",
+          "Attach [file]",
+          "School [text]",
+          "Degree [text]",
+          "Discipline [text]",
+          "Why do you want to work at Discord?* [textarea*]"
+        ]
+      },
+      "outcome": "discovered",
+      "seconds_total": 2.23
+    },
+    {
+      "source": "GREENHOUSE",
+      "company": "Asana",
+      "title": "Senior Software Engineer, Product Frameworks",
+      "url": "https://www.asana.com/jobs/apply/8174616?gh_jid=8174616",
+      "attempt_id": "5d53aedf-36fd-4aa1-bf88-f0e547324734",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "4f8d7622d460",
+            2389
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "d3620b3c732e",
+            1844
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "greenhouse",
+      "discover_seconds": 26.45,
+      "mapping_seconds": 0.015,
+      "gate_seconds": 0.031,
+      "result": {
+        "fields": 1,
+        "by_type": {
+          "text": 1
+        },
+        "required": 0,
+        "required_answered": 0,
+        "missing_required": [],
+        "optional_skipped": 1,
+        "file_fields": [],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "NONE": 1
+        },
+        "answer_statuses": {
+          "SKIPPED": 1
+        },
+        "custom_widgets": 1,
+        "submit_buttons": [
+          "Products",
+          "Solutions",
+          "Learning & support",
+          "Choose your preferred language"
+        ],
+        "handoff": null,
+        "strategy": "greenhouse",
+        "page_title": "Senior Software Engineer, Product Frameworks in New York City \u2022 Asana Jobs",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": [
+          "base-ui-_R_ca5l6m_-hidden-input [text]"
+        ]
+      },
+      "outcome": "discovered",
+      "seconds_total": 26.84
+    },
+    {
+      "source": "GREENHOUSE",
+      "company": "Discord",
+      "title": "Staff Software Engineer - Consumer Revenue",
+      "url": "https://job-boards.greenhouse.io/discord/jobs/8464570002",
+      "attempt_id": "5883a1f7-824f-4e3c-9058-3f512bf73a80",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "da1e24068035",
+            2381
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "b82c0a11d33b",
+            1851
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "greenhouse",
+      "discover_seconds": 0.93,
+      "mapping_seconds": 0.032,
+      "gate_seconds": 0.026,
+      "result": {
+        "fields": 34,
+        "by_type": {
+          "text": 30,
+          "phone": 1,
+          "file": 2,
+          "textarea": 1
+        },
+        "required": 23,
+        "required_answered": 6,
+        "missing_required": [
+          "Country*",
+          "Country*",
+          "Location (City)*",
+          "Location (City)*",
+          "Why do you want to work at Discord?*",
+          "Are you currently located in the US?*",
+          "Are you currently located in the US?*",
+          "Are you currently based in or willing to relocate to the Bay",
+          "Are you currently based in or willing to relocate to the Bay",
+          "Gender*",
+          "Gender*",
+          "Race and Ethnicity*"
+        ],
+        "optional_skipped": 11,
+        "file_fields": [
+          "Attach",
+          "Attach"
+        ],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "PROFILE": 4,
+          "NONE": 28,
+          "PREPARATION": 2
+        },
+        "answer_statuses": {
+          "ANSWERED": 6,
+          "NEEDS_REVIEW": 5,
+          "NEEDS_USER_INPUT": 12,
+          "SKIPPED": 11
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "Apply",
+          "",
+          "Locate me",
+          "Attach",
+          "Dropbox"
+        ],
+        "handoff": null,
+        "strategy": "greenhouse",
+        "page_title": "Job Application for Staff Software Engineer - Consumer Revenue at Discord",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": [
+          "First Name* [text*]",
+          "Last Name* [text*]",
+          "Email* [text*]",
+          "Country* [text*]",
+          "Country* [text*]",
+          "Phone* [phone*]",
+          "Location (City)* [text*]",
+          "Location (City)* [text*]",
+          "Attach [file]",
+          "Attach [file]",
+          "School [text]",
+          "Degree [text]",
+          "Discipline [text]",
+          "Why do you want to work at Discord?* [textarea*]"
+        ]
+      },
+      "outcome": "discovered",
+      "seconds_total": 1.23
+    },
+    {
+      "source": "GREENHOUSE",
+      "company": "Asana",
+      "title": "Senior Product Manager, AI Agents Experience",
+      "url": "https://www.asana.com/jobs/apply/8178264?gh_jid=8178264",
+      "attempt_id": "fffec979-af7c-49e6-a00f-c4c99f493e47",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "f7882d9e25cf",
+            2226
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "greenhouse",
+      "discover_seconds": 25.07,
+      "mapping_seconds": 0.015,
+      "gate_seconds": 0.026,
+      "result": {
+        "fields": 1,
+        "by_type": {
+          "text": 1
+        },
+        "required": 0,
+        "required_answered": 0,
+        "missing_required": [],
+        "optional_skipped": 1,
+        "file_fields": [],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "NONE": 1
+        },
+        "answer_statuses": {
+          "SKIPPED": 1
+        },
+        "custom_widgets": 1,
+        "submit_buttons": [
+          "Products",
+          "Solutions",
+          "Learning & support",
+          "Choose your preferred language"
+        ],
+        "handoff": null,
+        "strategy": "greenhouse",
+        "page_title": "Senior Product Manager, AI Agents Experience in San Francisco \u2022 Asana Jobs",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": [
+          "base-ui-_R_ca5l6m_-hidden-input [text]"
+        ]
+      },
+      "outcome": "discovered",
+      "seconds_total": 25.31
+    },
+    {
+      "source": "GREENHOUSE",
+      "company": "Discord",
+      "title": "Staff Software Engineer, Safety Experience",
+      "url": "https://job-boards.greenhouse.io/discord/jobs/8727410002",
+      "attempt_id": "125a32be-2697-4d80-af67-0081c2c22fd4",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "3fee56e5c65b",
+            2400
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "e4a34c7a0e92",
+            1874
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "greenhouse",
+      "discover_seconds": 0.98,
+      "mapping_seconds": 0.031,
+      "gate_seconds": 0.032,
+      "result": {
+        "fields": 34,
+        "by_type": {
+          "text": 30,
+          "phone": 1,
+          "file": 2,
+          "textarea": 1
+        },
+        "required": 23,
+        "required_answered": 6,
+        "missing_required": [
+          "Country*",
+          "Country*",
+          "Location (City)*",
+          "Location (City)*",
+          "Why do you want to work at Discord?*",
+          "Are you currently located in the US?*",
+          "Are you currently located in the US?*",
+          "Are you currently based in or willing to relocate to the Bay",
+          "Are you currently based in or willing to relocate to the Bay",
+          "Gender*",
+          "Gender*",
+          "Race and Ethnicity*"
+        ],
+        "optional_skipped": 11,
+        "file_fields": [
+          "Attach",
+          "Attach"
+        ],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {
+          "PROFILE": 4,
+          "NONE": 28,
+          "PREPARATION": 2
+        },
+        "answer_statuses": {
+          "ANSWERED": 6,
+          "NEEDS_REVIEW": 5,
+          "NEEDS_USER_INPUT": 12,
+          "SKIPPED": 11
+        },
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "Apply",
+          "",
+          "Locate me",
+          "Attach",
+          "Dropbox"
+        ],
+        "handoff": null,
+        "strategy": "greenhouse",
+        "page_title": "Job Application for Staff Software Engineer, Safety Experience at Discord",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": [
+          "First Name* [text*]",
+          "Last Name* [text*]",
+          "Email* [text*]",
+          "Country* [text*]",
+          "Country* [text*]",
+          "Phone* [phone*]",
+          "Location (City)* [text*]",
+          "Location (City)* [text*]",
+          "Attach [file]",
+          "Attach [file]",
+          "School [text]",
+          "Degree [text]",
+          "Discipline [text]",
+          "Why do you want to work at Discord?* [textarea*]"
+        ]
+      },
+      "outcome": "discovered",
+      "seconds_total": 1.34
+    },
+    {
+      "source": "LEVER",
+      "company": "Spotify",
+      "title": "Senior Product Manager - Subscriptions",
+      "url": "https://jobs.lever.co/spotify/a57db22d-dc0d-4f36-9a2e-34acdf1ec046",
+      "attempt_id": "99cf48e2-3813-4a17-9615-3654b2bec87c",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "c24c5f70c548",
+            2506
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "02b9b9bafd24",
+            1862
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "lever",
+      "discover_seconds": 3.75,
+      "mapping_seconds": 0.014,
+      "gate_seconds": 0.034,
+      "result": {
+        "fields": 0,
+        "by_type": {},
+        "required": 0,
+        "required_answered": 0,
+        "missing_required": [],
+        "optional_skipped": 0,
+        "file_fields": [],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {},
+        "answer_statuses": {},
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "deny",
+          "accept"
+        ],
+        "handoff": null,
+        "strategy": "lever",
+        "page_title": "Spotify - Senior Product Manager - Subscriptions",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": []
+      },
+      "outcome": "no_form",
+      "seconds_total": 4.05
+    },
+    {
+      "source": "LEVER",
+      "company": "Spotify",
+      "title": "Director of Engineering - Content Platform (Catalog)",
+      "url": "https://jobs.lever.co/spotify/5861816e-7ac4-4921-8e90-8e093707e27d",
+      "attempt_id": "ba3c66e4-03d6-466c-a352-4f8be94efc1e",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "bd27906ec41f",
+            2383
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "bedd2f5c3a27",
+            1870
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "lever",
+      "discover_seconds": 2.17,
+      "mapping_seconds": 0.012,
+      "gate_seconds": 0.03,
+      "result": {
+        "fields": 0,
+        "by_type": {},
+        "required": 0,
+        "required_answered": 0,
+        "missing_required": [],
+        "optional_skipped": 0,
+        "file_fields": [],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {},
+        "answer_statuses": {},
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "deny",
+          "accept"
+        ],
+        "handoff": null,
+        "strategy": "lever",
+        "page_title": "Spotify - Director of Engineering - Content Platform (Catalog)",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": []
+      },
+      "outcome": "no_form",
+      "seconds_total": 2.43
+    },
+    {
+      "source": "LEVER",
+      "company": "Spotify",
+      "title": "Senior Product Manager - Audiobooks Format Foundations",
+      "url": "https://jobs.lever.co/spotify/e7b01c1e-4246-4f31-83ea-9219c8b22c83",
+      "attempt_id": "f3d6bce4-42e5-483c-a57d-6f126ce41f50",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "c24c5f70c548",
+            2506
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "608f3574dd4b",
+            1885
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "lever",
+      "discover_seconds": 3.34,
+      "mapping_seconds": 0.014,
+      "gate_seconds": 0.039,
+      "result": {
+        "fields": 0,
+        "by_type": {},
+        "required": 0,
+        "required_answered": 0,
+        "missing_required": [],
+        "optional_skipped": 0,
+        "file_fields": [],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {},
+        "answer_statuses": {},
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "deny",
+          "accept"
+        ],
+        "handoff": null,
+        "strategy": "lever",
+        "page_title": "Spotify - Senior Product Manager - Audiobooks Format Foundations",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": []
+      },
+      "outcome": "no_form",
+      "seconds_total": 3.6
+    },
+    {
+      "source": "LEVER",
+      "company": "Spotify",
+      "title": "Product Manager - Customer Service Platform",
+      "url": "https://jobs.lever.co/spotify/7f0a8faa-f4f5-4db9-9f51-4101d6a29b34",
+      "attempt_id": "a646432c-412f-4db7-9421-b0ba3275dc03",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "c24c5f70c548",
+            2506
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "9add34a73647",
+            1865
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "lever",
+      "discover_seconds": 2.35,
+      "mapping_seconds": 0.009,
+      "gate_seconds": 0.032,
+      "result": {
+        "fields": 0,
+        "by_type": {},
+        "required": 0,
+        "required_answered": 0,
+        "missing_required": [],
+        "optional_skipped": 0,
+        "file_fields": [],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {},
+        "answer_statuses": {},
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "deny",
+          "accept"
+        ],
+        "handoff": null,
+        "strategy": "lever",
+        "page_title": "Spotify - Product Manager - Customer Service Platform",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": []
+      },
+      "outcome": "no_form",
+      "seconds_total": 2.61
+    },
+    {
+      "source": "LEVER",
+      "company": "Spotify",
+      "title": "Staff Data Scientist - Experience",
+      "url": "https://jobs.lever.co/spotify/bf0984d7-c54f-4a8a-9a15-f870633d62c0",
+      "attempt_id": "1513617c-f9eb-4ae0-8384-c82808d513d4",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "bd27906ec41f",
+            2383
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "769ee8d9d107",
+            1857
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "lever",
+      "discover_seconds": 2.63,
+      "mapping_seconds": 0.012,
+      "gate_seconds": 0.033,
+      "result": {
+        "fields": 0,
+        "by_type": {},
+        "required": 0,
+        "required_answered": 0,
+        "missing_required": [],
+        "optional_skipped": 0,
+        "file_fields": [],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {},
+        "answer_statuses": {},
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "deny",
+          "accept"
+        ],
+        "handoff": null,
+        "strategy": "lever",
+        "page_title": "Spotify - Staff Data Scientist - Experience",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": []
+      },
+      "outcome": "no_form",
+      "seconds_total": 2.87
+    },
+    {
+      "source": "LEVER",
+      "company": "Nium",
+      "title": "Product Compliance Manager",
+      "url": "https://jobs.lever.co/nium/7ab3cd0e-b31d-4e4f-8e97-aa418f16c57b",
+      "attempt_id": "c49ab0eb-7b3c-4b51-8df3-f4a450d0fdec",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "c24c5f70c548",
+            2506
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "fabd7c87db6c",
+            1850
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "lever",
+      "discover_seconds": 2.34,
+      "mapping_seconds": 0.016,
+      "gate_seconds": 0.026,
+      "result": {
+        "fields": 0,
+        "by_type": {},
+        "required": 0,
+        "required_answered": 0,
+        "missing_required": [],
+        "optional_skipped": 0,
+        "file_fields": [],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {},
+        "answer_statuses": {},
+        "custom_widgets": 0,
+        "submit_buttons": [],
+        "handoff": "AMBIGUOUS_FORM",
+        "strategy": "lever",
+        "page_title": "Nium - Product Compliance Manager",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": []
+      },
+      "outcome": "handoff:AMBIGUOUS_FORM",
+      "seconds_total": 2.73
+    },
+    {
+      "source": "LEVER",
+      "company": "Spotify",
+      "title": "Policy Support Specialist, Ads & Monetization Ops",
+      "url": "https://jobs.lever.co/spotify/36022b53-40f0-4799-8d8d-4d89998116a3",
+      "attempt_id": "edc7cda0-f1c6-47ea-8c22-de201128c5ae",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "bd27906ec41f",
+            2383
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "5eb4efe9948e",
+            1873
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "lever",
+      "discover_seconds": 3.04,
+      "mapping_seconds": 0.012,
+      "gate_seconds": 0.031,
+      "result": {
+        "fields": 0,
+        "by_type": {},
+        "required": 0,
+        "required_answered": 0,
+        "missing_required": [],
+        "optional_skipped": 0,
+        "file_fields": [],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {},
+        "answer_statuses": {},
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "deny",
+          "accept"
+        ],
+        "handoff": null,
+        "strategy": "lever",
+        "page_title": "Spotify - Policy Support Specialist, Ads & Monetization Ops",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": []
+      },
+      "outcome": "no_form",
+      "seconds_total": 3.29
+    },
+    {
+      "source": "LEVER",
+      "company": "Spotify",
+      "title": "Staff Machine Learning Engineer, Home Surfaces",
+      "url": "https://jobs.lever.co/spotify/281e7db9-86ba-4a1c-8773-c23b96ed32dc",
+      "attempt_id": "3fe94246-1082-4798-a649-64afc470a93d",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "f7882d9e25cf",
+            2226
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "lever",
+      "discover_seconds": 2.84,
+      "mapping_seconds": 0.011,
+      "gate_seconds": 0.029,
+      "result": {
+        "fields": 0,
+        "by_type": {},
+        "required": 0,
+        "required_answered": 0,
+        "missing_required": [],
+        "optional_skipped": 0,
+        "file_fields": [],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {},
+        "answer_statuses": {},
+        "custom_widgets": 0,
+        "submit_buttons": [
+          "deny",
+          "accept"
+        ],
+        "handoff": null,
+        "strategy": "lever",
+        "page_title": "Spotify - Staff Machine Learning Engineer, Home Surfaces",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": []
+      },
+      "outcome": "no_form",
+      "seconds_total": 2.98
+    },
+    {
+      "source": "ASHBY",
+      "company": "Linear",
+      "title": "Product Support Specialist, Europe",
+      "url": "https://jobs.ashbyhq.com/linear/820d0d5a-0930-475c-b494-23e18ad2aa68/application",
+      "attempt_id": "d34bed2e-01b2-4ef6-8ff4-1d37d6eece9f",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "2043e49a948d",
+            2388
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "57d8e3e5b1a9",
+            1840
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "ashby",
+      "discover_seconds": 2.41,
+      "mapping_seconds": 0.009,
+      "gate_seconds": 0.026,
+      "result": {
+        "fields": 0,
+        "by_type": {},
+        "required": 0,
+        "required_answered": 0,
+        "missing_required": [],
+        "optional_skipped": 0,
+        "file_fields": [],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {},
+        "answer_statuses": {},
+        "custom_widgets": 0,
+        "submit_buttons": [],
+        "handoff": "AMBIGUOUS_FORM",
+        "strategy": "ashby",
+        "page_title": "Product Support Specialist, Europe @ Linear",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": []
+      },
+      "outcome": "handoff:AMBIGUOUS_FORM",
+      "seconds_total": 2.73
+    },
+    {
+      "source": "ASHBY",
+      "company": "Supabase",
+      "title": "Platform Engineer - Compute Capacity",
+      "url": "https://jobs.ashbyhq.com/supabase/4eb14408-51e6-4c58-812a-3782d5c0b045/application",
+      "attempt_id": "448a158a-ecc7-4c78-b346-3e808f1607c3",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "a7286fb1d0dc",
+            2382
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "aacca8afe9d0",
+            1850
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "ashby",
+      "discover_seconds": 2.74,
+      "mapping_seconds": 0.009,
+      "gate_seconds": 0.028,
+      "result": {
+        "fields": 0,
+        "by_type": {},
+        "required": 0,
+        "required_answered": 0,
+        "missing_required": [],
+        "optional_skipped": 0,
+        "file_fields": [],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {},
+        "answer_statuses": {},
+        "custom_widgets": 0,
+        "submit_buttons": [],
+        "handoff": "AMBIGUOUS_FORM",
+        "strategy": "ashby",
+        "page_title": "Platform Engineer - Compute Capacity @ Supabase",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": []
+      },
+      "outcome": "handoff:AMBIGUOUS_FORM",
+      "seconds_total": 2.98
+    },
+    {
+      "source": "ASHBY",
+      "company": "Supabase",
+      "title": "Engineering Manager, Billing",
+      "url": "https://jobs.ashbyhq.com/supabase/b4a2f5e5-5c51-4c1a-abde-a89de27451c7/application",
+      "attempt_id": "8479a5be-e644-4eb9-9ac8-178f790f7cdb",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "10fe10a63d81",
+            2220
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "ashby",
+      "discover_seconds": 2.81,
+      "mapping_seconds": 0.01,
+      "gate_seconds": 0.026,
+      "result": {
+        "fields": 0,
+        "by_type": {},
+        "required": 0,
+        "required_answered": 0,
+        "missing_required": [],
+        "optional_skipped": 0,
+        "file_fields": [],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {},
+        "answer_statuses": {},
+        "custom_widgets": 0,
+        "submit_buttons": [],
+        "handoff": "AMBIGUOUS_FORM",
+        "strategy": "ashby",
+        "page_title": "Engineering Manager, Billing @ Supabase",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": []
+      },
+      "outcome": "handoff:AMBIGUOUS_FORM",
+      "seconds_total": 3.0
+    },
+    {
+      "source": "ASHBY",
+      "company": "Supabase",
+      "title": "Platform Security Engineer (AMER/APAC)",
+      "url": "https://jobs.ashbyhq.com/supabase/8fa1c7a0-a85c-4562-a1f5-4dd22cadae27/application",
+      "attempt_id": "f209b066-2a40-4dbd-ac12-2ded550b5909",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "4dd9d98610fa",
+            2401
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "1934e5ab0e9e",
+            1883
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "ashby",
+      "discover_seconds": 2.75,
+      "mapping_seconds": 0.01,
+      "gate_seconds": 0.028,
+      "result": {
+        "fields": 0,
+        "by_type": {},
+        "required": 0,
+        "required_answered": 0,
+        "missing_required": [],
+        "optional_skipped": 0,
+        "file_fields": [],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {},
+        "answer_statuses": {},
+        "custom_widgets": 0,
+        "submit_buttons": [],
+        "handoff": "AMBIGUOUS_FORM",
+        "strategy": "ashby",
+        "page_title": "Platform Security Engineer (AMER/APAC) @ Supabase",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": []
+      },
+      "outcome": "handoff:AMBIGUOUS_FORM",
+      "seconds_total": 3.03
+    },
+    {
+      "source": "ASHBY",
+      "company": "PostHog",
+      "title": "Security Engineer",
+      "url": "https://jobs.ashbyhq.com/posthog/36d5ce14-851c-450f-879a-45cbb896225e/application",
+      "attempt_id": "2aadd6a8-21e3-4ea2-b3e3-af6e9c5b0f71",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "c98c5a077ddd",
+            2227
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "ashby",
+      "discover_seconds": 2.64,
+      "mapping_seconds": 0.01,
+      "gate_seconds": 0.023,
+      "result": {
+        "fields": 0,
+        "by_type": {},
+        "required": 0,
+        "required_answered": 0,
+        "missing_required": [],
+        "optional_skipped": 0,
+        "file_fields": [],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {},
+        "answer_statuses": {},
+        "custom_widgets": 0,
+        "submit_buttons": [],
+        "handoff": "AMBIGUOUS_FORM",
+        "strategy": "ashby",
+        "page_title": "Jobs",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": []
+      },
+      "outcome": "handoff:AMBIGUOUS_FORM",
+      "seconds_total": 2.81
+    },
+    {
+      "source": "ASHBY",
+      "company": "Supabase",
+      "title": "Software Engineer - Branching",
+      "url": "https://jobs.ashbyhq.com/supabase/06752423-eebb-472c-95b5-c7ff2559fd60/application",
+      "attempt_id": "9b204fb5-5675-4eac-831a-13f0223fae3d",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "b55c6edc04bf",
+            2401
+          ],
+          [
+            "COVER_LETTER",
+            "PDF",
+            "8926fc3f43ed",
+            1866
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "ashby",
+      "discover_seconds": 2.79,
+      "mapping_seconds": 0.011,
+      "gate_seconds": 0.025,
+      "result": {
+        "fields": 0,
+        "by_type": {},
+        "required": 0,
+        "required_answered": 0,
+        "missing_required": [],
+        "optional_skipped": 0,
+        "file_fields": [],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {},
+        "answer_statuses": {},
+        "custom_widgets": 0,
+        "submit_buttons": [],
+        "handoff": "AMBIGUOUS_FORM",
+        "strategy": "ashby",
+        "page_title": "Software Engineer - Branching @ Supabase",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": []
+      },
+      "outcome": "handoff:AMBIGUOUS_FORM",
+      "seconds_total": 3.07
+    },
+    {
+      "source": "ASHBY",
+      "company": "Supabase",
+      "title": "Partnerships Manager, Ecosystem",
+      "url": "https://jobs.ashbyhq.com/supabase/f0f277ac-b96c-478a-81ca-7bd80612533f/application",
+      "attempt_id": "072322c6-0ffb-43eb-b3a6-fa65c32d104a",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "10fe10a63d81",
+            2220
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "ashby",
+      "discover_seconds": 4.23,
+      "mapping_seconds": 0.016,
+      "gate_seconds": 0.03,
+      "result": {
+        "fields": 0,
+        "by_type": {},
+        "required": 0,
+        "required_answered": 0,
+        "missing_required": [],
+        "optional_skipped": 0,
+        "file_fields": [],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {},
+        "answer_statuses": {},
+        "custom_widgets": 0,
+        "submit_buttons": [],
+        "handoff": "AMBIGUOUS_FORM",
+        "strategy": "ashby",
+        "page_title": "Partnerships Manager, Ecosystem @ Supabase",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": []
+      },
+      "outcome": "handoff:AMBIGUOUS_FORM",
+      "seconds_total": 4.41
+    },
+    {
+      "source": "ASHBY",
+      "company": "PostHog",
+      "title": "Technical Staff Writer (Blogs & Newsletters)",
+      "url": "https://jobs.ashbyhq.com/posthog/693ba66a-1f4b-4fd0-9fb4-0861b268a55d/application",
+      "attempt_id": "f75029e3-e56a-4154-9c21-96690736d763",
+      "documents": {
+        "artifacts": [
+          [
+            "RESUME",
+            "PDF",
+            "c98c5a077ddd",
+            2227
+          ]
+        ],
+        "problems": []
+      },
+      "ats_family": "ashby",
+      "discover_seconds": 1.31,
+      "mapping_seconds": 0.009,
+      "gate_seconds": 0.027,
+      "result": {
+        "fields": 0,
+        "by_type": {},
+        "required": 0,
+        "required_answered": 0,
+        "missing_required": [],
+        "optional_skipped": 0,
+        "file_fields": [],
+        "file_fields_mapped_to_artifacts": [],
+        "unknown_widget_fields": [],
+        "answer_sources": {},
+        "answer_statuses": {},
+        "custom_widgets": 0,
+        "submit_buttons": [],
+        "handoff": "AMBIGUOUS_FORM",
+        "strategy": "ashby",
+        "page_title": "Jobs",
+        "gate_failures": [
+          "ATTEMPT_NOT_READY: attempt is READY, not SUBMITTING"
+        ],
+        "sample_labels": []
+      },
+      "outcome": "handoff:AMBIGUOUS_FORM",
+      "seconds_total": 1.47
+    }
+  ],
+  "summary": {
+    "discovered": 7,
+    "handoff:AMBIGUOUS_FORM": 10,
+    "no_form": 7
+  },
+  "by_source": {
+    "GREENHOUSE": {
+      "discovered": 7,
+      "handoff:AMBIGUOUS_FORM": 1
+    },
+    "LEVER": {
+      "no_form": 7,
+      "handoff:AMBIGUOUS_FORM": 1
+    },
+    "ASHBY": {
+      "handoff:AMBIGUOUS_FORM": 8
+    }
+  }
+}

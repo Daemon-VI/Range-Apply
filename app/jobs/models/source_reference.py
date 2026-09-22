@@ -6,7 +6,6 @@ from typing import Dict, Optional
 from pydantic import BaseModel, Field
 
 from app.core.timeutils import utc_now
-
 from app.jobs.models.enums import JobSourceType
 
 

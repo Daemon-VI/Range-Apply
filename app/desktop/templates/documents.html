@@ -1,0 +1,73 @@
+{% extends "desktop_base.html" %}
+{% block title %}CareerOS — Documents{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <div class="eyebrow">Prepare</div>
+        <h1>Documents</h1>
+        <p>Your resumes and cover letters, rendered from validated preparations. Every file is hash-verified before any upload.</p>
+    </div>
+    {% if preparation_id %}<a class="btn secondary" href="/desktop/documents">Show all documents</a>{% endif %}
+</div>
+
+<div class="grid">
+    <div class="card"><div class="stat"><span class="stat-label">Resumes</span><span class="stat-value">{{ counts.resumes }}</span></div></div>
+    <div class="card"><div class="stat"><span class="stat-label">Cover letters</span><span class="stat-value">{{ counts.cover_letters }}</span></div></div>
+    <div class="card"><div class="stat"><span class="stat-label">Active</span><span class="stat-value">{{ counts.active }}</span><span class="stat-sub">can be uploaded</span></div></div>
+    <div class="card"><div class="stat"><span class="stat-label">Invalidated</span><span class="stat-value">{{ counts.invalidated }}</span><span class="stat-sub">never uploaded again</span></div></div>
+</div>
+
+{% set pq = ('&preparation_id=' ~ preparation_id) if preparation_id else '' %}
+<nav class="tabs" aria-label="Document type">
+    <a href="/desktop/documents?type={{ pq }}"{% if not kind %} aria-current="page"{% endif %}>All <span class="count">{{ counts.all }}</span></a>
+    <a href="/desktop/documents?type=RESUME{{ pq }}"{% if kind == 'RESUME' %} aria-current="page"{% endif %}>Resumes <span class="count">{{ counts.resumes }}</span></a>
+    <a href="/desktop/documents?type=COVER_LETTER{{ pq }}"{% if kind == 'COVER_LETTER' %} aria-current="page"{% endif %}>Cover letters <span class="count">{{ counts.cover_letters }}</span></a>
+</nav>
+
+{% if library %}
+{% for entry in library %}
+<section class="card flush mb-4" aria-labelledby="lib-{{ loop.index }}">
+    <div class="card-head">
+        <div>
+            <h2 id="lib-{{ loop.index }}">{% if entry.opp %}{{ entry.opp.title }} <span class="muted" style="font-weight:500">at {{ entry.opp.company }}</span>{% else %}Preparation {{ entry.preparation_id[:8] }}{% endif %}</h2>
+            <p>{{ entry.docs|length }} document(s){% if entry.prep %} · package v{{ entry.prep.version }} {{ entry.prep.status|replace('_', ' ')|lower }}{% endif %}</p>
+        </div>
+        <a class="btn subtle sm" href="/dashboard/preparations/{{ entry.preparation_id }}">Open preparation</a>
+    </div>
+    <div class="table-wrap"><table>
+        <thead><tr><th scope="col">Document</th><th scope="col">Version</th><th scope="col">Created</th><th scope="col">Status</th><th scope="col">Validation</th><th scope="col">Actions</th></tr></thead>
+        <tbody>
+        {% for d in entry.docs %}
+        <tr>
+            <td><span class="strong">{{ d.artifact_type|humanize }}</span> <span class="tag">{{ d.format }}</span><span class="sub">{{ d.artifact_type }}</span>
+                <details><summary>Details</summary>
+                    <dl class="kv small mt-2">
+                        <dt>SHA-256</dt><dd><code title="{{ d.content_hash }}">{{ d.content_hash[:12] }}…</code></dd>
+                        <dt>Size</dt><dd>{{ d.byte_size }} B{% if d.page_count %} · {{ d.page_count }} page(s){% endif %}</dd>
+                        <dt>Renderer</dt><dd>{{ d.renderer }} {{ d.renderer_version }}</dd>
+                        <dt>Preparation</dt><dd><a href="/dashboard/preparations/{{ d.preparation_id }}">prep v{{ d.preparation_version }}</a></dd>
+                        {% if d.invalidated_reason %}<dt>Invalidated</dt><dd>{{ d.invalidated_reason }}</dd>{% endif %}
+                    </dl>
+                </details>
+            </td>
+            <td>v{{ d.version }}</td>
+            <td class="small nowrap">{{ d.created_at.strftime('%Y-%m-%d %H:%M') if d.created_at else '—' }}</td>
+            <td><span class="badge {% if d.status == 'ACTIVE' %}badge-green{% else %}badge-muted{% endif %}">{{ d.status }}</span></td>
+            <td><span class="badge {% if d.validation_status == 'PASSED' %}badge-green{% else %}badge-orange{% endif %}">{{ d.validation_status }}</span></td>
+            <td><div class="actions">
+                {% if d.status == 'ACTIVE' %}<a class="btn secondary sm" href="/desktop/documents/{{ d.id }}/file" target="_blank" rel="noopener">Open</a>{% endif %}
+                <button class="secondary sm" data-action data-method="POST" data-url="/api/v1/documents/{{ d.id }}/regenerate" data-confirm="Render a new version of this {{ d.artifact_type }}? The current one stays available until it is invalidated." data-done="Regenerated">Regenerate</button>
+                {% if d.status == 'ACTIVE' %}<button class="danger sm" data-action data-method="POST" data-url="/api/v1/documents/{{ d.id }}/invalidate" data-body='{"reason": "invalidated from the desktop"}' data-confirm="Invalidate this document? It will never be uploaded again." data-done="Invalidated">Invalidate</button>{% endif %}
+            </div></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table></div>
+</section>
+{% endfor %}
+{% if total > limit %}<p class="small muted">Showing the newest {{ limit }} of {{ total }} documents.</p>{% endif %}
+{% else %}
+<div class="empty"><strong>No rendered documents yet.</strong>Documents render when an application is prepared for execution.</div>
+{% endif %}
+<script>document.body.addEventListener('careeros:refresh', function () { window.location.reload(); });</script>
+{% endblock %}

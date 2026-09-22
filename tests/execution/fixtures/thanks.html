@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Application submitted</title></head>
+<body>
+  <div class="application-confirmation">
+    <h2>Application submitted</h2>
+    <p>Thank you for applying. Reference number: <span id="ref"></span></p>
+  </div>
+  <script>document.getElementById('ref').textContent = new URLSearchParams(location.search).get('ref') || '';</script>
+</body>
+</html>

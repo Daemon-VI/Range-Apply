@@ -16,6 +16,7 @@ from app.jobs.extraction.deterministic import (
     extract_salary,
     extract_skills_and_technologies,
 )
+from app.jobs.geography import job_location_texts, job_places
 from app.jobs.models.enums import JobStatus, ProcessingStatus
 from app.jobs.models.job import NormalizedJob
 from app.jobs.models.raw_job import RawJob
@@ -32,6 +33,48 @@ def compute_content_hash(company: str, title: str, description: str) -> str:
     clean_desc = " ".join(clean_html(description).lower().split())
     canonical_text = f"{company.lower().strip()}|{title.lower().strip()}|{clean_desc}"
     return hashlib.sha256(canonical_text.encode("utf-8")).hexdigest()
+
+
+def compute_raw_hash(raw_job: RawJob) -> str:
+    """Hash of the source payload *as fetched*, before any extraction.
+
+    Compared against ``SourceReferenceRow.content_hash`` so an unchanged
+    posting is recognised without normalising it again — the single biggest
+    saving when the same boards are polled several times a day.
+    """
+    digest = hashlib.sha256()
+    metadata = raw_job.raw_metadata or {}
+    for part in (
+        raw_job.source.value,
+        raw_job.source_job_id,
+        raw_job.raw_title or "",
+        raw_job.raw_location or "",
+        " ".join((raw_job.raw_content or "").split()),
+        # Where the posting sends applicants is part of the payload: a moved
+        # apply link must not hide behind the fast path (Phase 13 finding).
+        raw_job.source_url or "",
+        str(metadata.get("apply_url") or metadata.get("applyUrl") or ""),
+    ):
+        digest.update(part.encode("utf-8"))
+        digest.update(b"\x00")
+    return digest.hexdigest()
+
+
+def validate_raw_job(raw_job: RawJob) -> Optional[str]:
+    """Reason a raw job cannot be ingested, or ``None`` when it can.
+
+    Deterministic and cheap: runs before hashing so a malformed record costs
+    nothing and is counted as *rejected*, never silently dropped.
+    """
+    if not raw_job.source_job_id or not str(raw_job.source_job_id).strip():
+        return "missing source_job_id"
+    if not raw_job.raw_title or not raw_job.raw_title.strip():
+        return "missing title"
+    if not raw_job.source_url or not raw_job.source_url.strip():
+        return "missing source_url"
+    if len(raw_job.raw_title) > 512:
+        return "title too long"
+    return None
 
 
 def compute_canonical_key(company: str, normalized_title: str, location: Optional[str] = None) -> str:
@@ -124,6 +167,11 @@ class JobNormalizer:
 
         clean_title = normalize_title(raw_job.raw_title, company)
         primary_location, locations = normalize_location(raw_job.raw_location)
+        # Ashby secondaryLocations / Lever allLocations: a posting open in
+        # "Bengaluru" and "Hyderabad" must not be read as Bengaluru only.
+        source_locations = {key: raw_job.raw_metadata.get(key) for key in ("secondaryLocations", "categories")}
+        locations = locations + [text for text in job_location_texts(None, None, source_locations) if text not in locations]
+        places = job_places(raw_job.raw_location, locations, raw_job.raw_metadata)
 
         plain_description = clean_html(raw_job.raw_content)
         emp_type = extract_employment_type(raw_job.raw_title, raw_job.raw_content, raw_job.raw_metadata)
@@ -175,6 +223,9 @@ class JobNormalizer:
             extraction_metadata={
                 "method": raw_job.extraction_method or "deterministic",
                 "extracted_at": utc_now().isoformat(),
+                # Tenant-independent reading of the location; relevance to a
+                # candidate is decided later against their own target.
+                "geography": {"countries": sorted(places.countries), "metros": sorted(places.metros), "remote": places.remote},
             },
             metadata=raw_job.raw_metadata,
         )

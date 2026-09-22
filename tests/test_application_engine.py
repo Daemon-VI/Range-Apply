@@ -14,7 +14,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
 from app.application.database.models import ApplicationEventRow, ApplicationRow
-from app.application.killswitch import KillSwitchRow, is_paused, set_paused
+from app.application.killswitch import is_paused, set_paused
 from app.application.models import ApplicationStatus
 from app.jobs.database.models import Base, JobRow
 
@@ -172,9 +172,29 @@ async def test_submit_dry_run_succeeds_without_playwright(db_session):
 
     row = await engine.submit(db_session, job_id, approved=True, dry_run=True)
 
-    assert row.status == ApplicationStatus.SUBMITTED.value
-    assert row.confirmation == "DRY_RUN"
-    assert row.submitted_at is not None
+    # Phase 7: a dry run on the legacy route records an event and changes
+    # nothing; it never marks the attempt SUBMITTED.
+    assert row.status == ApplicationStatus.READY.value
+    assert row.submitted_at is None and row.dry_run is True
+    events = db_session.query(ApplicationEventRow).filter_by(application_id=row.id).all()
+    assert any(e.event_type == "legacy_dry_run" for e in events)
+
+
+@pytest.mark.asyncio
+async def test_legacy_live_submit_is_refused(db_session):
+    """The v5 route cannot bypass the execution service's safety gates."""
+    from app.application.engine import ApplicationEngine
+
+    job_id = _make_job(db_session)
+    _approve_artifact(db_session, job_id)
+    engine = ApplicationEngine()
+    engine.prepare(db_session, job_id)
+
+    with pytest.raises(RuntimeError, match="/api/v1/execution"):
+        await engine.submit(db_session, job_id, approved=True, dry_run=False)
+    row = db_session.query(ApplicationRow).filter_by(job_id=job_id).first()
+    assert row.status == ApplicationStatus.READY.value
+    assert db_session.query(ApplicationEventRow).filter_by(application_id=row.id, event_type="legacy_submit_refused").count() == 1
 
 
 @pytest.mark.asyncio
@@ -185,29 +205,24 @@ async def test_submit_twice_is_idempotent(db_session):
     _approve_artifact(db_session, job_id)
     engine = ApplicationEngine()
     engine.prepare(db_session, job_id)
-
     first = await engine.submit(db_session, job_id, approved=True, dry_run=True)
-    events_after_first = (
-        db_session.query(ApplicationEventRow).filter_by(application_id=first.id).count()
-    )
+    # An attempt that was really submitted (through the execution service) is
+    # returned untouched by the legacy route, with no new events.
+    first.status = ApplicationStatus.SUBMITTED.value
+    db_session.commit()
+    events_after_first = db_session.query(ApplicationEventRow).filter_by(application_id=first.id).count()
 
     second = await engine.submit(db_session, job_id, approved=True, dry_run=True)
-    events_after_second = (
-        db_session.query(ApplicationEventRow).filter_by(application_id=first.id).count()
-    )
+    events_after_second = db_session.query(ApplicationEventRow).filter_by(application_id=first.id).count()
 
     assert second.id == first.id
     assert second.status == ApplicationStatus.SUBMITTED.value
-    # No new events logged for the refused re-submission.
     assert events_after_second == events_after_first
-
-    # Only one ApplicationRow ever exists for this job (unique job_id).
-    count = db_session.query(ApplicationRow).filter_by(job_id=job_id).count()
-    assert count == 1
+    assert db_session.query(ApplicationRow).filter_by(job_id=job_id).count() == 1
 
 
 def test_killswitch_checks_global_and_source(db_session):
-    job_id_1 = _make_job(db_session, source="GREENHOUSE")
+    _make_job(db_session, source="GREENHOUSE")
 
     assert is_paused(db_session, "GREENHOUSE") is False
 

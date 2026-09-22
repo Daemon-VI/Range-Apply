@@ -1,0 +1,134 @@
+{% extends "desktop_base.html" %}
+{% block title %}CareerOS — Home{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <div class="eyebrow">Your job search</div>
+        <h1>Home</h1>
+        <p>Follow the steps below. CareerOS finds, matches and prepares applications by itself; you answer what only you can answer, review, and decide what is submitted. Nothing on this page submits anything.</p>
+    </div>
+    <div class="actions">
+        <a class="btn secondary" href="/desktop/opportunities">Browse opportunities</a>
+        <a class="btn secondary" href="/desktop/applications">All applications</a>
+    </div>
+</div>
+
+{% if journey %}
+<section class="card mb-4 journey" aria-labelledby="journey-title" id="journey">
+    <div class="card-head">
+        <h2 id="journey-title">Your path to applying</h2>
+        <p>{{ journey.done }} of {{ journey.steps|length }} steps done. Steps marked <strong>Needs you</strong> are the only ones waiting on you.</p>
+    </div>
+    <ol class="journey-steps">
+        {% for s in journey.steps %}
+        <li class="journey-step state-{{ s.state }}{% if s.key == journey.current %} current{% endif %}" id="step-{{ s.key }}"{% if s.key == journey.current %} aria-current="step"{% endif %}>
+            <span class="journey-marker" aria-hidden="true">{% if s.state == 'done' %}&#10003;{% else %}{{ loop.index }}{% endif %}</span>
+            <div class="journey-body">
+                <div class="journey-head"><h3>{{ s.title }}</h3><span class="badge badge-{{ s.badge }}">{{ s.status }}</span></div>
+                <p class="small">{{ s.detail }}</p>
+                {% if s.missing %}<ul class="journey-missing" aria-label="Still missing">{% for m in s.missing %}<li>{{ m }}</li>{% endfor %}</ul>{% endif %}
+                {% if s.actions %}
+                <div class="actions">
+                    {% for a in s.actions %}
+                    {% if a.url %}<button type="button" class="{{ a.cls or 'secondary' }} sm" data-action data-method="POST" data-url="{{ a.url }}" data-body='{{ a.body|tojson }}' data-done="{{ a.done }}" data-next="/desktop/">{{ a.label }}</button>
+                    {% else %}<a class="btn {{ a.cls or 'secondary' }} sm" href="{{ a.href }}">{{ a.label }}</a>{% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </li>
+        {% endfor %}
+    </ol>
+</section>
+{% endif %}
+
+<section class="hero tone-{{ primary.tone }}" aria-labelledby="next-step-title">
+    <div>
+        <div class="section-title">Next step</div>
+        <h2 id="next-step-title">{{ primary.title }}</h2>
+        <p>{{ primary.text }}</p>
+    </div>
+    <a class="btn primary lg" href="{{ primary.href }}">{{ primary.label }} <span aria-hidden="true">&rarr;</span></a>
+</section>
+
+<section class="card mb-4" aria-labelledby="pipeline-title">
+    <div class="card-head">
+        <h2 id="pipeline-title">Pipeline</h2>
+        <p>Discover → Decide → Prepare → Apply. Counts per stage; stages are not a strict funnel.</p>
+    </div>
+    <ol class="pipeline">
+        {% for stage in pipeline %}
+        <li><a href="{{ stage.href }}"><span class="stage-label">{{ stage.label }}</span><div class="stage-value">{{ stage.value }}</div><span class="stage-sub">{{ stage.sub }}</span></a></li>
+        {% endfor %}
+    </ol>
+    <p class="small muted mt-3">Fit bands: HIGH {{ bands.get('HIGH', 0) }} · MEDIUM {{ bands.get('MEDIUM', 0) }} · LOW {{ bands.get('LOW', 0) }}. Eligibility is not fit: an eligible role can still be a weak match.</p>
+</section>
+
+<div class="grid-2">
+    <section class="card" aria-labelledby="attention-title">
+        <div class="card-head">
+            <h2 id="attention-title">Needs attention</h2>
+            <a class="btn subtle sm" href="/desktop/attention">Open attention center</a>
+        </div>
+        {% if attention_preview %}
+        <ul class="why-list">
+            {% for it in attention_preview %}
+            <li>
+                <span class="why-tag"><span class="badge badge-{{ 'red' if it.severity == 'red' else 'orange' }}">{{ it.reason|replace('_', ' ') }}</span></span>
+                <span class="spacer">
+                    <span class="strong">{% if it.opp %}{{ it.opp.title }} <span class="muted">at {{ it.opp.company }}</span>{% else %}{{ it.kind|humanize }}{% endif %}</span>
+                    <span class="cell-sub">{{ it.text.do }}</span>
+                </span>
+                {% if it.kind == 'attempt' %}<a class="btn secondary sm" href="/desktop/applications/{{ it.attempt.id }}">Review</a>
+                {% elif it.kind == 'preparation' %}<a class="btn secondary sm" href="/dashboard/preparations/{{ it.prep.id }}">Answer</a>
+                {% elif it.kind == 'signal' %}<a class="btn secondary sm" href="/dashboard/signals/{{ it.signal.id }}">Open</a>{% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="empty compact"><strong>Nothing needs you right now.</strong>Blocked runs, failures and open questions appear here.</div>
+        {% endif %}
+    </section>
+
+    <section class="card" aria-labelledby="safety-title">
+        <div class="card-head">
+            <h2 id="safety-title">Safety &amp; services</h2>
+            <a class="btn subtle sm" href="/desktop/system">System details</a>
+        </div>
+        <dl class="kv">
+            <dt>Execution mode</dt><dd>{% if execution_mode.dry_run %}<span class="badge badge-green">SAFE / DRY RUN</span> <span class="small muted">automation never presses submit</span>{% else %}<span class="badge badge-red">LIVE SUBMISSION ENABLED</span>{% endif %}</dd>
+            <dt>Real submission</dt><dd class="small">Only from an application's confirmation screen, after typing SUBMIT; one run at a time.</dd>
+            <dt>Kill switch</dt><dd>{% if execution_mode.kill_switch %}<span class="badge badge-red">ON — nothing executes</span>{% else %}<span class="badge badge-muted">off</span>{% endif %}</dd>
+            <dt>Worker</dt><dd>{% if shell and shell.worker.state == 'running' %}<span class="badge badge-green">running{% if shell.worker.dry_run %} · dry run{% endif %}</span>{% elif shell %}<span class="badge badge-muted">{{ shell.worker.state }}</span>{% else %}<span class="badge badge-muted">not managed by this window</span>{% endif %}</dd>
+            <dt>Browser execution</dt><dd>{% if browser_available %}<span class="badge badge-green">available</span>{% else %}<span class="badge badge-orange">playwright not installed</span>{% endif %}</dd>
+            <dt>Caps</dt><dd>{% set caps = health.get('caps', {}) %}today {{ caps.get('day', {}).get('used', '?') }} of {{ caps.get('day', {}).get('cap', '?') }} · week {{ caps.get('week', {}).get('used', '?') }} of {{ caps.get('week', {}).get('cap', '?') }}</dd>
+            <dt>Queue</dt><dd class="small">{% for state, n in queue.items() %}{{ state|humanize }} {{ n }}{% if not loop.last %} · {% endif %}{% else %}empty{% endfor %} · stale leases {{ health.get('queue', {}).get('stale_leases', 0) }}</dd>
+            <dt>Services</dt><dd>API <span class="badge badge-green">healthy</span> Database {% if health.get('warnings') is not none %}<span class="badge badge-green">reachable</span>{% else %}<span class="badge badge-orange">unknown</span>{% endif %}</dd>
+        </dl>
+        {% if health.get('warnings') %}
+        <div class="note mt-3"><strong>Warnings</strong><ul>{% for w in health['warnings'] %}<li>{{ w }}</li>{% endfor %}</ul></div>
+        {% endif %}
+    </section>
+</div>
+
+<div class="grid-2">
+    <section class="card" aria-labelledby="recent-sub-title">
+        <div class="card-head"><h2 id="recent-sub-title">Recent submissions</h2></div>
+        {% if recent_attempts %}
+        <div class="table-wrap"><table class="table-compact"><thead><tr><th scope="col">Role</th><th scope="col">Status</th><th scope="col">When</th></tr></thead><tbody>
+        {% for a in recent_attempts %}{% set o = opps.get(a.opportunity_id) %}
+        <tr><td><a href="/desktop/applications/{{ a.id }}">{{ o.title if o else a.id[:8] }}</a><span class="sub">{{ o.company if o else '' }}</span></td><td><span class="badge badge-{{ 'purple' if a.status == 'UNCERTAIN' else 'blue' }}">{{ a.status|replace('_', ' ') }}</span></td><td class="small muted nowrap">{{ a.updated_at.strftime('%Y-%m-%d %H:%M') if a.updated_at else '' }}</td></tr>
+        {% endfor %}</tbody></table></div>
+        {% else %}<div class="empty compact"><strong>No submissions yet.</strong>Submitted applications and their verification appear here.</div>{% endif %}
+    </section>
+    <section class="card" aria-labelledby="recent-sig-title">
+        <div class="card-head"><h2 id="recent-sig-title">Recent signals</h2><a class="btn subtle sm" href="/dashboard/signals">Signals inbox</a></div>
+        {% if recent_signals %}
+        <div class="table-wrap"><table class="table-compact"><thead><tr><th scope="col">Subject</th><th scope="col">Category</th><th scope="col">Status</th></tr></thead><tbody>
+        {% for s in recent_signals %}
+        <tr><td><a href="/dashboard/signals/{{ s.id }}">{{ (s.subject or s.source)[:60] }}</a><span class="sub">{{ s.observed_at.strftime('%Y-%m-%d %H:%M') if s.observed_at else '' }}</span></td><td><span class="badge badge-muted">{{ s.category or 'UNKNOWN' }}</span></td><td><span class="badge {% if s.status == 'APPLIED' %}badge-green{% elif s.status in ['NEEDS_REVIEW', 'UNMATCHED'] %}badge-orange{% else %}badge-muted{% endif %}">{{ s.status|replace('_', ' ') }}</span></td></tr>
+        {% endfor %}</tbody></table></div>
+        {% else %}<div class="empty compact"><strong>No signals yet.</strong>Confirmations and employer replies land here.</div>{% endif %}
+    </section>
+</div>
+{% endblock %}

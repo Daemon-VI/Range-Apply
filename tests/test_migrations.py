@@ -16,18 +16,17 @@ import os
 from contextlib import contextmanager
 
 import pytest
-from alembic import command
 from alembic.config import Config
 from sqlalchemy import create_engine, inspect
-
-from app.config import PROJECT_ROOT, settings
-from app.database import SchemaNotReadyError, verify_schema
-from app.jobs.database.models import Base
 
 # Registers the Phase 3 tables (match_policies, match_runs, job_matches,
 # requirement_assessments) onto the shared Base.metadata, exactly as
 # alembic/env.py does via the same import.
 import app.intelligence.database.models  # noqa: F401,E402
+from alembic import command
+from app.config import PROJECT_ROOT, settings
+from app.database import SchemaNotReadyError, verify_schema
+from app.jobs.database.models import Base
 
 
 def _alembic_config() -> Config:
@@ -133,3 +132,90 @@ def test_verify_schema_rejects_empty_database_and_accepts_migrated_one(tmp_path)
         verify_schema(engine=migrated_engine)  # must not raise
     finally:
         migrated_engine.dispose()
+
+
+# ---------------------------------------------------------------------------
+# A database created outside Alembic (the old ``create_all()`` bootstrap) must
+# be diagnosed as "adopt at the matching revision", never as "stamp head".
+# ---------------------------------------------------------------------------
+
+
+def _bootstrap_like_database(tmp_path, revision: str):
+    """A database whose tables match ``revision`` but which carries no Alembic row.
+
+    Exactly what the pre-migration bootstrap left behind, and what an
+    ``alembic upgrade head`` that failed on its first migration leaves behind
+    (an empty ``alembic_version`` table).
+    """
+    url = _sqlite_url(tmp_path / f"bootstrap_{revision}.db")
+    with _pointed_at(url):
+        command.upgrade(_alembic_config(), revision)
+    engine = create_engine(url)
+    with engine.begin() as connection:
+        connection.exec_driver_sql("DELETE FROM alembic_version")
+    return url, engine
+
+
+def test_unstamped_bootstrap_schema_is_told_to_stamp_the_matching_revision_not_head(tmp_path):
+    from app.database import alembic_revision, unstamped_schema
+
+    url, engine = _bootstrap_like_database(tmp_path, "b11ea16cb71f")
+    try:
+        assert alembic_revision(engine) is None and unstamped_schema(engine) is True
+        with pytest.raises(SchemaNotReadyError) as excinfo:
+            verify_schema(engine=engine)
+        message = str(excinfo.value)
+        assert "created outside of migrations" in message
+        assert "Do NOT run 'alembic stamp head'" in message
+        assert "alembic stamp <that revision>" in message and "alembic upgrade head" in message
+        assert "Run 'alembic stamp head'" not in message, "the old advice that wedges the database is gone"
+        # The desktop readiness check says the same thing instead of "run alembic upgrade head".
+        from app.database import reset_engine
+        from app.desktop.launcher import check_readiness
+
+        with _pointed_at(url):
+            reset_engine()
+            try:
+                report = check_readiness()
+            finally:
+                reset_engine()
+        assert report.ready is False and report.database_migrated is False
+        assert any("no Alembic revision" in p and "Do NOT run 'alembic stamp head'" in p for p in report.problems), report.problems
+        assert not any("run `alembic upgrade head` first" in p for p in report.problems), report.problems
+    finally:
+        engine.dispose()
+
+
+def test_fully_built_schema_without_a_revision_is_still_refused_with_the_adoption_advice(tmp_path):
+    url, engine = _bootstrap_like_database(tmp_path, "head")
+    try:
+        with pytest.raises(SchemaNotReadyError) as excinfo:
+            verify_schema(engine=engine)
+        assert "no recorded revision" in str(excinfo.value) and "Do NOT run 'alembic stamp head'" in str(excinfo.value)
+    finally:
+        engine.dispose()
+
+
+def test_application_startup_never_creates_tables(tmp_path):
+    """Alembic stays authoritative: booting against an empty database fails
+    fast and leaves the database exactly as empty as it found it."""
+    from fastapi.testclient import TestClient
+    from sqlalchemy import inspect as sa_inspect
+
+    from app.database import reset_engine
+    from app.main import app
+
+    url = _sqlite_url(tmp_path / "boot_empty.db")
+    with _pointed_at(url):
+        reset_engine()
+        try:
+            with pytest.raises(SchemaNotReadyError):
+                with TestClient(app):
+                    pass
+        finally:
+            reset_engine()
+    engine = create_engine(url)
+    try:
+        assert sa_inspect(engine).get_table_names() == [], "startup must not create_all()"
+    finally:
+        engine.dispose()

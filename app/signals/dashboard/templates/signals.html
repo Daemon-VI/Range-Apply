@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Signal Inbox — CareerOS{% endblock %}
+{% block content %}
+{% if notice %}
+<div class="card" style="margin-bottom: 16px;">
+    {% if notice.startswith('error:') %}<strong>Not applied:</strong> {{ notice.split(':', 2)[2] }}{% else %}<span class="badge badge-green">{{ notice }}</span>{% endif %}
+</div>
+{% endif %}
+
+<div class="grid">
+    <div class="card"><div class="stat-label">review queue</div><div class="stat-value">{{ summary.review_queue }}</div></div>
+    <div class="card"><div class="stat-label">unmatched</div><div class="stat-value">{{ summary.unmatched }}</div></div>
+    <div class="card"><div class="stat-label">applied</div><div class="stat-value">{{ summary.by_status.get('APPLIED', 0) }}</div></div>
+    <div class="card"><div class="stat-label">ignored / merged</div><div class="stat-value">{{ summary.by_status.get('IGNORED', 0) + summary.by_status.get('MERGED', 0) }}</div></div>
+</div>
+
+<div class="card" style="margin-bottom: 20px;">
+    <h3>Current outcomes</h3>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0;">
+        {% for k, v in summary.outcomes_by_current.items() %}<a href="/dashboard/signals?outcome={{ k }}" class="badge {% if k in ['INTERVIEW_REQUESTED', 'INTERVIEW_SCHEDULED', 'APPLICATION_RECEIVED', 'SUBMITTED'] %}badge-green{% elif k in ['NEEDS_REVIEW', 'UNKNOWN'] %}badge-purple{% elif k in ['REJECTED', 'WITHDRAWN', 'CLOSED_WITHOUT_APPLICATION'] %}badge-orange{% else %}badge-blue{% endif %}">{{ k.replace('_', ' ') }} {{ v }}</a>{% else %}<span style="color: var(--text-muted); font-size: 13px;">No outcomes derived yet.</span>{% endfor %}
+    </div>
+    <p style="color: var(--text-muted); font-size: 13px;">Sources: {% for k, v in summary.by_source.items() %}{{ k }} {{ v }}{% if not loop.last %} · {% endif %}{% endfor %} — Categories: {% for k, v in summary.by_category.items() %}{{ k }} {{ v }}{% if not loop.last %} · {% endif %}{% endfor %}</p>
+</div>
+
+<div class="card" style="margin-bottom: 20px;">
+    <form method="GET" action="/dashboard/signals" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+        <label style="font-size: 13px;"><input type="checkbox" name="review" value="1" {% if filters.review == '1' %}checked{% endif %}> needs review / unmatched</label>
+        <select name="status"><option value="">Any status</option>{% for s in statuses %}<option value="{{ s }}" {% if filters.status == s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
+        <select name="source"><option value="">Any source</option>{% for s in sources %}<option value="{{ s }}" {% if filters.source == s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
+        <select name="category"><option value="">Any category</option>{% for c in categories %}<option value="{{ c }}" {% if filters.category == c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select>
+        <select name="outcome"><option value="">Any outcome</option>{% for o in outcomes %}<option value="{{ o }}" {% if filters.outcome == o %}selected{% endif %}>{{ o }}</option>{% endfor %}</select>
+        <input name="company" placeholder="company" value="{{ filters.company }}" style="width: 140px;">
+        <input name="application_id" placeholder="application id" value="{{ filters.application_id }}" style="width: 200px;">
+        <input name="days" type="number" min="1" placeholder="last N days" value="{{ filters.days }}" style="width: 100px;">
+        <button type="submit">Apply</button>
+        <span style="color: var(--text-muted); font-size: 13px;">{{ total }} signals</span>
+    </form>
+</div>
+
+<div class="card">
+    <h3>Signals</h3>
+    <table>
+        <thead><tr><th>Observed</th><th>Source</th><th>Subject / sender</th><th>Category</th><th>Status</th><th>Attribution</th><th>Company · title</th><th>Seen</th></tr></thead>
+        <tbody>
+        {% for s in rows %}
+            {% set opp = opps.get(s.opportunity_id) %}
+            <tr>
+                <td style="white-space: nowrap; font-size: 12px;">{{ s.observed_at.strftime('%Y-%m-%d %H:%M') if s.observed_at else '—' }}</td>
+                <td><code>{{ s.source }}</code></td>
+                <td><a href="/dashboard/signals/{{ s.id }}">{{ (s.subject or s.id)[:80] }}</a>{% if s.sender_domain %}<div style="color: var(--text-muted); font-size: 12px;">{{ s.sender_domain }}</div>{% endif %}</td>
+                <td><span class="badge {% if s.category in ['INTERVIEW_INVITATION', 'APPLICATION_CONFIRMATION', 'APPLICATION_RECEIVED'] %}badge-green{% elif s.category in ['REJECTION', 'WITHDRAWAL', 'DUPLICATE_OR_CLOSED'] %}badge-orange{% elif s.category in ['UNKNOWN', 'OTHER'] %}badge-muted{% else %}badge-blue{% endif %}">{{ s.category }}</span> <span style="font-size: 11px; color: var(--text-muted);">{{ s.confidence }} · {{ s.classification_source or '' }}</span></td>
+                <td><span class="badge {% if s.status == 'APPLIED' %}badge-green{% elif s.status in ['NEEDS_REVIEW', 'UNMATCHED'] %}badge-purple{% elif s.status in ['IGNORED', 'MERGED'] %}badge-muted{% else %}badge-blue{% endif %}">{{ s.status }}</span></td>
+                <td style="font-size: 12px;">{{ s.attribution_status }}{% if s.application_id %} · <a href="/dashboard/execution/attempts/{{ s.application_id }}">attempt</a>{% endif %}</td>
+                <td style="font-size: 12px;">{% if opp %}{{ opp.company }} · {{ opp.title[:50] }}{% else %}—{% endif %}</td>
+                <td style="font-size: 12px;">{{ s.observation_count }}×</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="8" style="color: var(--text-muted);">No signals yet. Execution results arrive here automatically; emails and status-page observations through <code>POST /api/v1/signals</code>.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

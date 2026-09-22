@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Ops — CareerOS{% endblock %}
+{% block content %}
+<div class="card" style="margin-bottom: 16px;">
+    <h2>Operational diagnostics <span style="color: var(--text-muted); font-weight: 400; font-size: 13px;">{{ d.generated_at }} · tenant {{ d.tenant_id }}</span></h2>
+    {% if d.warnings %}<ul>{% for w in d.warnings %}<li><span class="badge badge-orange">warning</span> {{ w }}</li>{% endfor %}</ul>{% else %}<p><span class="badge badge-green">no warnings</span></p>{% endif %}
+</div>
+<div class="grid">
+    <div class="card"><div class="stat-label">queue pending</div><div class="stat-value">{{ d.queue.by_state.get('PENDING', 0) + d.queue.by_state.get('RETRY_WAIT', 0) }}</div></div>
+    <div class="card"><div class="stat-label">claimed / processing</div><div class="stat-value">{{ d.queue.by_state.get('CLAIMED', 0) + d.queue.by_state.get('PROCESSING', 0) }}</div><div class="stat-label">stale leases {{ d.queue.stale_leases }}</div></div>
+    <div class="card"><div class="stat-label">uncertain attempts</div><div class="stat-value">{{ d.attempts.uncertain }}</div></div>
+    <div class="card"><div class="stat-label">blocked / review / input</div><div class="stat-value">{{ d.attempts.blocked }} / {{ d.attempts.needs_review }} / {{ d.attempts.needs_user_input }}</div></div>
+    <div class="card"><div class="stat-label">signals to review</div><div class="stat-value">{{ d.signals.review_queue }}</div></div>
+    <div class="card"><div class="stat-label">cap today</div><div class="stat-value">{{ d.caps.day.used }} / {{ d.caps.day.cap }}</div><div class="stat-label">week {{ d.caps.week.used }} / {{ d.caps.week.cap }}</div></div>
+    <div class="card"><div class="stat-label">AI provider calls</div><div class="stat-value">{{ d.ai.gateway.provider_calls }}</div><div class="stat-label">failures 24h {{ d.ai.failures_last_24h }}</div></div>
+    <div class="card"><div class="stat-label">discovery sources failing</div><div class="stat-value">{{ d.discovery.sources_failing }}</div></div>
+</div>
+<div class="card" style="margin-bottom: 16px;">
+    <h3>Execution, last 24 hours</h3>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px;">{% for k, v in d.executions.last_24h.items() %}<span class="badge badge-blue">{{ k.replace('execution:', '') }} {{ v }}</span>{% else %}<span style="color: var(--text-muted);">nothing yet</span>{% endfor %}</div>
+    <p style="font-size: 13px; color: var(--text-muted);">Runs by status: {% for k, v in d.executions.by_status.items() %}{{ k }} {{ v }}{% if not loop.last %} · {% endif %}{% endfor %} — attempts: {% for k, v in d.attempts.by_status.items() %}{{ k }} {{ v }}{% if not loop.last %} · {% endif %}{% endfor %}</p>
+    <p style="font-size: 13px; color: var(--text-muted);">Kill switches: {% for s in d.kill_switches %}{{ s.id }} {{ 'PAUSED' if s.paused else 'live' }}{% if not loop.last %} · {% endif %}{% else %}none set{% endfor %} — learning snapshot: {{ d.learning.latest_snapshot_id[:8] if d.learning.latest_snapshot_id else 'none' }}{% if d.learning.age_hours is not none %} ({{ d.learning.age_hours }} h old){% endif %}</p>
+</div>
+{% endblock %}

@@ -3,15 +3,16 @@
 import uuid
 
 from sqlalchemy import (
+    Boolean,
     Column,
     DateTime,
     Float,
+    ForeignKey,
+    Index,
     Integer,
     String,
     Text,
     UniqueConstraint,
-    ForeignKey,
-    Index,
 )
 from sqlalchemy.orm import declarative_base, relationship
 
@@ -73,6 +74,9 @@ class JobRow(Base):
     content_hash = Column(String(64), nullable=False, index=True)
     processing_status = Column(String(32), nullable=False, default="DISCOVERED", index=True)
     job_status = Column(String(32), nullable=False, default="UNKNOWN", index=True)
+    # Deterministic age class (see app/jobs/freshness.py), refreshed on every
+    # observation and by the closure sweep. Indexed for dashboard filters.
+    freshness = Column(String(16), nullable=False, default="UNKNOWN", index=True)
     extraction_metadata = Column(JSON, default=dict)
     metadata_ = Column("metadata", JSON, default=dict)
     created_at = Column(DateTime, default=db_now)
@@ -105,6 +109,12 @@ class SourceReferenceRow(Base):
     application_url = Column(String(1024))
     first_seen_at = Column(DateTime, nullable=False, default=db_now)
     last_seen_at = Column(DateTime, nullable=False, default=db_now)
+    # Per-observation record (blueprint §5 provenance): hash of the raw
+    # payload as fetched, when it was fetched, and how parsing went. The raw
+    # hash is what lets an unchanged posting skip normalisation entirely.
+    content_hash = Column(String(64))
+    fetched_at = Column(DateTime)
+    parse_status = Column(String(32))
     metadata_ = Column("metadata", JSON, default=dict)
 
     job = relationship("JobRow", back_populates="source_references")
@@ -151,3 +161,65 @@ class DiscoveryRunRow(Base):
     trigger = Column(String(32), default="manual")
     duration_seconds = Column(Float)
     status = Column(String(32), nullable=False, default="running")
+    # --- Blueprint Phase 3: volume metrics, failure class, resumability ---
+    company_name = Column(String(256))
+    failure_kind = Column(String(32))
+    jobs_rejected = Column(Integer, default=0)
+    jobs_unchanged = Column(Integer, default=0)
+    jobs_versioned = Column(Integer, default=0)
+    jobs_reposted = Column(Integer, default=0)
+    jobs_filtered = Column(Integer, default=0)
+    jobs_resumed_skipped = Column(Integer, default=0)
+    opportunities_new = Column(Integer, default=0)
+    opportunities_linked = Column(Integer, default=0)
+    network_requests = Column(Integer, default=0)
+    rate_limit_hits = Column(Integer, default=0)
+    ai_calls = Column(Integer, default=0)
+    ai_cache_hits = Column(Integer, default=0)
+    resumed_from_run_id = Column(String(36))
+    checkpoint = Column(JSON, default=dict)
+
+
+class SourceHealthRow(Base):
+    """Shared reliability + scheduling record per ``(source, source_identifier)``.
+
+    Reliability is *data* here (blueprint §8): nothing in this table excludes
+    a job. Later phases feed ``success rate`` and freshness into priority.
+    ``next_poll_at`` is the source-level checkpoint for lightweight polling.
+    """
+
+    __tablename__ = "source_health"
+
+    id = Column(String(36), primary_key=True, default=_uuid)
+    source = Column(String(32), nullable=False)
+    source_identifier = Column(String(256), nullable=False)
+    company_name = Column(String(256))
+    enabled = Column(Boolean, nullable=False, default=True)
+    poll_interval_minutes = Column(Integer, nullable=False, default=360)
+    next_poll_at = Column(DateTime, index=True)
+    last_run_id = Column(String(36))
+    last_run_at = Column(DateTime)
+    last_success_at = Column(DateTime)
+    last_failure_at = Column(DateTime)
+    last_failure_kind = Column(String(32))
+    last_error = Column(String(512))
+    consecutive_failures = Column(Integer, nullable=False, default=0)
+    runs_total = Column(Integer, nullable=False, default=0)
+    runs_success = Column(Integer, nullable=False, default=0)
+    runs_partial = Column(Integer, nullable=False, default=0)
+    runs_failed = Column(Integer, nullable=False, default=0)
+    runs_rate_limited = Column(Integer, nullable=False, default=0)
+    jobs_fetched_total = Column(Integer, nullable=False, default=0)
+    jobs_parsed_total = Column(Integer, nullable=False, default=0)
+    jobs_rejected_total = Column(Integer, nullable=False, default=0)
+    duplicates_total = Column(Integer, nullable=False, default=0)
+    last_jobs_fetched = Column(Integer, nullable=False, default=0)
+    last_jobs_new = Column(Integer, nullable=False, default=0)
+    last_fresh_posted_at = Column(DateTime)
+    avg_duration_seconds = Column(Float)
+    created_at = Column(DateTime, nullable=False, default=db_now)
+    updated_at = Column(DateTime, nullable=False, default=db_now, onupdate=db_now)
+
+    __table_args__ = (
+        UniqueConstraint("source", "source_identifier", name="uq_source_health_target"),
+    )

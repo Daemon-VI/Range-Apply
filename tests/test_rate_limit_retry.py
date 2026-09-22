@@ -13,7 +13,6 @@ from app.jobs.ratelimit import RateLimiterRegistry, TokenBucket
 from app.jobs.sources.base import RETRYABLE_STATUS, SourceError
 from app.jobs.sources.greenhouse import GreenhouseSource
 
-
 # ---------------------------------------------------------------------------
 # TokenBucket
 # ---------------------------------------------------------------------------

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CareerOS Apply – options</title>
+<link rel="stylesheet" href="popup.css">
+<style>body { width: auto; max-width: 520px; padding: 16px; } input, select { width: 100%; box-sizing: border-box; padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px; font: inherit; }</style>
+</head>
+<body>
+<h2>CareerOS Apply</h2>
+<p class="muted small">The extension only talks to your local CareerOS server. The API key is stored in this browser profile's extension storage and sent only to that address; it is never placed in a page.</p>
+<label>Local server address <input id="baseUrl" placeholder="http://127.0.0.1:8000"></label>
+<label>API key (from your .env) <input id="apiKey" type="password" autocomplete="off"></label>
+<label>Submit mode
+  <select id="submitMode">
+    <option value="manual">Manual – the extension fills; you press the site's submit button (gated)</option>
+    <option value="auto">Auto – the extension fills and presses submit once the server gate passes</option>
+    <option value="dry_run">Dry run – fill only, never submit, report DRY_RUN</option>
+  </select>
+</label>
+<label>Wait for a confirmation page (ms) <input id="submitWaitMs" type="number" min="1000" max="120000" step="500"></label>
+<div class="row">
+  <button id="save">Save</button>
+  <button id="test" class="secondary">Test connection</button>
+</div>
+<p id="result" class="small"></p>
+<hr>
+<p class="small muted">Optional: allow the extension on every site so it can inspect the confirmation page after a submit that navigates to another origin. Without it, such cases are reported as UNCERTAIN for you to verify (never resubmitted).</p>
+<button id="grant" class="secondary">Allow on all sites</button>
+<p class="small muted" id="grant-state"></p>
+<script src="api.js"></script>
+<script src="options.js"></script>
+</body>
+</html>

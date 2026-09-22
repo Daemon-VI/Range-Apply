@@ -1,5 +1,6 @@
 """Greenhouse job source adapter using the public unauthenticated Job Board API."""
 
+import html
 import logging
 from typing import List, Optional
 
@@ -45,11 +46,16 @@ class GreenhouseSource(JobSource):
             if not job_id:
                 continue
 
-            title = item.get("title", "").strip()
+            # A null title is a malformed record (rejected by validation), never a crash of the whole board.
+            title = (item.get("title") or "").strip()
             absolute_url = item.get(
                 "absolute_url", f"https://boards.greenhouse.io/{board_token}/jobs/{job_id}"
             )
-            content = item.get("content", "") or ""
+            # Audit fix (2026-09-14): the Job Board API returns `content` entity-escaped
+            # ("&lt;h3&gt;..." on the live highradius board). Kept escaped, clean_html turned
+            # it back into literal tags inside the stored description and no <li> was ever
+            # found, so no Greenhouse posting had qualifications/responsibilities.
+            content = html.unescape(item.get("content") or "")
 
             # Extract location string
             location_raw = item.get("location")

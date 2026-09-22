@@ -1,0 +1,89 @@
+{
+  "pages": [
+    {
+      "source": "GREENHOUSE",
+      "company": "Discord",
+      "url": "https://job-boards.greenhouse.io/discord/jobs/8464570002",
+      "injected": true,
+      "fields_extension": 34,
+      "fields_playwright": 34,
+      "identical_discovery": true,
+      "content_state_ok": true,
+      "armed": false,
+      "submit_buttons": 26,
+      "csp_note": "page scripts evaluated via page.evaluate (extension executeScript semantics)",
+      "seconds": 4.22
+    },
+    {
+      "source": "GREENHOUSE",
+      "company": "Discord",
+      "url": "https://job-boards.greenhouse.io/discord/jobs/8727410002",
+      "injected": true,
+      "fields_extension": 34,
+      "fields_playwright": 34,
+      "identical_discovery": true,
+      "content_state_ok": true,
+      "armed": false,
+      "submit_buttons": 26,
+      "csp_note": "page scripts evaluated via page.evaluate (extension executeScript semantics)",
+      "seconds": 4.27
+    },
+    {
+      "source": "GREENHOUSE",
+      "company": "Discord",
+      "url": "https://job-boards.greenhouse.io/discord/jobs/8771059002",
+      "injected": true,
+      "fields_extension": 34,
+      "fields_playwright": 34,
+      "identical_discovery": true,
+      "content_state_ok": true,
+      "armed": false,
+      "submit_buttons": 26,
+      "csp_note": "page scripts evaluated via page.evaluate (extension executeScript semantics)",
+      "seconds": 4.37
+    },
+    {
+      "source": "ASHBY",
+      "company": "Linear",
+      "url": "https://jobs.ashbyhq.com/linear/820d0d5a-0930-475c-b494-23e18ad2aa68/application",
+      "injected": true,
+      "fields_extension": 12,
+      "fields_playwright": 12,
+      "identical_discovery": true,
+      "content_state_ok": true,
+      "armed": false,
+      "submit_buttons": 4,
+      "csp_note": "page scripts evaluated via page.evaluate (extension executeScript semantics)",
+      "seconds": 4.09
+    },
+    {
+      "source": "ASHBY",
+      "company": "Supabase",
+      "url": "https://jobs.ashbyhq.com/supabase/4eb14408-51e6-4c58-812a-3782d5c0b045/application",
+      "injected": true,
+      "fields_extension": 14,
+      "fields_playwright": 14,
+      "identical_discovery": true,
+      "content_state_ok": true,
+      "armed": false,
+      "submit_buttons": 5,
+      "csp_note": "page scripts evaluated via page.evaluate (extension executeScript semantics)",
+      "seconds": 4.18
+    },
+    {
+      "source": "ASHBY",
+      "company": "Supabase",
+      "url": "https://jobs.ashbyhq.com/supabase/b4a2f5e5-5c51-4c1a-abde-a89de27451c7/application",
+      "injected": true,
+      "fields_extension": 12,
+      "fields_playwright": 12,
+      "identical_discovery": true,
+      "content_state_ok": true,
+      "armed": false,
+      "submit_buttons": 5,
+      "csp_note": "page scripts evaluated via page.evaluate (extension executeScript semantics)",
+      "seconds": 4.3
+    }
+  ],
+  "note": "sender validation, service-worker restart and real Chrome runtime are NOT exercised here (no Node / no extension-loaded Chrome in this environment)"
+}

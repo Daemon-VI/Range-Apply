@@ -1,0 +1,37 @@
+<p class="sr-only" role="status">{{ total }} opportunities match.</p>
+{% if items %}
+<div class="table-wrap">
+<table>
+    <caption class="sr-only">Opportunities, page {{ page }} of {{ pages }}</caption>
+    <thead><tr><th>Role</th><th>Company</th><th>Location</th><th>Relevance</th><th>Fit</th><th>Eligibility</th><th>Priority</th><th>Status</th><th>Next action</th></tr></thead>
+    <tbody>
+    {% for it in items %}{% set co = it.co %}
+    <tr>
+        <td><a class="strong" href="/desktop/opportunities/{{ co.id }}">{{ it.opp.title if it.opp else co.id[:8] }}</a><span class="sub">{{ it.job.source if it.job else '—' }} · posted {{ it.freshness }}</span></td>
+        <td>{{ it.opp.company if it.opp else '—' }}</td>
+        <td class="small">{{ (it.job.location if it.job and it.job.location else (it.opp.location_bucket if it.opp else '')) or '—' }}{% if it.geography %}<span class="sub"><span class="badge badge-{{ it.geography.tone }}" title="{{ it.geography.detail }}">{{ it.geography.label }}</span></span>{% endif %}</td>
+        <td>{% if it.relevance %}<span class="badge badge-{{ it.relevance.tone }}" title="{{ it.relevance.detail }}">{{ it.relevance.label }}</span><span class="sub">{{ it.relevance.family }}</span>{% else %}<span class="muted small">—</span>{% endif %}</td>
+        <td class="nowrap">{% if co.fit_band %}<span class="badge badge-{{ {'HIGH': 'green', 'MEDIUM': 'blue'}.get(co.fit_band, 'muted') }}">{{ co.fit_band }}</span>{% endif %}<span class="sub">{{ co.fit_score if co.fit_score is not none else '—' }} / 100</span></td>
+        <td><span class="badge badge-{{ {'ELIGIBLE': 'green', 'LIKELY': 'green', 'UNCERTAIN': 'purple', 'REVIEW': 'orange', 'INELIGIBLE': 'red'}.get(co.eligibility_status, 'muted') }}">{{ co.eligibility_status or 'unknown' }}</span></td>
+        <td class="num">{{ co.priority_score if co.priority_score is not none else '—' }}</td>
+        <td>{% if it.attempt %}<span class="badge badge-blue">{{ it.attempt.status|replace('_', ' ') }}</span>{% else %}<span class="badge badge-muted">{{ co.state|replace('_', ' ') }}</span>{% endif %}<span class="sub" title="{{ co.policy_reason or '' }}{% if co.scheduler_code %} · scheduler {{ co.scheduler_code }}: {{ co.scheduler_reason or '' }}{% endif %}">{{ it.admission }}</span></td>
+        <td>{% if it.next.href %}<a class="btn {{ 'primary' if it.next.primary else 'secondary' }} sm" href="{{ it.next.href }}">{{ it.next.label }}</a>{% else %}<span class="small muted">{{ it.next.label }}</span>{% endif %}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+<div class="pager">
+    <span>Showing {{ first_index }}–{{ last_index }} of {{ total }}{% if active_filters %} matching{% endif %} · page {{ page }} of {{ pages }}</span>
+    <span class="actions">
+        {% if prev_query %}<a class="btn secondary sm" href="/desktop/opportunities?{{ prev_query }}" hx-get="/desktop/partials/opportunities?{{ prev_query }}" hx-target="#opportunity-rows" hx-push-url="false">&larr; Previous</a>{% endif %}
+        {% if next_query %}<a class="btn secondary sm" href="/desktop/opportunities?{{ next_query }}" hx-get="/desktop/partials/opportunities?{{ next_query }}" hx-target="#opportunity-rows" hx-push-url="false">Next &rarr;</a>{% endif %}
+    </span>
+</div>
+{% else %}
+<div class="empty" style="margin: 20px">
+    <strong>No opportunities match these filters.</strong>
+    {% if filters.q %}Nothing contains “{{ filters.q }}”. {% endif %}Try removing a filter.
+    <div class="actions"><a class="btn secondary" href="/desktop/opportunities">Reset filters</a></div>
+</div>
+{% endif %}

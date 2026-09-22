@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Careers - Apply (generic form)</title></head>
+<body>
+<main>
+  <h1>Software Engineer - Delta</h1>
+  <form id="apply" action="#" novalidate>
+    <p><label>Full name *<input type="text" name="fullname" required></label></p>
+    <p><label>Email address *<input type="email" name="email" required></label></p>
+    <p><label>Phone number<input type="tel" name="phone"></label></p>
+    <p><label>Portfolio / Website<input type="url" name="website"></label></p>
+    <p><label>Why do you want to work at Delta? *<textarea name="why_company" required></textarea></label></p>
+    <p><label>What is your notice period? *<input type="text" name="notice" required></label></p>
+    <fieldset>
+      <legend>Preferred work mode *</legend>
+      <label><input type="radio" name="workmode" value="remote" required> Remote</label>
+      <label><input type="radio" name="workmode" value="hybrid"> Hybrid</label>
+      <label><input type="radio" name="workmode" value="onsite"> On-site</label>
+    </fieldset>
+    <p><label>Skills<select name="skills" multiple><option value="python">Python</option><option value="go">Go</option><option value="rust">Rust</option></select></label></p>
+    <p><label>Anything else you'd like to add?<textarea name="extra"></textarea></label></p>
+    <p><label>Rate your alignment with our values *<input type="range" name="alignment" min="1" max="5" data-mode-extra></label></p>
+    <button type="submit">Submit</button>
+  </form>
+</main>
+<script src="_shared.js"></script>
+<script>
+  (function () {
+    const mode = window.fixture.param('mode') || 'success';
+    // The unknown-type required field only exists in the "unknown" variant.
+    if (mode !== 'unknown') { const p = document.querySelector('[data-mode-extra]').closest('p'); p.parentNode.removeChild(p); }
+    document.getElementById('apply').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const missing = window.fixture.missingRequired(this);
+      if (missing.length) { window.fixture.reject('Please complete: ' + missing.join(', ')); return; }
+      if (mode === 'hang') return;
+      window.fixture.confirm('GEN-' + Math.random().toString(36).slice(2, 8).toUpperCase());
+    });
+  })();
+</script>
+</body>
+</html>

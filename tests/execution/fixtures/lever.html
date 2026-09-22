@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Data Engineer - Beta (Lever-like)</title></head>
+<body>
+<div class="application-page">
+  <h2 class="posting-headline">Submit your application</h2>
+  <form id="application-form" action="#" novalidate>
+    <div class="application-question"><label><div class="application-label">Resume/CV <span class="required">✱</span></div><div class="application-field"><a href="#" class="postings-btn visible-resume-upload">ATTACH RESUME/CV</a><div class="resume-upload-failure">Couldn't auto-read resume.</div><div class="resume-upload-status">Analyzing resume.</div><input type="file" name="resume" id="resume-upload-input" accept=".pdf,.docx,.txt" required></div></label></div>
+    <div class="application-question"><div class="application-label">Full name <span class="required">✱</span></div><div class="application-field"><input type="text" name="name" required></div></div>
+    <div class="application-question"><div class="application-label">Email <span class="required">✱</span></div><div class="application-field"><input type="email" name="email" required></div></div>
+    <div class="application-question"><div class="application-label">Phone</div><div class="application-field"><input type="text" name="phone"></div></div>
+    <div class="application-question"><div class="application-label">Current company</div><div class="application-field"><input type="text" name="org"></div></div>
+    <div class="application-question"><label><div class="application-label">Current location</div><div class="application-field"><input class="location-input" id="location-input" type="text" name="location"><input id="selected-location" type="hidden" name="selectedLocation"><div class="dropdown-container"><div class="dropdown-results"></div><div class="dropdown-no-results">No location found. Try entering a different location</div></div></div></label></div>
+    <div class="application-question"><div class="application-label">LinkedIn URL</div><div class="application-field"><input type="text" name="urls[LinkedIn]"></div></div>
+    <div class="application-question"><div class="application-label">Earliest start date <span class="required">✱</span></div><div class="application-field"><input type="date" name="cards[0][field0]" required></div></div>
+    <div class="application-question"><div class="application-label">Years of professional experience <span class="required">✱</span></div><div class="application-field"><input type="number" name="cards[0][field1]" required></div></div>
+    <div class="application-question" role="group"><div class="application-label">Which areas interest you? <span class="required">✱</span></div>
+      <div class="application-field">
+        <label><input type="checkbox" name="cards[0][field2]" value="backend" required> Backend</label>
+        <label><input type="checkbox" name="cards[0][field2]" value="data"> Data</label>
+        <label><input type="checkbox" name="cards[0][field2]" value="ml"> ML</label>
+      </div>
+    </div>
+    <div class="application-question"><div class="application-label">Additional information</div><div class="application-field"><textarea name="comments"></textarea></div></div>
+    <button type="submit" class="postings-btn template-btn-submit">Submit application</button>
+  </form>
+</div>
+<script src="_shared.js"></script>
+<script>
+  document.getElementById('application-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const mode = window.fixture.param('mode') || 'success';
+    const missing = window.fixture.missingRequired(this);
+    if (missing.length) { window.fixture.reject('Required: ' + missing.join(', ')); return; }
+    if (mode === 'hang') return;
+    location.href = 'thanks.html?ref=LV-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+  });
+</script>
+</body>
+</html>

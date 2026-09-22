@@ -1,6 +1,6 @@
 """Tests for Job normalization and content hashing (Milestone 7)."""
 
-from app.jobs.models.enums import EmploymentType, ExperienceLevel, JobSourceType, RemoteType
+from app.jobs.models.enums import EmploymentType, ExperienceLevel, JobSourceType
 from app.jobs.models.raw_job import RawJob
 from app.jobs.normalization.normalizer import (
     JobNormalizer,

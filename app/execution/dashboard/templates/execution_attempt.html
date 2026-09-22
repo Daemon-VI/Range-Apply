@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Attempt — CareerOS{% endblock %}
+{% block content %}
+{% if notice %}
+<div class="card" style="margin-bottom: 16px;">
+    {% if notice.startswith('error:') %}<strong>Not applied:</strong> {{ notice.split(':', 2)[2] }}{% else %}<span class="badge badge-green">{{ notice }}</span>{% endif %}
+</div>
+{% endif %}
+
+<div class="card" style="margin-bottom: 16px;">
+    <h2>{{ opp.title if opp else attempt.id }} <span style="color: var(--text-muted); font-weight: 400;">— {{ opp.company if opp else '' }}</span>
+        <span class="badge {% if attempt.status in ['SUBMITTED', 'VERIFIED'] %}badge-green{% elif attempt.status in ['BLOCKED', 'NEEDS_USER_INPUT', 'NEEDS_REVIEW', 'UNCERTAIN'] %}badge-purple{% elif attempt.status in ['FAILED', 'CANCELLED', 'CLOSED'] %}badge-orange{% else %}badge-blue{% endif %}">{{ attempt.status }}</span></h2>
+    <p style="color: var(--text-muted); font-size: 13px;">attempt #{{ attempt.attempt_number }} · lane {{ attempt.lane }} · level {{ attempt.tailoring_level }} · cap {{ attempt.cap_day }} / {{ attempt.cap_week }} · executions {{ attempt.execution_count }}{% if attempt.preparation_id %} · <a href="/dashboard/preparations/{{ attempt.preparation_id }}">preparation</a>{% endif %}{% if item %} · queue item <code>{{ item.state }}</code>{% endif %}</p>
+    {% if attempt.blocked_reason %}<p><span class="badge badge-purple">{{ attempt.blocked_reason }}</span> {{ attempt.status_reason }}</p>{% elif attempt.status_reason %}<p style="font-size: 13px;">{{ attempt.status_reason }}</p>{% endif %}
+    {% if attempt.external_application_id or attempt.result_url %}<p style="font-size: 13px;">Reference: <code>{{ attempt.external_application_id or attempt.confirmation }}</code> {% if attempt.result_url %}· <a href="{{ attempt.result_url }}" target="_blank">result</a>{% endif %}</p>{% endif %}
+    {% if runs %}{% set last = runs[0] %}
+    <p style="font-size: 13px; color: var(--text-muted);">
+        Last run: <strong>{{ last.executor_kind }}</strong> {{ last.executor_version }}{% if last.diagnostics.get('strategy') %} · target <strong>{{ last.diagnostics.get('strategy') }}</strong>{% endif %}
+        {% if last.diagnostics.get('dry_run') %} · <span class="badge badge-blue">dry run</span>{% endif %}
+        {% if last.handoff and last.handoff.get('stopped_at') %} · stopped at <code>{{ last.handoff.get('stopped_at') }}</code>{% elif last.diagnostics.get('steps') %} · steps {{ last.diagnostics.get('steps')|join(' → ') }}{% endif %}
+        {% if last.diagnostics.get('fields_discovered') is not none %} · form: {{ last.diagnostics.get('fields_filled', 0) }} filled / {{ last.diagnostics.get('fields_skipped', 0) }} skipped / {{ last.diagnostics.get('fields_discovered') }} found{% endif %}
+        {% if last.diagnostics.get('missing_required') %} · missing: {{ last.diagnostics.get('missing_required')|join(', ') }}{% endif %}
+        {% if last.diagnostics.get('url') %} · <a href="{{ last.diagnostics.get('url') }}" target="_blank">page</a>{% endif %}
+    </p>
+    {% endif %}
+    <div style="display: flex; gap: 10px; margin-top: 10px;">
+        <form method="POST" action="/dashboard/execution/attempts/{{ attempt.id }}/retry"><input name="reason" placeholder="reason (optional)"> <button type="submit">{% if attempt.status == 'BLOCKED' %}Resume after handoff{% else %}Retry / resume{% endif %}</button></form>
+        <form method="POST" action="/dashboard/execution/attempts/{{ attempt.id }}/cancel"><input name="reason" placeholder="reason (optional)"> <button type="submit" style="background: var(--accent-orange);">Cancel</button></form>
+    </div>
+    <p><a href="/dashboard/execution">← all attempts</a></p>
+</div>
+
+{% if preview %}
+<div class="card" style="margin-bottom: 16px;">
+    <h3>Preconditions {% if preview.preconditions.ok %}<span class="badge badge-green">ok</span>{% else %}<span class="badge badge-orange">{{ preview.preconditions.failures|length }} failing</span>{% endif %}</h3>
+    <ul>{% for f in preview.preconditions.failures %}<li><code>{{ f.code.value }}</code> {{ f.message }}</li>{% endfor %}</ul>
+    <p style="color: var(--text-muted); font-size: 13px;">Target: {{ preview.package.target.ats_family.value }} · {{ preview.package.target.method.value }} · <a href="{{ preview.package.target.canonical_url }}" target="_blank">{{ preview.package.target.canonical_url[:80] }}</a> · resume {{ 'yes' if preview.package.resume else 'no' }} · cover letter {{ 'yes' if preview.package.cover_letter else 'no' }} · {{ preview.package.answers|length }} prepared answers</p>
+</div>
+{% endif %}
+
+{% if snapshot %}
+<div class="card" style="margin-bottom: 16px;">
+    <h3>Form ({{ snapshot.field_count }} fields, {{ snapshot.executor_kind }})</h3>
+    <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Req</th><th>Status</th><th>Answer</th><th>Source</th><th>Why</th></tr></thead>
+        <tbody>
+        {% for f in snapshot.fields %}
+        <tr>
+            <td>{{ f.label }}</td><td><code>{{ f.field_type }}</code></td><td>{{ '✓' if f.required else '' }}</td>
+            <td><span class="badge {% if f.status == 'ANSWERED' %}badge-green{% elif f.status == 'SKIPPED' %}badge-muted{% else %}badge-purple{% endif %}">{{ f.status }}</span></td>
+            <td style="font-size: 12px;">{% if f.status in ['NEEDS_USER_INPUT', 'NEEDS_REVIEW'] %}
+                <form method="POST" action="/dashboard/execution/fields/{{ f.id }}/answer" style="display: flex; gap: 6px;"><input name="answer_text" placeholder="your answer" required> <label style="font-size: 11px;"><input type="checkbox" name="save_to_bank"> save</label> <button type="submit">Save</button></form>
+            {% else %}{{ (f.answer or f.artifact_type or '')[:80] }}{% endif %}</td>
+            <td>{{ f.source }}</td>
+            <td style="color: var(--text-muted); font-size: 12px;">{{ f.reason or '' }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<div class="card">
+    <h3>Execution runs</h3>
+    <table>
+        <thead><tr><th>#</th><th>Executor</th><th>Status</th><th>Outcome</th><th>Submit invoked</th><th>Verification</th><th>Started</th><th>Detail</th><th></th></tr></thead>
+        <tbody>
+        {% for r in runs %}
+        <tr>
+            <td>{{ r.run_number }}</td><td>{{ r.executor_kind }}</td>
+            <td><span class="badge {% if r.status in ['SUBMITTED', 'VERIFIED'] %}badge-green{% elif r.status in ['HANDOFF', 'UNKNOWN', 'NEEDS_USER_INPUT', 'NEEDS_REVIEW', 'STALE'] %}badge-purple{% elif 'FAILED' in r.status %}badge-orange{% else %}badge-blue{% endif %}">{{ r.status }}</span></td>
+            <td>{{ r.outcome or '' }}</td><td>{{ 'yes' if r.submit_invoked else 'no' }}</td>
+            <td>{{ r.verification_status }}{% if r.verification_method %} ({{ r.verification_method }}){% endif %}</td>
+            <td style="white-space: nowrap;">{{ r.started_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td style="color: var(--text-muted); font-size: 12px;">{{ r.handoff_reason or '' }} {{ (r.error_message or r.verification_detail or '')[:100] }}{% if r.handoff and r.handoff.get('remaining_steps') %}<br>remaining: {{ r.handoff.remaining_steps|join(', ') }}{% endif %}</td>
+            <td>{% if r.status in ['HANDOFF', 'UNKNOWN', 'SUBMITTED'] %}
+                <form method="POST" action="/dashboard/execution/runs/{{ r.id }}/confirm" style="display: flex; gap: 4px;"><input name="reference" placeholder="reference" style="width: 110px;"> <button type="submit" name="submitted" value="yes">It was submitted</button> <button type="submit" name="submitted" value="no" style="background: var(--accent-orange);">Not submitted</button></form>
+            {% endif %}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="9" style="color: var(--text-muted);">No execution runs yet.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

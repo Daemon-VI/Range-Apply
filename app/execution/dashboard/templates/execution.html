@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Execution — CareerOS{% endblock %}
+{% block content %}
+{% if notice %}
+<div class="card" style="margin-bottom: 16px;">
+    {% if notice.startswith('error:') %}<strong>Not applied:</strong> {{ notice.split(':', 2)[2] }}{% else %}<span class="badge badge-green">{{ notice }}</span>{% endif %}
+</div>
+{% endif %}
+
+<div class="grid">
+    {% for name in statuses %}
+    <div class="card"><div class="stat-label">{{ name.replace('_', ' ') }}</div><div class="stat-value">{{ summary.attempts_by_status.get(name, 0) }}</div></div>
+    {% endfor %}
+</div>
+
+<div class="card" style="margin-bottom: 20px;">
+    <h3>Execution metrics</h3>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0;">
+        {% for k, v in summary.metrics.items() %}<span class="badge {% if k in ['submitted', 'verified'] %}badge-green{% elif k in ['captcha_handoffs', 'auth_handoffs', 'handoffs', 'unknown_results', 'needs_user_input', 'needs_review'] %}badge-purple{% elif 'fail' in k or 'block' in k %}badge-orange{% else %}badge-blue{% endif %}">{{ k.replace('_', ' ') }} {{ v }}</span>{% endfor %}
+    </div>
+    {% if summary.handoffs_by_reason %}<p style="color: var(--text-muted); font-size: 13px;">Handoffs: {% for k, v in summary.handoffs_by_reason.items() %}{{ k }} {{ v }}{% if not loop.last %} · {% endif %}{% endfor %}</p>{% endif %}
+</div>
+
+<div class="card" style="margin-bottom: 20px;">
+    <form method="GET" action="/dashboard/execution" style="display: flex; gap: 10px; align-items: center;">
+        <select name="status"><option value="">Any status</option>{% for s in statuses %}<option value="{{ s }}" {% if status == s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
+        <button type="submit">Apply</button>
+        <span style="color: var(--text-muted); font-size: 13px;">{{ total }} attempts</span>
+    </form>
+</div>
+
+<div class="card">
+    <h3>Application attempts</h3>
+    <table>
+        <thead><tr><th>Company</th><th>Title</th><th>Prep v</th><th>Status</th><th>Last run</th><th>Verification</th><th>Reason / handoff</th></tr></thead>
+        <tbody>
+        {% for a in rows %}
+            {% set opp = opps.get(a.opportunity_id) %}
+            {% set run = last_runs.get(a.id) %}
+            <tr>
+                <td>{{ opp.company if opp else '—' }}</td>
+                <td><a href="/dashboard/execution/attempts/{{ a.id }}">{{ opp.title if opp else a.id }}</a></td>
+                <td>{{ a.attempt_number }}{% if a.preparation_id %} · prep{% endif %}</td>
+                <td><span class="badge {% if a.status in ['SUBMITTED', 'VERIFIED'] %}badge-green{% elif a.status in ['BLOCKED', 'NEEDS_USER_INPUT', 'NEEDS_REVIEW', 'UNCERTAIN'] %}badge-purple{% elif a.status in ['FAILED', 'CANCELLED', 'CLOSED'] %}badge-orange{% else %}badge-blue{% endif %}">{{ a.status }}</span></td>
+                <td style="white-space: nowrap; font-size: 12px;">{% if run %}{{ run.status }} · {{ run.executor_kind }} · {{ run.started_at.strftime('%Y-%m-%d %H:%M') }}{% else %}—{% endif %}</td>
+                <td>{{ run.verification_status if run else '—' }}</td>
+                <td style="color: var(--text-muted); font-size: 12px;">{{ a.blocked_reason or '' }} {{ (a.status_reason or '')[:90] }}</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="7" style="color: var(--text-muted);">No application attempts yet. The <a href="/dashboard/scheduler">scheduler</a> reserves them; READY packages appear here.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

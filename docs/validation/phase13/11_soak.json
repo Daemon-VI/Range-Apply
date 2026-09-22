@@ -1,0 +1,51 @@
+{
+  "rounds": [
+    {
+      "cycle": 0,
+      "pages": 10,
+      "seconds": 70.5,
+      "outcomes": {
+        "discovered:34 (captcha inline=False, title='Job Application for Staff Software Engin')": 1,
+        "discovered:39 (captcha inline=False, title='Job Application for Senior Product Manag')": 1,
+        "discovered:34": 1,
+        "discovered:39 (captcha inline=False, title='Job Application for Senior Revenue Accou')": 1,
+        "discovered:34 (captcha inline=False, title='Job Application for Payments & Fraud Ana')": 1,
+        "discovered:15 (captcha inline=True, title='Spotify - Staff Machine Learning Enginee')": 1,
+        "discovered:16 (captcha inline=True, title='Spotify - Manager, Proposition Strategy')": 1,
+        "discovered:16 (captcha inline=True, title='Spotify - Senior Staff Engineer - Platfo')": 1,
+        "discovered:15 (captcha inline=True, title='Spotify - Senior Software Engineer - Ent')": 1,
+        "discovered:17 (captcha inline=True, title='Spotify - Senior Partner Engineer - Hard')": 1
+      },
+      "chromium_processes": 6,
+      "python_rss_mb": 85.6,
+      "db_mb": 17.16,
+      "documents_mb": 0.12,
+      "ai_cache_mb": 0.0,
+      "browser_launches": 1
+    },
+    {
+      "cycle": 1,
+      "pages": 10,
+      "seconds": 72.0,
+      "outcomes": {
+        "discovered:34": 1,
+        "discovered:39 (captcha inline=False, title='Job Application for Senior Product Manag')": 1,
+        "discovered:34 (captcha inline=False, title='Job Application for Staff Software Engin')": 1,
+        "discovered:39 (captcha inline=False, title='Job Application for Senior Revenue Accou')": 1,
+        "discovered:34 (captcha inline=False, title='Job Application for Payments & Fraud Ana')": 1,
+        "discovered:15 (captcha inline=True, title='Spotify - Staff Machine Learning Enginee')": 1,
+        "discovered:16 (captcha inline=True, title='Spotify - Manager, Proposition Strategy')": 1,
+        "discovered:16 (captcha inline=True, title='Spotify - Senior Staff Engineer - Platfo')": 1,
+        "discovered:15 (captcha inline=True, title='Spotify - Senior Software Engineer - Ent')": 1,
+        "discovered:17 (captcha inline=True, title='Spotify - Senior Partner Engineer - Hard')": 1
+      },
+      "chromium_processes": 6,
+      "python_rss_mb": 89.9,
+      "db_mb": 17.16,
+      "documents_mb": 0.12,
+      "ai_cache_mb": 0.0,
+      "browser_launches": 1
+    }
+  ],
+  "after_close_chromium_processes": 0
+}

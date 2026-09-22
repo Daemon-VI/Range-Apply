@@ -123,3 +123,23 @@ async def test_ashby_discover_404():
         await adapter.discover("unknown_board")
 
     assert exc_info.value.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_lever_live_payload_shape_targets_the_apply_page():
+    """The live v0 API (Phase 13 real-world validation) puts hostedUrl/applyUrl
+    at the top level and has no `urls` object; the application form is only
+    on the `/apply` page, so that is what the job must point to."""
+    live_shape = [{"id": "b74e88a1", "text": "Product Compliance Manager", "hostedUrl": "https://jobs.lever.co/nium/b74e88a1", "applyUrl": "https://jobs.lever.co/nium/b74e88a1/apply", "categories": {"location": "Singapore"}, "descriptionPlain": "x", "createdAt": 1723500000000}]
+
+    def mock_transport(request: httpx.Request):
+        return httpx.Response(200, json=live_shape)
+
+    adapter = LeverSource(client=httpx.AsyncClient(transport=httpx.MockTransport(mock_transport)))
+    job = (await adapter.discover("nium"))[0]
+    assert job.source_url == "https://jobs.lever.co/nium/b74e88a1"
+    assert job.raw_metadata["apply_url"] == "https://jobs.lever.co/nium/b74e88a1/apply"
+    # without either shape the apply page is still derived from the posting
+    live_shape[0].pop("applyUrl")
+    job = (await adapter.discover("nium"))[0]
+    assert job.raw_metadata["apply_url"] == "https://jobs.lever.co/nium/b74e88a1/apply"

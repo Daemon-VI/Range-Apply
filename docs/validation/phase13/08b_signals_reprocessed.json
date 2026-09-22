@@ -1,0 +1,247 @@
+{
+  "reprocessed": 13,
+  "now_matched": 10,
+  "verdicts_ok": 11,
+  "verdicts_total": 12,
+  "results": [
+    {
+      "reference": "<multi-title-99cf48e2-3813-4a17-9615-3654b2bec87c@x>",
+      "before": [
+        "NEEDS_REVIEW",
+        "AMBIGUOUS",
+        null
+      ],
+      "after": [
+        "APPLIED",
+        "MATCHED",
+        "99cf48e2-3813-4a17-9615-3654b2bec87c"
+      ],
+      "expected_application": "99cf48e2-3813-4a17-9615-3654b2bec87c",
+      "expected_status": "AMBIGUOUS",
+      "verdict": true
+    },
+    {
+      "reference": "<multi-99cf48e2-3813-4a17-9615-3654b2bec87c@x>",
+      "before": [
+        "NEEDS_REVIEW",
+        "AMBIGUOUS",
+        null
+      ],
+      "after": [
+        "NEEDS_REVIEW",
+        "AMBIGUOUS",
+        null
+      ],
+      "expected_application": "99cf48e2-3813-4a17-9615-3654b2bec87c",
+      "expected_status": "AMBIGUOUS",
+      "verdict": false
+    },
+    {
+      "reference": "<html-99cf48e2-3813-4a17-9615-3654b2bec87c@x>",
+      "before": [
+        "NEEDS_REVIEW",
+        "AMBIGUOUS",
+        null
+      ],
+      "after": [
+        "APPLIED",
+        "MATCHED",
+        "99cf48e2-3813-4a17-9615-3654b2bec87c"
+      ],
+      "expected_application": "99cf48e2-3813-4a17-9615-3654b2bec87c",
+      "expected_status": null,
+      "verdict": true
+    },
+    {
+      "reference": "<wd-5aac39c7-a877-4b78-a11e-f775e8f0e022@x>",
+      "before": [
+        "NEEDS_REVIEW",
+        "AMBIGUOUS",
+        null
+      ],
+      "after": [
+        "APPLIED",
+        "MATCHED",
+        "5aac39c7-a877-4b78-a11e-f775e8f0e022"
+      ],
+      "expected_application": "5aac39c7-a877-4b78-a11e-f775e8f0e022",
+      "expected_status": null,
+      "verdict": true
+    },
+    {
+      "reference": "<info-99cf48e2-3813-4a17-9615-3654b2bec87c@x>",
+      "before": [
+        "NEEDS_REVIEW",
+        "AMBIGUOUS",
+        null
+      ],
+      "after": [
+        "APPLIED",
+        "MATCHED",
+        "99cf48e2-3813-4a17-9615-3654b2bec87c"
+      ],
+      "expected_application": "99cf48e2-3813-4a17-9615-3654b2bec87c",
+      "expected_status": null,
+      "verdict": true
+    },
+    {
+      "reference": "<amb-1@x>",
+      "before": [
+        "NEEDS_REVIEW",
+        "AMBIGUOUS",
+        null
+      ],
+      "after": [
+        "NEEDS_REVIEW",
+        "AMBIGUOUS",
+        null
+      ],
+      "expected_application": null,
+      "expected_status": "NEEDS_REVIEW",
+      "verdict": true
+    },
+    {
+      "reference": "<stat-5aac39c7-a877-4b78-a11e-f775e8f0e022@x>",
+      "before": [
+        "NEEDS_REVIEW",
+        "AMBIGUOUS",
+        null
+      ],
+      "after": [
+        "APPLIED",
+        "MATCHED",
+        "5aac39c7-a877-4b78-a11e-f775e8f0e022"
+      ],
+      "expected_application": "5aac39c7-a877-4b78-a11e-f775e8f0e022",
+      "expected_status": null,
+      "verdict": true
+    },
+    {
+      "reference": "<rec-1@x>",
+      "before": [
+        "UNMATCHED",
+        "UNMATCHED",
+        null
+      ],
+      "after": [
+        "UNMATCHED",
+        "UNMATCHED",
+        null
+      ],
+      "expected_application": null,
+      "expected_status": null,
+      "verdict": null
+    },
+    {
+      "reference": "<asm-99cf48e2-3813-4a17-9615-3654b2bec87c@hackerrank.com>",
+      "before": [
+        "NEEDS_REVIEW",
+        "AMBIGUOUS",
+        null
+      ],
+      "after": [
+        "APPLIED",
+        "MATCHED",
+        "99cf48e2-3813-4a17-9615-3654b2bec87c"
+      ],
+      "expected_application": "99cf48e2-3813-4a17-9615-3654b2bec87c",
+      "expected_status": null,
+      "verdict": true
+    },
+    {
+      "reference": "<int-reply-5aac39c7-a877-4b78-a11e-f775e8f0e022@x>",
+      "before": [
+        "NEEDS_REVIEW",
+        "AMBIGUOUS",
+        null
+      ],
+      "after": [
+        "APPLIED",
+        "MATCHED",
+        "5aac39c7-a877-4b78-a11e-f775e8f0e022"
+      ],
+      "expected_application": "5aac39c7-a877-4b78-a11e-f775e8f0e022",
+      "expected_status": null,
+      "verdict": true
+    },
+    {
+      "reference": "<int-5aac39c7-a877-4b78-a11e-f775e8f0e022@x>",
+      "before": [
+        "NEEDS_REVIEW",
+        "AMBIGUOUS",
+        null
+      ],
+      "after": [
+        "APPLIED",
+        "MATCHED",
+        "5aac39c7-a877-4b78-a11e-f775e8f0e022"
+      ],
+      "expected_application": "5aac39c7-a877-4b78-a11e-f775e8f0e022",
+      "expected_status": null,
+      "verdict": true
+    },
+    {
+      "reference": "<rej-99cf48e2-3813-4a17-9615-3654b2bec87c@x>",
+      "before": [
+        "NEEDS_REVIEW",
+        "AMBIGUOUS",
+        null
+      ],
+      "after": [
+        "APPLIED",
+        "MATCHED",
+        "99cf48e2-3813-4a17-9615-3654b2bec87c"
+      ],
+      "expected_application": "99cf48e2-3813-4a17-9615-3654b2bec87c",
+      "expected_status": null,
+      "verdict": true
+    },
+    {
+      "reference": "<lv-5aac39c7-a877-4b78-a11e-f775e8f0e022@hire.lever.co>",
+      "before": [
+        "NEEDS_REVIEW",
+        "AMBIGUOUS",
+        null
+      ],
+      "after": [
+        "APPLIED",
+        "MATCHED",
+        "5aac39c7-a877-4b78-a11e-f775e8f0e022"
+      ],
+      "expected_application": "5aac39c7-a877-4b78-a11e-f775e8f0e022",
+      "expected_status": null,
+      "verdict": true
+    }
+  ],
+  "inbox_summary": {
+    "tenant_id": "validation-p13",
+    "by_status": {
+      "APPLIED": 11,
+      "IGNORED": 1,
+      "NEEDS_REVIEW": 2,
+      "UNMATCHED": 1
+    },
+    "by_source": {
+      "EMAIL": 15
+    },
+    "by_category": {
+      "APPLICATION_CONFIRMATION": 1,
+      "APPLICATION_RECEIVED": 4,
+      "ASSESSMENT": 1,
+      "INFORMATION_REQUEST": 1,
+      "INTERVIEW_INVITATION": 2,
+      "OTHER": 1,
+      "RECRUITER_CONTACT": 1,
+      "REJECTION": 1,
+      "STATUS_UPDATE": 1,
+      "UNKNOWN": 1,
+      "WITHDRAWAL": 1
+    },
+    "outcomes_by_current": {
+      "NEEDS_REVIEW": 1,
+      "WITHDRAWN": 1
+    },
+    "review_queue": 3,
+    "unmatched": 1
+  }
+}

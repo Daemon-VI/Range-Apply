@@ -1,7 +1,5 @@
 """Tests for career data models."""
 
-import pytest
-from pydantic import ValidationError
 
 from app.models.achievement import Achievement
 from app.models.career_fact import CareerFact

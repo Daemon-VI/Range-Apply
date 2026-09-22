@@ -10,6 +10,7 @@ Rules for the whole codebase:
   boundary conversions, so "naive" never means "unknown timezone" here.
 """
 
+import threading
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
@@ -44,6 +45,27 @@ def from_db(value: Optional[datetime]) -> Optional[datetime]:
 def db_now() -> datetime:
     """Naive-UTC 'now', for SQLAlchemy column defaults."""
     return datetime.now(UTC).replace(tzinfo=None)
+
+
+_last_ordered = datetime.min
+_ordered_lock = threading.Lock()
+
+
+def ordered_db_now() -> datetime:
+    """Naive-UTC 'now' that is strictly increasing within this process.
+
+    Audit and event rows are ordered by ``created_at``; on Windows the wall
+    clock ticks at ~1-15 ms, so several writes in one tick would otherwise
+    share a timestamp and sort arbitrarily. Ties are resolved by advancing
+    one microsecond past the previous value handed out.
+    """
+    global _last_ordered
+    with _ordered_lock:
+        now = db_now()
+        if now <= _last_ordered:
+            now = _last_ordered + timedelta(microseconds=1)
+        _last_ordered = now
+        return now
 
 
 def parse_timestamp(value) -> Optional[datetime]:

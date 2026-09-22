@@ -1,0 +1,124 @@
+{
+  "pages": [
+    {
+      "key": "recaptcha_demo",
+      "url": "https://www.google.com/recaptcha/api2/demo",
+      "expectation": "CAPTCHA page (Google reCAPTCHA public demo)",
+      "fields": 0,
+      "captcha": true,
+      "mfa": false,
+      "login_wall": false,
+      "custom_widgets": 0,
+      "submit_buttons": [
+        "Submit"
+      ],
+      "handoff": "CAPTCHA_REQUIRED",
+      "title": "ReCAPTCHA demo",
+      "outcome": "handoff:CAPTCHA_REQUIRED",
+      "seconds": 1.4
+    },
+    {
+      "key": "hcaptcha_demo",
+      "url": "https://accounts.hcaptcha.com/demo",
+      "expectation": "CAPTCHA page (hCaptcha public demo)",
+      "fields": 1,
+      "captcha": true,
+      "mfa": false,
+      "login_wall": false,
+      "custom_widgets": 0,
+      "submit_buttons": [
+        "Submit"
+      ],
+      "handoff": "CAPTCHA_REQUIRED",
+      "title": "hCAPTCHA Demo",
+      "outcome": "handoff:CAPTCHA_REQUIRED",
+      "seconds": 2.68
+    },
+    {
+      "key": "github_login",
+      "url": "https://github.com/login",
+      "expectation": "login-required page",
+      "fields": 1,
+      "captcha": false,
+      "mfa": false,
+      "login_wall": true,
+      "custom_widgets": 0,
+      "submit_buttons": [
+        "Sign in",
+        "Manage cookies",
+        "Do not share my personal information"
+      ],
+      "handoff": "AUTH_REQUIRED",
+      "title": "Sign in to GitHub \u00b7 GitHub",
+      "outcome": "handoff:AUTH_REQUIRED",
+      "seconds": 2.46
+    },
+    {
+      "key": "linkedin_login",
+      "url": "https://www.linkedin.com/login",
+      "expectation": "login-required page (LinkedIn)",
+      "fields": 1,
+      "captcha": false,
+      "mfa": false,
+      "login_wall": true,
+      "custom_widgets": 0,
+      "submit_buttons": [
+        "Sign in with Microsoft",
+        "Sign in with Apple",
+        ""
+      ],
+      "handoff": "AUTH_REQUIRED",
+      "title": "LinkedIn Login, Sign in | LinkedIn",
+      "outcome": "handoff:AUTH_REQUIRED",
+      "seconds": 7.42
+    },
+    {
+      "key": "lever_posting_no_form",
+      "url": "https://jobs.lever.co/nium",
+      "expectation": "job list page without an application form",
+      "fields": 0,
+      "captcha": false,
+      "mfa": false,
+      "login_wall": false,
+      "custom_widgets": 0,
+      "submit_buttons": [],
+      "handoff": "AMBIGUOUS_FORM",
+      "title": "Nium",
+      "outcome": "handoff:AMBIGUOUS_FORM",
+      "seconds": 9.49
+    },
+    {
+      "key": "greenhouse_missing_job",
+      "url": "https://boards.greenhouse.io/discord/jobs/1",
+      "expectation": "closed / missing posting",
+      "fields": 3,
+      "captcha": false,
+      "mfa": false,
+      "login_wall": false,
+      "custom_widgets": 0,
+      "submit_buttons": [
+        "",
+        ""
+      ],
+      "handoff": "AMBIGUOUS_FORM",
+      "title": "Jobs at Discord",
+      "outcome": "handoff:AMBIGUOUS_FORM",
+      "seconds": 14.61
+    },
+    {
+      "key": "blank_page",
+      "url": "about:blank",
+      "expectation": "malformed / empty page",
+      "fields": 0,
+      "captcha": false,
+      "mfa": false,
+      "login_wall": false,
+      "custom_widgets": 0,
+      "submit_buttons": [],
+      "handoff": "AMBIGUOUS_FORM",
+      "title": "",
+      "outcome": "handoff:AMBIGUOUS_FORM",
+      "seconds": 8.28
+    }
+  ]
+}

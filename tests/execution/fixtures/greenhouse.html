@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Backend Engineer - Acme (Greenhouse-like)</title>
+<style>.field{margin:8px 0}.hidden{display:none}</style></head>
+<body>
+<div id="application">
+  <h1>Apply for this job</h1>
+  <form id="application_form" action="#" novalidate>
+    <div class="field"><label for="first_name">First Name <span class="required">*</span></label><input id="first_name" name="job_application[first_name]" type="text" required></div>
+    <div class="field"><label for="last_name">Last Name <span class="required">*</span></label><input id="last_name" name="job_application[last_name]" type="text" required></div>
+    <div class="field"><label for="email">Email <span class="required">*</span></label><input id="email" name="job_application[email]" type="email" required></div>
+    <div class="field"><label for="phone">Phone</label><input id="phone" name="job_application[phone]" type="tel"></div>
+    <div class="field"><label for="country">Country</label><div class="select"><div class="select__container"><div class="select-shell"><div class="select__control"><div class="select__input-container"><input id="country" class="select__input" type="text" role="combobox"></div></div><input tabindex="-1" aria-hidden="true" class="remix-css-1a0ro4n-requiredInput" value=""></div></div></div></div>
+    <div class="field"><label for="resume">Resume/CV <span class="required">*</span></label><input id="resume" name="job_application[resume]" type="file" accept=".pdf,.doc,.docx,.txt" required></div>
+    <div class="field"><label for="cover_letter">Cover Letter</label><input id="cover_letter" name="job_application[cover_letter]" type="file" accept=".pdf,.doc,.docx,.txt"></div>
+    <div class="field"><label for="linkedin">LinkedIn Profile</label><input id="linkedin" name="job_application[answers_attributes][0][text_value]" type="text"></div>
+    <div class="field"><label for="why">Why are you interested in this role? <span class="required">*</span></label><textarea id="why" name="job_application[answers_attributes][1][text_value]" required></textarea></div>
+    <div class="field">
+      <label for="auth">Are you legally authorized to work in this country? <span class="required">*</span></label>
+      <select id="auth" name="job_application[answers_attributes][2][boolean_value]" required>
+        <option value="">Select...</option><option value="1">Yes</option><option value="0">No</option>
+      </select>
+    </div>
+    <div class="field application-question" role="radiogroup">
+      <p class="label">Will you now or in the future require sponsorship? <span class="required">*</span></p>
+      <label><input type="radio" name="job_application[answers_attributes][3][boolean_value]" value="1" required> Yes</label>
+      <label><input type="radio" name="job_application[answers_attributes][3][boolean_value]" value="0"> No</label>
+    </div>
+    <div class="field"><label><input type="checkbox" name="job_application[answers_attributes][4][boolean_value]" value="1"> I agree to the privacy policy</label></div>
+    <input id="submit_app" type="submit" value="Submit Application">
+  </form>
+</div>
+<script src="_shared.js"></script>
+<script>
+  if (window.fixture.param('badge') === '1') {
+    // Greenhouse-hosted boards: an invisible reCAPTCHA badge in the corner (no widget to complete).
+    const badge = document.createElement('div');
+    badge.className = 'grecaptcha-badge';
+    badge.style.cssText = 'position:fixed;bottom:14px;right:-186px;width:256px;height:60px;';
+    badge.innerHTML = '<iframe title="reCAPTCHA" src="about:blank#recaptcha/api2/anchor?size=invisible" width="256" height="60"></iframe><textarea name="g-recaptcha-response" style="display:none"></textarea>';
+    document.body.appendChild(badge);
+  }
+  document.getElementById('application_form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const mode = window.fixture.param('mode') || 'success';
+    const missing = window.fixture.missingRequired(this);
+    if (missing.length) { window.fixture.reject('Please complete the required fields: ' + missing.join(', ')); return; }
+    if (mode === 'validation') { window.fixture.reject('Email is invalid'); return; }
+    if (mode === 'captcha') { window.fixture.challenge(); return; }
+    if (mode === 'hang') { window.fixture.hang(); return; }
+    if (mode === 'plain') { location.href = 'thanks_plain.html'; return; }
+    window.fixture.confirm('GH-' + Math.random().toString(36).slice(2, 8).toUpperCase());
+  });
+</script>
+</body>
+</html>

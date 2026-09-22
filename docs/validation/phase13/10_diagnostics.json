@@ -1,0 +1,83 @@
+{
+  "tenant_id": "validation-p13",
+  "generated_at": "2026-09-12T14:07:28.202945",
+  "queue": {
+    "by_state": {
+      "PENDING": 40,
+      "SUCCEEDED": 40
+    },
+    "active_by_action": {
+      "SUBMIT": 40
+    },
+    "stale_leases": 0
+  },
+  "attempts": {
+    "by_status": {
+      "READY": 28,
+      "SUBMITTED": 12
+    },
+    "blocked": 0,
+    "needs_review": 0,
+    "needs_user_input": 0,
+    "uncertain": 0,
+    "failed": 0
+  },
+  "executions": {
+    "by_status": {},
+    "unknown": 0,
+    "running": 0,
+    "last_24h": {}
+  },
+  "signals": {
+    "by_status": {
+      "APPLIED": 1,
+      "IGNORED": 1,
+      "NEEDS_REVIEW": 12,
+      "UNMATCHED": 1
+    },
+    "review_queue": 13
+  },
+  "discovery": {
+    "runs_last_24h": {
+      "completed": 32
+    },
+    "sources_failing": 0
+  },
+  "ai": {
+    "gateway": {
+      "gateway_version": "ai-gateway-v1",
+      "requests": 0,
+      "provider_calls": 0,
+      "cache_hits": 0,
+      "by_status": {},
+      "by_operation": {},
+      "avg_latency_ms": 0.0,
+      "cache": {
+        "hits": 0,
+        "misses": 0,
+        "writes": 0
+      }
+    },
+    "failures_last_24h": 0
+  },
+  "caps": {
+    "day": {
+      "key": "2026-09-12",
+      "used": 40,
+      "cap": 60
+    },
+    "week": {
+      "key": "2026-W37",
+      "used": 40,
+      "cap": 300
+    }
+  },
+  "kill_switches": [],
+  "learning": {
+    "latest_snapshot_id": "eedd44ba-60b8-487e-a50f-04ddeef478e6",
+    "age_hours": 0.1
+  },
+  "warnings": [
+    "12 signal(s) need review, 1 unmatched"
+  ]
+}

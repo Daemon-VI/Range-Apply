@@ -11,11 +11,12 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.core.timeutils import age as time_age, ensure_aware
+from app.core.timeutils import age as time_age
+from app.core.timeutils import ensure_aware
 from app.database import get_db
-from app.jobs.database.models import DiscoveryRunRow, JobRow
 from app.intelligence.database.models import JobMatchRow, RequirementAssessmentRow
 from app.intelligence.services.match_persistence import latest_matches_query, latest_run
+from app.jobs.database.models import DiscoveryRunRow, JobRow
 
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
@@ -146,6 +147,20 @@ def dashboard_runs(request: Request, db: Session = Depends(get_db)):
     )
 
 
+@router.get("/sources", response_class=HTMLResponse)
+def dashboard_sources(request: Request, db: Session = Depends(get_db)):
+    """Per-board reliability, back-off and polling state (blueprint Phase 3)."""
+    from app.jobs.pipeline.source_health import SourceHealthRepository
+    from app.jobs.sources.base import source_circuits
+
+    rows = SourceHealthRepository(db).list_all()
+    return templates.TemplateResponse(
+        request=request,
+        name="sources.html",
+        context={"rows": rows, "circuits": source_circuits.snapshot()},
+    )
+
+
 # --------------------------------------------------------------------------- #
 # Phase 3 shortlist / ranking dashboard (PRD P3.8)
 # --------------------------------------------------------------------------- #
@@ -186,10 +201,10 @@ def dashboard_shortlist(
     order: str = "desc",
     eligibility: Optional[str] = None,
     priority: Optional[str] = None,
-    min_score: int = 0,
+    min_score: Optional[str] = None,
     company: Optional[str] = None,
-    limit: int = 25,
-    offset: int = 0,
+    limit: Optional[str] = None,
+    offset: Optional[str] = None,
     db: Session = Depends(get_db),
 ):
     """Ranked shortlist of persisted job matches.
@@ -198,11 +213,14 @@ def dashboard_shortlist(
     run has ever completed, ``latest_matches_query`` returns ``None`` and the
     template shows an empty state instead of erroring.
     """
+    from app.core.params import to_int
+
     sort = sort if sort in SHORTLIST_SORT_COLUMNS else "score"
     order = order if order in ("asc", "desc") else "desc"
-    limit = max(1, min(limit, 200))
-    offset = max(0, offset)
-    min_score = max(0, min(min_score, 100))
+    # Empty boxes (the minimum-score field renders blank at 0) mean "default", never a 422.
+    limit = to_int(limit, 25, 1, 200)
+    offset = to_int(offset, 0, 0)
+    min_score = to_int(min_score, 0, 0, 100)
 
     query = latest_matches_query(db, run_id)
     run_exists = query is not None

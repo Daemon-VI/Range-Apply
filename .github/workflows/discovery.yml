@@ -18,14 +18,30 @@ name: Scheduled Discovery
 
 on:
   schedule:
-    # Twice a day. Adjust to taste - this is a plain cron trigger, no
-    # infrastructure to scale, so the cost of running more often is only
-    # Actions minutes and the target boards' rate limits.
+    # Broad sweep twice a day over every board in boards.json.
     - cron: "17 4,16 * * *"
+    # Lightweight polling every two hours: only boards whose next_poll_at has
+    # passed are fetched (source_health decides; failing boards back off).
+    - cron: "41 */2 * * *"
   workflow_dispatch: {}
 
 jobs:
+  poll-due:
+    # Cheap: one request; the server fetches only what is due.
+    if: github.event.schedule == '41 */2 * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Poll due sources
+        env:
+          BASE_URL: ${{ secrets.CAREEROS_BASE_URL }}
+          API_KEY: ${{ secrets.CAREEROS_API_KEY }}
+        run: |
+          curl -sS -f -X POST "${BASE_URL%/}/api/v2/discovery/run-due?trigger=poll" \
+            -H "X-API-Key: ${API_KEY}"
+
   run-discovery:
+    if: github.event.schedule != '41 */2 * * *'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

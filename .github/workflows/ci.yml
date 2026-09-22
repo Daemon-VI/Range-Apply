@@ -54,7 +54,10 @@ jobs:
     # the schema and queries work against it, not just against SQLite.
     services:
       postgres:
-        image: postgres:16
+        # Stock Postgres 16 plus the pgvector extension, same as docker-compose.yml
+        # and Supabase's free tier, so a migration that enables `vector` is
+        # exercised here before it meets a real deployment.
+        image: pgvector/pgvector:pg16
         env:
           POSTGRES_USER: careeros
           POSTGRES_PASSWORD: careeros
@@ -79,10 +82,8 @@ jobs:
         run: pip install -e ".[dev,postgres]"
 
       # Same note as the SQLite job: tests/conftest.py owns running
-      # `alembic upgrade head` before tests execute. It currently repoints
-      # DATABASE_URL at a per-process SQLite file unconditionally as test
-      # isolation, so this job's DATABASE_URL mainly documents and exercises
-      # the intended PostgreSQL configuration path (dependency install,
-      # service container, connection string) end to end.
+      # `alembic upgrade head` before tests execute. An explicitly set
+      # DATABASE_URL wins over the throwaway SQLite default, so this job
+      # really runs the suite (and every migration) against PostgreSQL.
       - name: Run tests (PostgreSQL)
         run: pytest -q

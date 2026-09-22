@@ -105,6 +105,7 @@ def close_missing_jobs(
         job.job_status = JobStatus.CLOSED.value
         job.closed_at = now
         job.updated_at = now
+        job.freshness = "STALE"
         closed += 1
 
     if closed:

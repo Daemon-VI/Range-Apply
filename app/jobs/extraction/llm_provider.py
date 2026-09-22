@@ -1,30 +1,29 @@
-"""LLM Provider abstraction for structured extraction fallback.
+"""LLM extraction provider for the discovery fallback.
 
-Free-tier posture:
-
-* Deterministic extraction runs first; a provider is consulted only for fields
-  it could not resolve (see ``LLMFallbackExtractor``).
-* Every provider sits behind :class:`LLMProvider`, so switching between free
-  tiers (Google AI Studio, Groq, OpenRouter, ...) never touches business logic.
-* Results are cached by content hash, so re-ingesting an unchanged posting
-  costs zero API calls. The cache is a plain directory of JSON files: no Redis,
-  no hosted cache, works on any free host with a writable disk.
+Since Blueprint Phase 8b the only real implementation is
+:class:`GatewayLLMProvider`, a thin adapter over the AI Gateway
+(``app.ai``): the gateway owns the provider (Gemini, a local Ollama model,
+...), the versioned on-disk cache, budgets and accounting. The
+``LLMProvider`` contract the extractor calls is unchanged, and the offline
+:class:`StubProvider` remains the default so a fresh clone runs with no key
+and no outbound traffic.
 """
 
-import hashlib
-import json
+import asyncio
 import logging
 from abc import ABC, abstractmethod
-from pathlib import Path
 from typing import Any, Dict, Optional
 
-import httpx
+from pydantic import BaseModel, Field
 
-from app.config import PROJECT_ROOT, settings
+from app.ai.budget import CallBudget
+from app.ai.models import AIOperation, AIRequest, AIScope, AIStatus
+from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-CACHE_DIR = PROJECT_ROOT / ".cache" / "llm"
+#: Bump when the extraction prompt or the expected fields change (cache key).
+EXTRACTION_PROMPT_VERSION = "extract-v2"
 
 
 class LLMProvider(ABC):
@@ -57,33 +56,21 @@ class StubProvider(LLMProvider):
         return {}
 
 
-class GeminiProvider(LLMProvider):
-    """Google Gemini provider for semantic extraction fallback.
+class ExtractedJobFields(BaseModel):
+    """Schema the gateway validates AI output against. Every field is optional
+    and typed loosely; the extractor still checks enum membership and only
+    fills fields deterministic extraction left UNKNOWN."""
 
-    The model id is configurable (``GEMINI_MODEL``) because Google retires
-    model aliases on its own schedule; pinning one in code guarantees a silent
-    breakage later.
-    """
+    employment_type: Optional[str] = None
+    remote_type: Optional[str] = None
+    experience_level: Optional[str] = None
+    graduation_minimum_year: Optional[int] = Field(default=None, ge=1990, le=2100)
+    graduation_maximum_year: Optional[int] = Field(default=None, ge=1990, le=2100)
+    salary_text: Optional[str] = Field(default=None, max_length=200)
 
-    API_ROOT = "https://generativelanguage.googleapis.com/v1beta/models"
 
-    def __init__(
-        self,
-        api_key: Optional[str] = None,
-        timeout: float = 15.0,
-        model: Optional[str] = None,
-    ):
-        self.api_key = api_key or settings.gemini_api_key
-        self.timeout = timeout
-        self.model = model or settings.gemini_model
-        self.name = f"gemini:{self.model}"
-
-    async def extract_ambiguous_fields(self, title: str, content: str) -> Dict[str, Any]:
-        if not self.api_key:
-            logger.warning("Gemini API key not configured, falling back to empty extraction")
-            return {}
-
-        prompt = f"""You are a job description parser. Extract structured fields from the job description below.
+def extraction_prompt(title: str, content: str) -> str:
+    return f"""You are a job description parser. Extract structured fields from the job description below.
 Return ONLY valid JSON matching this schema:
 {{
   "employment_type": "INTERNSHIP" | "FULL_TIME" | "PART_TIME" | "CONTRACT" | "UNKNOWN",
@@ -99,80 +86,69 @@ Job Description (first 2500 chars):
 {content[:2500]}
 """
 
-        payload = {
-            "contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"responseMimeType": "application/json"},
-        }
 
-        try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                response = await client.post(
-                    f"{self.API_ROOT}/{self.model}:generateContent",
-                    json=payload,
-                    # Header auth: a key in the query string ends up in access
-                    # logs, proxy logs and exception messages.
-                    headers={"x-goog-api-key": self.api_key},
-                )
-                response.raise_for_status()
-                data = response.json()
-                text = data["candidates"][0]["content"]["parts"][0]["text"]
-                return json.loads(text)
-        except Exception as e:  # noqa: BLE001 - never let extraction break ingestion
-            # self.api_key is never interpolated into the message.
-            logger.warning("Gemini extraction failed for '%s': %s", title, type(e).__name__)
+class GatewayLLMProvider(LLMProvider):
+    """Job-side extraction through the AI Gateway (shared cache, global switch)."""
+
+    def __init__(self, gateway=None, tenant_id: Optional[str] = None, budget: Optional[CallBudget] = None):
+        from app.ai.gateway import get_gateway
+
+        self.gateway = gateway or get_gateway()
+        self.tenant_id = tenant_id or settings.default_tenant_id
+        self.budget = budget or self.gateway.budget(None, "discovery-run")
+        effective = self.gateway.effective(None)
+        self.provider_name = effective.provider
+        self.model = effective.model
+        self.name = f"gateway:{effective.provider}:{effective.model or ''}"
+        # Counters the discovery run reads (same names the old cache exposed).
+        self.hits = 0
+        self.misses = 0
+        self.last_metadata: Optional[dict[str, Any]] = None
+
+    def new_budget(self) -> None:
+        self.budget = self.gateway.budget(None, "discovery-run")
+
+    def _run(self, title: str, content: str) -> Dict[str, Any]:
+        request = AIRequest(
+            operation=AIOperation.EXTRACT_JOB_FIELDS,
+            tenant_id=self.tenant_id,
+            scope=AIScope.JOB,
+            prompt=extraction_prompt(title, content),
+            input={"title": title.strip().lower(), "content": " ".join(content[:2500].split())},
+            prompt_version=EXTRACTION_PROMPT_VERSION,
+            schema_model=ExtractedJobFields,
+            schema_version="extracted-job-fields-v1",
+            reference="discovery",
+        )
+        response = self.gateway.run(request, tenant=None, budget=self.budget)
+        self.last_metadata = response.metadata()
+        if response.cache_hit:
+            self.hits += 1
+        else:
+            self.misses += 1
+        if response.status is not AIStatus.OK or not isinstance(response.output, dict):
             return {}
-
-
-class CachingLLMProvider(LLMProvider):
-    """Wraps a provider with a content-hash keyed on-disk cache.
-
-    Re-running discovery over a board whose postings have not changed produces
-    identical prompts; without this, every run would repay the same API quota.
-    Cache misses degrade to a normal call, and any cache I/O error is non-fatal.
-    """
-
-    def __init__(self, inner: LLMProvider, cache_dir: Optional[Path] = None):
-        self.inner = inner
-        self.name = f"cached:{inner.name}"
-        self.cache_dir = Path(cache_dir) if cache_dir else CACHE_DIR
-
-    def _key(self, title: str, content: str) -> str:
-        digest = hashlib.sha256()
-        digest.update(self.inner.name.encode("utf-8"))
-        digest.update(b"\x00")
-        digest.update(title.strip().lower().encode("utf-8"))
-        digest.update(b"\x00")
-        digest.update(" ".join(content.split()).encode("utf-8"))
-        return digest.hexdigest()
+        return {k: v for k, v in response.output.items() if v is not None}
 
     async def extract_ambiguous_fields(self, title: str, content: str) -> Dict[str, Any]:
-        key = self._key(title, content)
-        path = self.cache_dir / f"{key}.json"
-
-        try:
-            if path.exists():
-                logger.debug("LLM cache hit for '%s'", title)
-                return json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, ValueError):
-            logger.debug("Unreadable LLM cache entry %s; ignoring", path.name)
-
-        result = await self.inner.extract_ambiguous_fields(title, content)
-
-        try:
-            self.cache_dir.mkdir(parents=True, exist_ok=True)
-            path.write_text(json.dumps(result), encoding="utf-8")
-        except OSError:
-            logger.debug("Could not write LLM cache entry; continuing without cache")
-
-        return result
+        # The gateway is synchronous (httpx); keep the event loop free.
+        return await asyncio.to_thread(self._run, title, content)
 
 
 def get_llm_provider() -> LLMProvider:
-    """Factory selecting the provider from configuration.
+    """Factory: the gateway-backed provider when AI is on, else the stub.
 
-    Defaults to the offline stub so a fresh clone runs with no API key and no
-    outbound LLM traffic.
+    ``AI_ENABLED=false`` (the default) always yields the stub, whatever
+    ``LLM_PROVIDER`` / ``AI_PROVIDER`` say: no key, no outbound traffic.
     """
-    if settings.llm_provider == "gemini" and settings.gemini_api_key:
-        return CachingLLMProvider(GeminiProvider())
+    from app.ai.gateway import get_gateway
+    from app.config import settings
+
+    # Discovery extraction needs its own opt-in (AI_JOB_EXTRACTION_ENABLED): with AI on
+    # for the candidate's answers, it otherwise spent the free quota on every posting.
+    if not settings.ai_job_extraction_enabled:
+        return StubProvider()
+    gateway = get_gateway()
+    if gateway.effective(None).enabled:
+        return GatewayLLMProvider(gateway)
     return StubProvider()

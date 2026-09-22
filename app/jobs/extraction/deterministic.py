@@ -169,95 +169,99 @@ def extract_experience_level(title: str, content: str) -> ExperienceLevel:
     return ExperienceLevel.UNKNOWN
 
 
+_GRAD_MONTH = (
+    r"(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|"
+    r"oct(?:ober)?|nov(?:ember)?|dec(?:ember)?|spring|summer|fall|autumn|winter)\.?,?"
+)
+#: One year with an optional month or season: "2027", "December 2027", "Summer 2028".
+_GRAD_YEAR = rf"(?:{_GRAD_MONTH}\s+)?20\d\d"
+#: Several years: "2025 or 2026", "2026 & 2027", "2025, 2026, 2027", "2025/2026".
+_GRAD_YEARS = rf"{_GRAD_YEAR}(?:\s*(?:,\s*(?:or|and)\s+|,|/|&|\bor\b|\band\b)\s*{_GRAD_YEAR})*"
+_GRAD_BETWEEN_RE = re.compile(
+    rf"(?:graduat\w+|class of|pass out)\s+(?:between|from)\s+(?:{_GRAD_MONTH}\s+)?(20\d\d)\s+(?:and|to|-)\s+(?:{_GRAD_MONTH}\s+)?(20\d\d)",
+    re.IGNORECASE,
+)
+_GRAD_RANGE_RE = re.compile(r"\b(20\d\d)\s*[-–]\s*(20\d\d)\s*(?:batch|grads?|graduates?|passouts?|graduating)", re.IGNORECASE)
+_GRAD_AFTER_RE = re.compile(rf"(?:graduat\w+|class of)\s+(?:in\s+)?(?:{_GRAD_MONTH}\s+)?(20\d\d)\s+or\s+(?:later|after)", re.IGNORECASE)
+_GRAD_BEFORE_RE = re.compile(
+    rf"(?:graduat\w+|expected graduation)\s+(?:by|before|on or before|no later than)\s+(?:the end of\s+)?(?:{_GRAD_MONTH}\s+)?(20\d\d)",
+    re.IGNORECASE,
+)
+_GRAD_EXACT_RE = re.compile(
+    rf"(?:graduat\w+\s+(?:in|by)?\s*|class of\s+|batch of\s+)(?P<a>{_GRAD_YEARS})\b"
+    rf"|\b(?P<b>{_GRAD_YEARS})\s+(?:graduates?|grads?|passouts?|batch)\b"
+    rf"|\bgraduate\s*\(\s*(?P<c>{_GRAD_YEARS})\s*\)",
+    re.IGNORECASE,
+)
+
+
 def extract_graduation_requirement(content: str) -> Optional[GraduationRequirement]:
     """Deterministically extracts structured graduation year requirements.
-    
+
     Handles patterns such as:
     - 'graduating in 2027' -> exact: [2027]
     - 'graduating between 2026 and 2028' -> min: 2026, max: 2028, exact: [2026, 2027, 2028]
     - '2026-2028 grads' -> min: 2026, max: 2028
-    - 'expected graduation by 2028' -> max: 2028
+    - 'expected graduation by 2028' / 'must graduate before December 2027' -> max
     - 'graduating 2027 or later' -> min: 2027
+    - 'a 2025 or 2026 graduate' -> exact: [2025, 2026]
+
+    Audit fix (2026-09-14, real boards): a list of years kept only one of them
+    ("a 2025 or 2026 graduate" -> [2026], so a 2025 graduate was INELIGIBLE),
+    and a month or season before the year hid the requirement entirely
+    ("Must graduate before December 2027", "graduate in December 2026",
+    "graduating by Spring 2027").
     """
     text = clean_html(content)
 
-    # Pattern: graduating between 2026 and 2028 / graduating from 2026 to 2028
-    between_match = re.search(
-        r"(?:graduat\w+|class of|pass out)\s+(?:between|from)\s+(20\d\d)\s+(?:and|to|-)\s+(20\d\d)",
-        text,
-        re.IGNORECASE,
-    )
+    between_match = _GRAD_BETWEEN_RE.search(text)
     if between_match:
         min_yr = int(between_match.group(1))
         max_yr = int(between_match.group(2))
-        years = list(range(min_yr, max_yr + 1))
         return GraduationRequirement(
             minimum_year=min_yr,
             maximum_year=max_yr,
-            exact_years=years,
+            exact_years=list(range(min_yr, max_yr + 1)),
             original_text=between_match.group(0),
             extraction_confidence=0.95,
         )
 
-    # Pattern: 2026-2028 graduates / 2026-2028 batch
-    range_match = re.search(
-        r"\b(20\d\d)\s*[-–]\s*(20\d\d)\s*(?:batch|grads?|graduates?|passouts?|graduating)",
-        text,
-        re.IGNORECASE,
-    )
+    range_match = _GRAD_RANGE_RE.search(text)
     if range_match:
         min_yr = int(range_match.group(1))
         max_yr = int(range_match.group(2))
-        years = list(range(min_yr, max_yr + 1))
         return GraduationRequirement(
             minimum_year=min_yr,
             maximum_year=max_yr,
-            exact_years=years,
+            exact_years=list(range(min_yr, max_yr + 1)),
             original_text=range_match.group(0),
             extraction_confidence=0.95,
         )
 
-    # Pattern: graduating 2027 or later / after 2026
-    after_match = re.search(
-        r"(?:graduat\w+|class of)\s+(?:in\s+)?(20\d\d)\s+or\s+(?:later|after)",
-        text,
-        re.IGNORECASE,
-    )
+    after_match = _GRAD_AFTER_RE.search(text)
     if after_match:
-        min_yr = int(after_match.group(1))
         return GraduationRequirement(
-            minimum_year=min_yr,
+            minimum_year=int(after_match.group(1)),
             original_text=after_match.group(0),
             extraction_confidence=0.90,
         )
 
-    # Pattern: graduating by 2028 / before 2029
-    before_match = re.search(
-        r"(?:graduat\w+|expected graduation)\s+(?:by|before|on or before)\s+(?:Spring|Summer|Fall|Winter\s+)?(20\d\d)",
-        text,
-        re.IGNORECASE,
-    )
+    before_match = _GRAD_BEFORE_RE.search(text)
     if before_match:
-        max_yr = int(before_match.group(1))
         return GraduationRequirement(
-            maximum_year=max_yr,
+            maximum_year=int(before_match.group(1)),
             original_text=before_match.group(0),
             extraction_confidence=0.90,
         )
 
-    # Pattern: graduating in 2027 / class of 2027 / 2027 graduates / 2027 batch
-    exact_match = re.search(
-        r"(?:graduat\w+\s+(?:in|by)?\s*|class of\s+|batch of\s+)(20\d\d)\b|\b(20\d\d)\s+(?:graduates?|grads?|passouts?|batch)\b",
-        text,
-        re.IGNORECASE,
-    )
+    exact_match = _GRAD_EXACT_RE.search(text)
     if exact_match:
-        year_str = exact_match.group(1) or exact_match.group(2)
-        yr = int(year_str)
+        listed = exact_match.group("a") or exact_match.group("b") or exact_match.group("c")
+        years = sorted({int(year) for year in re.findall(r"20\d\d", listed)})
         return GraduationRequirement(
-            minimum_year=yr,
-            maximum_year=yr,
-            exact_years=[yr],
+            minimum_year=years[0],
+            maximum_year=years[-1],
+            exact_years=years,
             original_text=exact_match.group(0),
             extraction_confidence=0.95,
         )

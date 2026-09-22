@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Scheduler run — CareerOS{% endblock %}
+{% block content %}
+<div class="card" style="margin-bottom: 16px;">
+    <h2>Scheduler run <span class="badge {% if run.status == 'COMPLETED' %}badge-green{% elif run.status == 'RUNNING' %}badge-blue{% else %}badge-orange{% endif %}">{{ run.status }}</span></h2>
+    <p style="color: var(--text-muted); font-size: 13px;"><code>{{ run.id }}</code> · {{ run.trigger }} · policy v{{ run.policy_version }} · window {{ run.window_size }} · started {{ run.started_at.strftime('%Y-%m-%d %H:%M:%S') }} · {{ run.duration_seconds or '' }} s</p>
+    <p><a href="/dashboard/scheduler">← back to scheduler</a></p>
+</div>
+<div class="grid">
+    {% for name in ['considered', 'admissible', 'admitted', 'enqueued', 'requeued', 'already_queued', 'already_completed', 'ready_for_execution', 'needs_review', 'needs_user_input', 'released', 'reprepare_requeued', 'deferred', 'blocked'] %}
+    <div class="card"><div class="stat-label">{{ name.replace('_', ' ') }}</div><div class="stat-value">{{ run[name] }}</div></div>
+    {% endfor %}
+</div>
+<div class="card" style="margin-bottom: 16px;">
+    <h3>Blocked by reason</h3>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0;">
+        {% for code, n in run.blocked_by_reason.items()|sort %}<span class="badge badge-orange">{{ code }} {{ n }}</span>{% else %}<span style="color: var(--text-muted);">nothing blocked</span>{% endfor %}
+    </div>
+</div>
+{% if run.preparation %}
+<div class="card" style="margin-bottom: 16px;"><h3>Preparation (this run)</h3><p>{% for k, v in run.preparation.items() %}<code>{{ k }}</code> {{ v }} &nbsp; {% endfor %}</p></div>
+{% endif %}
+{% for code, rows in run.samples.items()|sort %}
+<div class="card" style="margin-bottom: 16px;">
+    <h3>{{ code }} <span style="color: var(--text-muted); font-size: 12px;">(first {{ rows|length }})</span></h3>
+    <table><thead><tr><th>Opportunity</th><th>Priority</th><th>Fit</th><th>Reason</th></tr></thead><tbody>
+    {% for s in rows %}<tr><td>{{ s.title }} — {{ s.company }}</td><td>{{ s.priority if s.priority is not none else '—' }}</td><td>{{ s.fit if s.fit is not none else '—' }} {{ s.band or '' }}</td><td style="color: var(--text-muted); font-size: 12px;">{{ s.reason }}</td></tr>{% endfor %}
+    </tbody></table>
+</div>
+{% endfor %}
+{% if run.errors %}
+<div class="card"><h3>Errors</h3><ul>{% for e in run.errors %}<li style="font-size: 12px;">{{ e }}</li>{% endfor %}</ul></div>
+{% endif %}
+{% endblock %}

@@ -9,6 +9,7 @@ always safer than silently collapsing two distinct postings.
 import logging
 from typing import Optional
 
+from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session
 
 from app.core.timeutils import db_now, to_db
@@ -54,6 +55,7 @@ class DeduplicationResult:
         is_content_changed: bool = False,
         changes_summary: Optional[str] = None,
         matched_by: Optional[str] = None,
+        reopened: bool = False,
     ):
         self.status = status
         self.job_row = job_row
@@ -61,6 +63,9 @@ class DeduplicationResult:
         self.changes_summary = changes_summary
         # Which identity level resolved this job — recorded for auditability.
         self.matched_by = matched_by
+        # The stored row was CLOSED/EXPIRED and this sighting made it live again:
+        # a repost of the same posting (blueprint §5).
+        self.reopened = reopened
 
 
 class JobDeduplicator:
@@ -80,8 +85,20 @@ class JobDeduplicator:
     ``==``, so a prefix collision is structurally impossible.
     """
 
-    def find_existing_job(self, db: Session, job: NormalizedJob) -> tuple:
+    def find_existing_job(
+        self, db: Session, job: NormalizedJob, skip_source_lookup: bool = False
+    ) -> tuple:
         """Find the matching canonical row, if any.
+
+        Levels 2–5 are fetched with **one** query (an OR over indexed exact
+        predicates) and ranked in Python in the original level order, so the
+        semantics are unchanged while a brand-new posting costs one SELECT
+        instead of four.
+
+        Args:
+            skip_source_lookup: the caller already proved no source reference
+                exists for ``(source, source_job_id)`` (the discovery loop
+                prefetches them per batch); levels 1a/1b are then skipped.
 
         Returns:
             ``(JobRow | None, matched_by: str | None)``
@@ -89,57 +106,68 @@ class JobDeduplicator:
         source_str = job.source.value
         source_job_id_str = job.source_job_id
 
-        # Level 1a: exact match on jobs table (source, source_job_id)
-        existing = (
-            db.query(JobRow).filter_by(source=source_str, source_job_id=source_job_id_str).first()
-        )
-        if existing:
-            return existing, "source_job_id"
+        if not skip_source_lookup:
+            # Level 1a: exact match on jobs table (source, source_job_id)
+            existing = (
+                db.query(JobRow).filter_by(source=source_str, source_job_id=source_job_id_str).first()
+            )
+            if existing:
+                return existing, "source_job_id"
 
-        # Level 1b: exact match on job_source_references table
-        ref = (
-            db.query(SourceReferenceRow)
-            .filter_by(source=source_str, source_job_id=source_job_id_str)
-            .first()
-        )
-        if ref and ref.job:
-            return ref.job, "source_reference"
-
-        # Level 2: exact normalized application URL
-        normalized_apply = normalize_url(job.application_url)
-        if normalized_apply:
-            match = (
-                db.query(JobRow)
-                .filter(JobRow.normalized_application_url == normalized_apply)
+            # Level 1b: exact match on job_source_references table
+            ref = (
+                db.query(SourceReferenceRow)
+                .filter_by(source=source_str, source_job_id=source_job_id_str)
                 .first()
             )
-            if match:
-                return match, "application_url"
+            if ref and ref.job:
+                return ref.job, "source_reference"
 
-        # Level 3: exact normalized source URL
+        normalized_apply = normalize_url(job.application_url)
         normalized_source = normalize_url(job.source_url)
+
+        predicates = []
+        if normalized_apply:
+            predicates.append(JobRow.normalized_application_url == normalized_apply)  # level 2
         if normalized_source:
-            match = db.query(JobRow).filter(JobRow.normalized_source_url == normalized_source).first()
-            if match:
-                return match, "source_url"
-
-        # Level 4: canonical key (company + title + location)
-        match_key = db.query(JobRow).filter_by(canonical_key=job.canonical_key).first()
-        if match_key:
-            return match_key, "canonical_key"
-
-        # Level 5: identical content for the same company and location
-        if job.content_hash:
-            query = db.query(JobRow).filter_by(company=job.company, content_hash=job.content_hash)
+            predicates.append(JobRow.normalized_source_url == normalized_source)  # level 3
+        predicates.append(JobRow.canonical_key == job.canonical_key)  # level 4
+        if job.content_hash:  # level 5: identical content, same company (and location)
+            hash_predicate = and_(JobRow.company == job.company, JobRow.content_hash == job.content_hash)
             if job.location:
-                query = query.filter_by(location=job.location)
-            match_hash = query.first()
-            if match_hash:
-                return match_hash, "content_hash"
+                hash_predicate = and_(hash_predicate, JobRow.location == job.location)
+            predicates.append(hash_predicate)
 
+        candidates = db.query(JobRow).filter(or_(*predicates)).limit(50).all()
+        if not candidates:
+            return None, None
+
+        for row in candidates:
+            if normalized_apply and row.normalized_application_url == normalized_apply:
+                return row, "application_url"
+        for row in candidates:
+            if normalized_source and row.normalized_source_url == normalized_source:
+                return row, "source_url"
+        for row in candidates:
+            if row.canonical_key == job.canonical_key:
+                return row, "canonical_key"
+        for row in candidates:
+            if (
+                job.content_hash
+                and row.company == job.company
+                and row.content_hash == job.content_hash
+                and (not job.location or row.location == job.location)
+            ):
+                return row, "content_hash"
         return None, None
 
-    def process(self, db: Session, job: NormalizedJob, commit: bool = True) -> DeduplicationResult:
+    def process(
+        self,
+        db: Session,
+        job: NormalizedJob,
+        commit: bool = True,
+        skip_source_lookup: bool = False,
+    ) -> DeduplicationResult:
         """Resolve a normalized job against the database.
 
         Args:
@@ -148,8 +176,9 @@ class JobDeduplicator:
             commit: Whether to commit. The ingestion pipeline passes ``False``
                 and owns the transaction boundary itself, so a run is not split
                 into one transaction per job.
+            skip_source_lookup: see :meth:`find_existing_job`.
         """
-        existing, matched_by = self.find_existing_job(db, job)
+        existing, matched_by = self.find_existing_job(db, job, skip_source_lookup=skip_source_lookup)
         now = db_now()
         source_str = job.source.value
         source_job_id_str = job.source_job_id
@@ -225,13 +254,25 @@ class JobDeduplicator:
         existing.last_seen_at = now
         # A job seen again on its source is live again, whatever a previous
         # sweep concluded.
+        reopened = False
         if existing.job_status in ("CLOSED", "EXPIRED"):
             existing.job_status = job.job_status.value
             existing.closed_at = None
+            reopened = True
         if not existing.normalized_source_url and normalized_source:
             existing.normalized_source_url = normalized_source
         if not existing.normalized_application_url and normalized_apply:
             existing.normalized_application_url = normalized_apply
+        # The same posting on the same source now points applicants elsewhere
+        # (or we only just learned its apply page): follow it. Execution targets
+        # `application_url`; a stale one costs a wasted attempt per job.
+        if (
+            matched_by in ("source_job_id", "source_reference")
+            and job.application_url
+            and job.application_url != existing.application_url
+        ):
+            existing.application_url = job.application_url
+            existing.normalized_application_url = normalized_apply or existing.normalized_application_url
         if not existing.source_identifier and job.source_identifier:
             existing.source_identifier = job.source_identifier
         if job.posted_at and not existing.posted_at:
@@ -313,6 +354,7 @@ class JobDeduplicator:
                 is_content_changed=True,
                 changes_summary=changes,
                 matched_by=matched_by,
+                reopened=reopened,
             )
 
         if commit:
@@ -320,4 +362,6 @@ class JobDeduplicator:
         else:
             db.flush()
         status = STATUS_CROSS_SOURCE_DUPLICATE if is_cross_source else STATUS_DUPLICATE
-        return DeduplicationResult(status=status, job_row=existing, matched_by=matched_by)
+        return DeduplicationResult(
+            status=status, job_row=existing, matched_by=matched_by, reopened=reopened
+        )

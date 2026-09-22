@@ -17,7 +17,6 @@ from app.intelligence.taxonomy.skills import canonicalize, find_skills_in_text
 from app.jobs.models.enums import JobSourceType
 from app.jobs.models.job import NormalizedJob
 
-
 # --------------------------------------------------------------------- #
 # False-positive regressions: ambiguous English must not become a skill.
 # --------------------------------------------------------------------- #

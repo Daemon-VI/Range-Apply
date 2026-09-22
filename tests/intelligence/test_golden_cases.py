@@ -17,7 +17,7 @@ from app.intelligence.services.factory import build_orchestrator
 from app.intelligence.services.match_orchestrator import MatchOrchestrator
 from app.jobs.models.enums import EmploymentType, JobSourceType, RemoteType
 from app.jobs.models.job import GraduationRequirement, NormalizedJob
-from app.models import Experience, Preference, Profile, Project, Skill
+from app.models import Preference, Profile, Project, Skill
 from app.models.enums import SkillCategory, VerificationStatus
 
 

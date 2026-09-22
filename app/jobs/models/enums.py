@@ -48,4 +48,18 @@ class JobSourceType(str, Enum):
     LEVER = "LEVER"
     ASHBY = "ASHBY"
     COMPANY_CAREER_PAGE = "COMPANY_CAREER_PAGE"
+    #: A page the candidate saw in their browser, captured by the extension.
+    EXTENSION = "EXTENSION"
+    #: A public aggregator / RSS feed (adapters arrive with later phases).
+    AGGREGATOR = "AGGREGATOR"
     OTHER = "OTHER"
+
+
+class Freshness(str, Enum):
+    """Deterministic age classification of a posting; never invented dates."""
+
+    FRESH = "FRESH"
+    RECENT = "RECENT"
+    AGING = "AGING"
+    STALE = "STALE"
+    UNKNOWN = "UNKNOWN"

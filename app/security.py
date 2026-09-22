@@ -25,6 +25,11 @@ logger = logging.getLogger(__name__)
 
 DASHBOARD_COOKIE = "careeros_key"
 
+#: Desktop shell writes (Increment 2): the dashboard cookie is the credential;
+#: this header is the request-context / CSRF guard, never a credential itself.
+DESKTOP_HEADER = "X-Requested-With"
+DESKTOP_HEADER_VALUE = "careeros-desktop"
+
 _warned = False
 
 
@@ -59,10 +64,55 @@ def check_api_key(candidate: Optional[str]) -> bool:
     return False
 
 
-async def require_api_key(x_api_key: Optional[str] = Header(default=None)) -> None:
+def _same_origin(request: Request) -> bool:
+    """True unless the browser says the request came from somewhere else.
+
+    A cookie-authenticated write may only come from the page itself: with an
+    ``Origin`` header it must name this server; with ``Sec-Fetch-Site`` it
+    must be ``same-origin`` (or ``none``, a direct navigation). Requests
+    without either header (non-browser clients) pass this check; they still
+    need the valid cookie and the exact header.
+    """
+    origin = request.headers.get("origin")
+    if origin is not None:
+        host = request.headers.get("host") or ""
+        if origin.rstrip("/").lower() != f"{request.url.scheme}://{host}".lower():
+            return False
+    site = request.headers.get("sec-fetch-site")
+    if site is not None and site.lower() not in ("same-origin", "none"):
+        return False
+    return True
+
+
+def desktop_write_allowed(request: Request, x_requested_with: Optional[str], cookie: Optional[str]) -> bool:
+    """The desktop path: valid dashboard cookie AND the exact desktop header.
+
+    The header alone is never a credential (it is checked *after* the cookie
+    matched the configured key, in constant time); the cookie alone never
+    authorizes a write (a plain browser tab holding the cookie cannot add the
+    header without a script, and a cross-site page cannot send the cookie —
+    SameSite=Lax — nor pass the origin check).
+    """
+    if x_requested_with != DESKTOP_HEADER_VALUE:
+        return False
+    if not _matches(cookie):
+        return False
+    return _same_origin(request)
+
+
+async def require_api_key(
+    request: Request,
+    x_api_key: Optional[str] = Header(default=None),
+    x_requested_with: Optional[str] = Header(default=None),
+    careeros_key: Optional[str] = Cookie(default=None),
+) -> None:
     """FastAPI dependency guarding write endpoints.
 
-    The key is read from the ``X-API-Key`` header and never logged.
+    Two ways in, both against the one configured key, never logged:
+
+    * ``X-API-Key`` header (API clients, the browser extension) — unchanged;
+    * the dashboard cookie **and** ``X-Requested-With: careeros-desktop``
+      (the desktop shell's pages, Increment 2).
     """
     if settings.api_key is None and not _is_development():
         raise HTTPException(
@@ -72,12 +122,15 @@ async def require_api_key(x_api_key: Optional[str] = Header(default=None)) -> No
                 "using write endpoints outside development."
             ),
         )
-    if not check_api_key(x_api_key):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or missing X-API-Key header.",
-            headers={"WWW-Authenticate": "X-API-Key"},
-        )
+    if check_api_key(x_api_key):
+        return
+    if desktop_write_allowed(request, x_requested_with, careeros_key):
+        return
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid or missing X-API-Key header.",
+        headers={"WWW-Authenticate": "X-API-Key"},
+    )
 
 
 LOGIN_PAGE = """<!doctype html>

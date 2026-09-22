@@ -1,0 +1,56 @@
+{% extends "desktop_base.html" %}
+{% block title %}CareerOS — Opportunities{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <div class="eyebrow">Discover · Decide</div>
+        <h1>Opportunities</h1>
+        <p>Every job CareerOS found for you, ordered by priority. Every admitted opportunity can be applied to; ordering is priority, never a cut-off.</p>
+    </div>
+    <details class="panel" style="margin-top:0">
+        <summary>Counts by state</summary>
+        <p class="small muted mt-2">{% for s, n in counts.items() %}{{ s|humanize }} {{ n }}{% if not loop.last %} · {% endif %}{% endfor %}</p>
+    </details>
+</div>
+
+{% if freshness and freshness.available %}
+<section class="card mb-4 {% if freshness.stale %}tone-warn{% endif %}" id="match-freshness" aria-labelledby="freshness-title">
+    <div class="card-head"><h2 id="freshness-title">Matching</h2>
+        <p>{% if freshness.last_run %}Last run {{ freshness.last_run.started_at.strftime('%Y-%m-%d %H:%M') if freshness.last_run.started_at else '—' }} · {{ freshness.last_run.status|humanize }} · engine {{ freshness.last_run.engine_version }}{% else %}No match run yet{% endif %}</p>
+    </div>
+    <p class="small">
+        {% if freshness.outdated_decisions %}<strong>{{ freshness.outdated_decisions }}</strong> opportunit{{ 'y was' if freshness.outdated_decisions == 1 else 'ies were' }} decided with older eligibility rules (current {{ freshness.ruleset_version }}). {% endif %}
+        {% if freshness.engine_outdated %}The last match run used an older scoring engine (current {{ freshness.engine_version }}). {% endif %}
+        Rule and preference changes (target roles, locations) reach existing opportunities only when matching is re-run.
+        Re-running re-scores and re-decides opportunities as a new, recorded decision; applications already created, answers and past runs are not changed.
+    </p>
+    <div class="actions">
+        {% if freshness.running %}<span class="badge badge-blue">Match run in progress — reload in a few minutes</span>
+        {% else %}<button type="button" class="{% if freshness.stale %}primary{% else %}secondary{% endif %}" data-action data-method="POST" data-url="/api/v3/matches/recalculate" data-body='{}' data-done="Matching started — reload this page in a few minutes">Re-run matching</button>{% endif %}
+    </div>
+</section>
+{% endif %}
+
+<form class="filter-bar" id="opportunity-filters" role="search" aria-label="Filter opportunities" action="/desktop/opportunities" method="get"
+      hx-get="/desktop/partials/opportunities" hx-target="#opportunity-rows" hx-indicator="#opportunity-loading"
+      hx-trigger="submit, change from:select, keyup changed delay:400ms from:input[name=q], keyup changed delay:400ms from:input[name=location]" hx-push-url="false">
+    <label class="field grow"><span>Search</span><input type="search" name="q" placeholder="Company or role" value="{{ filters.q }}"></label>
+    <label class="field"><span>Location</span><input type="search" name="location" placeholder="e.g. Hyderabad" value="{{ filters.location }}"></label>
+    <label class="field"><span>Policy outcome</span><select name="reason"><option value="">Any outcome</option>{% for value, label in reasons %}<option value="{{ value }}" {% if filters.reason == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+    <label class="field"><span>Eligibility</span><select name="eligibility"><option value="">Any eligibility</option>{% for d in decisions %}<option value="{{ d }}" {% if filters.eligibility == d %}selected{% endif %}>{{ d|humanize }}</option>{% endfor %}</select></label>
+    <label class="field"><span>Fit band</span><select name="fit_band"><option value="">Any fit band</option>{% for b in bands %}<option value="{{ b }}" {% if filters.fit_band == b %}selected{% endif %}>{{ b|humanize }}</option>{% endfor %}</select></label>
+    <label class="field"><span>Admitted</span><select name="admitted"><option value="">Admitted or not</option><option value="true" {% if filters.admitted == 'true' %}selected{% endif %}>Admitted</option><option value="false" {% if filters.admitted == 'false' %}selected{% endif %}>Not admitted</option></select></label>
+    <label class="field"><span>State</span><select name="state"><option value="">Any state</option>{% for s in states %}<option value="{{ s }}" {% if filters.state == s %}selected{% endif %}>{{ s|humanize }}</option>{% endfor %}</select></label>
+    <label class="field" style="min-width:110px"><span>Min priority</span><input type="number" name="min_priority" min="0" max="100" value="{{ filters.min_priority }}"></label>
+    <input type="hidden" name="limit" value="{{ filters.limit }}">
+    <div class="actions">
+        <button type="submit" class="primary">Apply filters</button>
+        <a class="btn subtle" href="/desktop/opportunities">Reset</a>
+        <span id="opportunity-loading" class="htmx-indicator small muted" role="status"><span class="spinner" aria-hidden="true"></span> Loading…</span>
+    </div>
+</form>
+
+<div id="opportunity-rows" class="card flush">
+    {% include "_opportunity_rows.html" %}
+</div>
+{% endblock %}

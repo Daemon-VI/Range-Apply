@@ -1,0 +1,542 @@
+{
+  "chains": [
+    {
+      "why_selected": {
+        "job": {
+          "source": "ASHBY",
+          "company": "Linear",
+          "title": "Product Support Specialist, Europe",
+          "url": "https://jobs.ashbyhq.com/linear/820d0d5a-0930-475c-b494-23e18ad2aa68/application",
+          "content_hash": "b5985c4eb40a6cb609a501d7162c32252914d048884c4ad46a05787e08a4015b"
+        },
+        "opportunity": {
+          "id": "e0ba42e1-7525-47b0-aec9-97e99a174cc8",
+          "identity_key": "296dd108ecc63ef0f00b52a4759f8ac5225e139e2222cb7c03640a2d3f050c1c",
+          "status": "OPEN"
+        },
+        "candidate_opportunity": {
+          "id": "2a149b7c-a43a-47a9-b4b5-c9909fc78ac9",
+          "state": "PREPARED",
+          "eligibility": "LIKELY",
+          "fit_score": 50,
+          "fit_band": "MEDIUM",
+          "policy_admitted": true,
+          "policy_reason": "admitted:LIKELY:MEDIUM",
+          "admission_policy_version": 2,
+          "gate_ruleset_version": "tier1-gates-v1",
+          "scheduler_code": "ADMITTED"
+        },
+        "eligibility_decision": {
+          "decision": "LIKELY",
+          "ruleset": "tier1-from-match-v1",
+          "reasons": [
+            "ok:no-hard-eligibility-constraints-were-detected-in"
+          ]
+        },
+        "priority": {
+          "score": 62,
+          "components": {
+            "fit": 50.0,
+            "freshness": 100.0,
+            "deadline": 20.0,
+            "source_reliability": 85.0,
+            "execution_ease": 80.0,
+            "learned_prior": 50.0,
+            "weights": {
+              "fit": 0.4,
+              "freshness": 0.2,
+              "deadline": 0.15,
+              "source_reliability": 0.1,
+              "execution_ease": 0.1,
+              "learned_prior": 0.05
+            }
+          },
+          "weights_version": "priority-v1"
+        }
+      },
+      "what_would_be_submitted": {
+        "preparation": {
+          "id": "d7adad7e-a6ff-4008-b691-407dde426868",
+          "version": 1,
+          "level": "L1",
+          "lane": "REVIEW",
+          "status": "READY",
+          "validation": "PASSED",
+          "fingerprint": "d4a86ad838817119801d04f9e71f892da506e9fe54a8c151be5fb123c1ddcf41",
+          "evidence_keys": 23,
+          "ai_used": false
+        },
+        "documents": [
+          {
+            "type": "RESUME",
+            "format": "PDF",
+            "version": 1,
+            "sha256": "2043e49a948d1f487857f003f4022628a64cfc90c7acf15632bbfe2911851818",
+            "status": "ACTIVE"
+          },
+          {
+            "type": "COVER_LETTER",
+            "format": "PDF",
+            "version": 1,
+            "sha256": "57d8e3e5b1a9629a7033b7513f1706e7b355ea59a0b9d3c7b33bf96cd971e394",
+            "status": "ACTIVE"
+          }
+        ],
+        "form_snapshots": [
+          {
+            "fields": 0,
+            "executor": "PLAYWRIGHT_LOCAL",
+            "fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          {
+            "fields": 12,
+            "executor": "PLAYWRIGHT_LOCAL",
+            "fingerprint": "20781327715beabf627b23bda5fc4fef721f7f211a96429b45587e31709e7687"
+          }
+        ]
+      },
+      "evidence_of_submission": {
+        "attempt": {
+          "id": "d34bed2e-01b2-4ef6-8ff4-1d37d6eece9f",
+          "status": "READY",
+          "submission_key": null,
+          "submitted_at": null,
+          "reference": null
+        },
+        "runs": [],
+        "note": "dry-run validation: no real submission happened; the SUBMITTED status was set by the validation harness for signal attribution"
+      },
+      "what_happened_afterward": {
+        "signals": [],
+        "outcome_events": [],
+        "current_outcome": null
+      },
+      "audit_trail": [
+        {
+          "entity": "candidate_opportunity",
+          "action": "eligibility:LIKELY",
+          "actor": "pipeline-sync",
+          "at": "2026-09-12 12:54:46.562390"
+        },
+        {
+          "entity": "candidate_opportunity",
+          "action": "fit",
+          "actor": "pipeline-sync",
+          "at": "2026-09-12 12:54:46.562391"
+        },
+        {
+          "entity": "candidate_opportunity",
+          "action": "priority",
+          "actor": "pipeline-sync",
+          "at": "2026-09-12 12:54:46.564031"
+        },
+        {
+          "entity": "candidate_opportunity",
+          "action": "admission",
+          "actor": "pipeline-sync",
+          "at": "2026-09-12 12:54:46.564032"
+        },
+        {
+          "entity": "candidate_opportunity",
+          "action": "state:QUEUED",
+          "actor": "phase13",
+          "at": "2026-09-12 12:54:48.995709"
+        },
+        {
+          "entity": "candidate_opportunity",
+          "action": "scheduled",
+          "actor": "phase13",
+          "at": "2026-09-12 12:54:48.995710"
+        },
+        {
+          "entity": "preparation",
+          "action": "created",
+          "actor": "worker:phase13-prep",
+          "at": "2026-09-12 12:54:49.997329"
+        },
+        {
+          "entity": "preparation",
+          "action": "validation_passed",
+          "actor": "worker:phase13-prep",
+          "at": "2026-09-12 12:54:49.997330"
+        },
+        {
+          "entity": "candidate_opportunity",
+          "action": "state:PREPARED",
+          "actor": "worker:phase13-prep",
+          "at": "2026-09-12 12:54:49.997331"
+        }
+      ],
+      "application_events": [
+        {
+          "type": "scheduled",
+          "from": null,
+          "to": "QUALIFIED"
+        },
+        {
+          "type": "prepared",
+          "from": "QUALIFIED",
+          "to": "READY"
+        }
+      ]
+    },
+    {
+      "why_selected": {
+        "job": {
+          "source": "GREENHOUSE",
+          "company": "Discord",
+          "title": "Staff Software Engineer - Consumer Revenue",
+          "url": null,
+          "content_hash": "fa881327c5f59b4898e6c4b79c08e6c25e5e311a777aa4f29728e7a538937dea"
+        },
+        "opportunity": {
+          "id": "88f20ab4-3165-4cfe-bca9-c6a6cb625850",
+          "identity_key": "29600e8d7047fc3aa31eba91cf34b14a1909b432bec267a4c40ca843420f8d25",
+          "status": "OPEN"
+        },
+        "candidate_opportunity": {
+          "id": "b0938a1f-1559-4324-aace-252f56de8953",
+          "state": "PREPARED",
+          "eligibility": "LIKELY",
+          "fit_score": 61,
+          "fit_band": "MEDIUM",
+          "policy_admitted": true,
+          "policy_reason": "admitted:LIKELY:MEDIUM",
+          "admission_policy_version": 2,
+          "gate_ruleset_version": "tier1-gates-v1",
+          "scheduler_code": "ADMITTED"
+        },
+        "eligibility_decision": {
+          "decision": "LIKELY",
+          "ruleset": "tier1-from-match-v1",
+          "reasons": [
+            "uncertain:senior",
+            "ok:no-hard-eligibility-constraints-were-detected-in"
+          ]
+        },
+        "priority": {
+          "score": 62,
+          "components": {
+            "fit": 61.0,
+            "freshness": 73.0,
+            "deadline": 20.0,
+            "source_reliability": 90.0,
+            "execution_ease": 85.0,
+            "learned_prior": 50.0,
+            "weights": {
+              "fit": 0.4,
+              "freshness": 0.2,
+              "deadline": 0.15,
+              "source_reliability": 0.1,
+              "execution_ease": 0.1,
+              "learned_prior": 0.05
+            }
+          },
+          "weights_version": "priority-v1"
+        }
+      },
+      "what_would_be_submitted": {
+        "preparation": {
+          "id": "76e504c4-4d8f-4fa9-87ed-bb2e5350a94e",
+          "version": 1,
+          "level": "L1",
+          "lane": "REVIEW",
+          "status": "READY",
+          "validation": "PASSED",
+          "fingerprint": "396e45de409a8b623db1ac7971527b248236125a28ca2c03893a41bf99c43e3c",
+          "evidence_keys": 23,
+          "ai_used": false
+        },
+        "documents": [
+          {
+            "type": "RESUME",
+            "format": "PDF",
+            "version": 1,
+            "sha256": "da1e24068035fa3e4ba2a94683642d7b83796b00ed60789519dd90c08357e8ab",
+            "status": "ACTIVE"
+          },
+          {
+            "type": "COVER_LETTER",
+            "format": "PDF",
+            "version": 1,
+            "sha256": "b82c0a11d33b2b9d709edf42ce2dbe2f4a692745e1e68703b7487118f41ce7c2",
+            "status": "ACTIVE"
+          }
+        ],
+        "form_snapshots": [
+          {
+            "fields": 34,
+            "executor": "PLAYWRIGHT_LOCAL",
+            "fingerprint": "35843292f6d080b18f266d390e6e29a51bbc2ae100774887c3f0c998244ddcb6"
+          }
+        ]
+      },
+      "evidence_of_submission": {
+        "attempt": {
+          "id": "5883a1f7-824f-4e3c-9058-3f512bf73a80",
+          "status": "READY",
+          "submission_key": null,
+          "submitted_at": null,
+          "reference": null
+        },
+        "runs": [],
+        "note": "dry-run validation: no real submission happened; the SUBMITTED status was set by the validation harness for signal attribution"
+      },
+      "what_happened_afterward": {
+        "signals": [],
+        "outcome_events": [],
+        "current_outcome": null
+      },
+      "audit_trail": [
+        {
+          "entity": "candidate_opportunity",
+          "action": "eligibility:LIKELY",
+          "actor": "pipeline-sync",
+          "at": "2026-09-12 12:54:48.617791"
+        },
+        {
+          "entity": "candidate_opportunity",
+          "action": "fit",
+          "actor": "pipeline-sync",
+          "at": "2026-09-12 12:54:48.617792"
+        },
+        {
+          "entity": "candidate_opportunity",
+          "action": "priority",
+          "actor": "pipeline-sync",
+          "at": "2026-09-12 12:54:48.617794"
+        },
+        {
+          "entity": "candidate_opportunity",
+          "action": "admission",
+          "actor": "pipeline-sync",
+          "at": "2026-09-12 12:54:48.617795"
+        },
+        {
+          "entity": "candidate_opportunity",
+          "action": "state:QUEUED",
+          "actor": "phase13",
+          "at": "2026-09-12 12:54:48.995712"
+        },
+        {
+          "entity": "candidate_opportunity",
+          "action": "scheduled",
+          "actor": "phase13",
+          "at": "2026-09-12 12:54:48.995713"
+        },
+        {
+          "entity": "preparation",
+          "action": "created",
+          "actor": "worker:phase13-prep",
+          "at": "2026-09-12 12:54:50.029075"
+        },
+        {
+          "entity": "preparation",
+          "action": "validation_passed",
+          "actor": "worker:phase13-prep",
+          "at": "2026-09-12 12:54:50.029076"
+        },
+        {
+          "entity": "candidate_opportunity",
+          "action": "state:PREPARED",
+          "actor": "worker:phase13-prep",
+          "at": "2026-09-12 12:54:50.029077"
+        }
+      ],
+      "application_events": [
+        {
+          "type": "scheduled",
+          "from": null,
+          "to": "QUALIFIED"
+        },
+        {
+          "type": "prepared",
+          "from": "QUALIFIED",
+          "to": "READY"
+        }
+      ]
+    },
+    {
+      "why_selected": {
+        "job": {
+          "source": "ASHBY",
+          "company": "Supabase",
+          "title": "Platform Engineer - Compute Capacity",
+          "url": "https://jobs.ashbyhq.com/supabase/4eb14408-51e6-4c58-812a-3782d5c0b045/application",
+          "content_hash": "359809b8af9a3d584d0fe7535b35b6d1e6da28992df5a6e1ca7e9110d1df00e3"
+        },
+        "opportunity": {
+          "id": "6ad792dd-60fd-4fc6-8623-b4072ff63726",
+          "identity_key": "103783b655d7d06fc0aab95f700341501d74ef882184095e49781072bbc1e835",
+          "status": "OPEN"
+        },
+        "candidate_opportunity": {
+          "id": "69c7a764-b014-4224-9522-ab0b12866e3f",
+          "state": "PREPARED",
+          "eligibility": "LIKELY",
+          "fit_score": 60,
+          "fit_band": "MEDIUM",
+          "policy_admitted": true,
+          "policy_reason": "admitted:LIKELY:MEDIUM",
+          "admission_policy_version": 2,
+          "gate_ruleset_version": "tier1-gates-v1",
+          "scheduler_code": "ADMITTED"
+        },
+        "eligibility_decision": {
+          "decision": "LIKELY",
+          "ruleset": "tier1-from-match-v1",
+          "reasons": [
+            "uncertain:senior",
+            "ok:no-hard-eligibility-constraints-were-detected-in"
+          ]
+        },
+        "priority": {
+          "score": 60,
+          "components": {
+            "fit": 60.0,
+            "freshness": 71.0,
+            "deadline": 20.0,
+            "source_reliability": 85.0,
+            "execution_ease": 80.0,
+            "learned_prior": 50.0,
+            "weights": {
+              "fit": 0.4,
+              "freshness": 0.2,
+              "deadline": 0.15,
+              "source_reliability": 0.1,
+              "execution_ease": 0.1,
+              "learned_prior": 0.05
+            }
+          },
+          "weights_version": "priority-v1"
+        }
+      },
+      "what_would_be_submitted": {
+        "preparation": {
+          "id": "7f74350f-a543-4671-90d9-bfc99ed24647",
+          "version": 1,
+          "level": "L1",
+          "lane": "REVIEW",
+          "status": "READY",
+          "validation": "PASSED",
+          "fingerprint": "e4f91a61e0a9d671f99709c4a27cdf97f392a09ea666506cc1cab241799dcd0d",
+          "evidence_keys": 23,
+          "ai_used": false
+        },
+        "documents": [
+          {
+            "type": "RESUME",
+            "format": "PDF",
+            "version": 1,
+            "sha256": "a7286fb1d0dc1adab63e33cb88970e3da1906be573056c65065b2d26bd18a492",
+            "status": "ACTIVE"
+          },
+          {
+            "type": "COVER_LETTER",
+            "format": "PDF",
+            "version": 1,
+            "sha256": "aacca8afe9d056ea668ea3f22d48cb51feef9d93ddaa92cca8c35590291e6c37",
+            "status": "ACTIVE"
+          }
+        ],
+        "form_snapshots": [
+          {
+            "fields": 0,
+            "executor": "PLAYWRIGHT_LOCAL",
+            "fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          {
+            "fields": 14,
+            "executor": "PLAYWRIGHT_LOCAL",
+            "fingerprint": "8bdf2b6068f3b3b1106996ecadb4ec1ac3d8e28238ba6eb6fbb9a9b6be20d18a"
+          }
+        ]
+      },
+      "evidence_of_submission": {
+        "attempt": {
+          "id": "448a158a-ecc7-4c78-b346-3e808f1607c3",
+          "status": "READY",
+          "submission_key": null,
+          "submitted_at": null,
+          "reference": null
+        },
+        "runs": [],
+        "note": "dry-run validation: no real submission happened; the SUBMITTED status was set by the validation harness for signal attribution"
+      },
+      "what_happened_afterward": {
+        "signals": [],
+        "outcome_events": [],
+        "current_outcome": null
+      },
+      "audit_trail": [
+        {
+          "entity": "candidate_opportunity",
+          "action": "eligibility:LIKELY",
+          "actor": "pipeline-sync",
+          "at": "2026-09-12 12:54:46.029577"
+        },
+        {
+          "entity": "candidate_opportunity",
+          "action": "fit",
+          "actor": "pipeline-sync",
+          "at": "2026-09-12 12:54:46.029578"
+        },
+        {
+          "entity": "candidate_opportunity",
+          "action": "priority",
+          "actor": "pipeline-sync",
+          "at": "2026-09-12 12:54:46.029580"
+        },
+        {
+          "entity": "candidate_opportunity",
+          "action": "admission",
+          "actor": "pipeline-sync",
+          "at": "2026-09-12 12:54:46.029581"
+        },
+        {
+          "entity": "candidate_opportunity",
+          "action": "state:QUEUED",
+          "actor": "phase13",
+          "at": "2026-09-12 12:54:48.995715"
+        },
+        {
+          "entity": "candidate_opportunity",
+          "action": "scheduled",
+          "actor": "phase13",
+          "at": "2026-09-12 12:54:48.995716"
+        },
+        {
+          "entity": "preparation",
+          "action": "created",
+          "actor": "worker:phase13-prep",
+          "at": "2026-09-12 12:54:50.063705"
+        },
+        {
+          "entity": "preparation",
+          "action": "validation_passed",
+          "actor": "worker:phase13-prep",
+          "at": "2026-09-12 12:54:50.063706"
+        },
+        {
+          "entity": "candidate_opportunity",
+          "action": "state:PREPARED",
+          "actor": "worker:phase13-prep",
+          "at": "2026-09-12 12:54:50.063707"
+        }
+      ],
+      "application_events": [
+        {
+          "type": "scheduled",
+          "from": null,
+          "to": "QUALIFIED"
+        },
+        {
+          "type": "prepared",
+          "from": "QUALIFIED",
+          "to": "READY"
+        }
+      ]
+    }
+  ],
+  "reconstructable": true
+}

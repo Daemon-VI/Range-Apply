@@ -1,0 +1,344 @@
+{
+  "messages": [
+    {
+      "kind": "greenhouse_confirmation",
+      "created": true,
+      "category": "APPLICATION_CONFIRMATION",
+      "confidence": "HIGH",
+      "classification_source": "rules",
+      "attribution": "MATCHED",
+      "application_id": "99cf48e2-3813-4a17-9615-3654b2bec87c",
+      "status": "APPLIED",
+      "status_reason": "APPLICATION_RECEIVED recorded with STRONG evidence",
+      "verdicts": {
+        "category_ok": true,
+        "attribution_ok": true
+      }
+    },
+    {
+      "kind": "greenhouse_confirmation_duplicate",
+      "created": false,
+      "category": "APPLICATION_CONFIRMATION",
+      "confidence": "HIGH",
+      "classification_source": "rules",
+      "attribution": "MATCHED",
+      "application_id": "99cf48e2-3813-4a17-9615-3654b2bec87c",
+      "status": "APPLIED",
+      "status_reason": "APPLICATION_RECEIVED recorded with STRONG evidence",
+      "verdicts": {
+        "duplicate_ok": true
+      }
+    },
+    {
+      "kind": "lever_received",
+      "created": true,
+      "category": "APPLICATION_RECEIVED",
+      "confidence": "HIGH",
+      "classification_source": "rules",
+      "attribution": "AMBIGUOUS",
+      "application_id": null,
+      "status": "NEEDS_REVIEW",
+      "status_reason": "several applications to this company; no title evidence",
+      "verdicts": {
+        "category_ok": true,
+        "attribution_ok": false
+      }
+    },
+    {
+      "kind": "rejection",
+      "created": true,
+      "category": "REJECTION",
+      "confidence": "HIGH",
+      "classification_source": "rules",
+      "attribution": "AMBIGUOUS",
+      "application_id": null,
+      "status": "NEEDS_REVIEW",
+      "status_reason": "several applications to this company; no title evidence",
+      "verdicts": {
+        "category_ok": true,
+        "attribution_ok": false
+      }
+    },
+    {
+      "kind": "interview_invite",
+      "created": true,
+      "category": "INTERVIEW_INVITATION",
+      "confidence": "HIGH",
+      "classification_source": "rules",
+      "attribution": "AMBIGUOUS",
+      "application_id": null,
+      "status": "NEEDS_REVIEW",
+      "status_reason": "several applications to this company; no title evidence",
+      "verdicts": {
+        "category_ok": true,
+        "attribution_ok": false
+      }
+    },
+    {
+      "kind": "interview_reply_thread",
+      "created": true,
+      "category": "INTERVIEW_INVITATION",
+      "confidence": "HIGH",
+      "classification_source": "rules",
+      "attribution": "AMBIGUOUS",
+      "application_id": null,
+      "status": "NEEDS_REVIEW",
+      "status_reason": "several applications to this company; no title evidence",
+      "verdicts": {
+        "category_ok": true,
+        "attribution_ok": false
+      }
+    },
+    {
+      "kind": "assessment",
+      "created": true,
+      "category": "ASSESSMENT",
+      "confidence": "HIGH",
+      "classification_source": "rules",
+      "attribution": "AMBIGUOUS",
+      "application_id": null,
+      "status": "NEEDS_REVIEW",
+      "status_reason": "several applications to this company; no title evidence",
+      "verdicts": {
+        "category_ok": true,
+        "attribution_ok": false
+      }
+    },
+    {
+      "kind": "recruiter_outreach",
+      "created": true,
+      "category": "RECRUITER_CONTACT",
+      "confidence": "MEDIUM",
+      "classification_source": "rules",
+      "attribution": "UNMATCHED",
+      "application_id": null,
+      "status": "UNMATCHED",
+      "status_reason": "no identifier, URL, reference, company or title evidence matched an application",
+      "verdicts": {
+        "category_ok": true,
+        "attribution_status_ok": true
+      }
+    },
+    {
+      "kind": "status_update",
+      "created": true,
+      "category": "STATUS_UPDATE",
+      "confidence": "HIGH",
+      "classification_source": "rules",
+      "attribution": "AMBIGUOUS",
+      "application_id": null,
+      "status": "NEEDS_REVIEW",
+      "status_reason": "several applications to this company; no title evidence",
+      "verdicts": {
+        "category_ok": true,
+        "attribution_ok": false
+      }
+    },
+    {
+      "kind": "marketing_job_alert",
+      "created": true,
+      "category": "OTHER",
+      "confidence": "HIGH",
+      "classification_source": "rules",
+      "attribution": "SKIPPED",
+      "application_id": null,
+      "status": "IGNORED",
+      "status_reason": "classified OTHER (alerts / marketing); not an application signal",
+      "verdicts": {
+        "category_ok": true,
+        "status_ok": true
+      }
+    },
+    {
+      "kind": "ambiguous",
+      "created": true,
+      "category": "UNKNOWN",
+      "confidence": "NONE",
+      "classification_source": "rules",
+      "attribution": "AMBIGUOUS",
+      "application_id": null,
+      "status": "NEEDS_REVIEW",
+      "status_reason": "unclassified; attribution ambiguous (company_only)",
+      "verdicts": {
+        "status_ok": true
+      }
+    },
+    {
+      "kind": "information_request",
+      "created": true,
+      "category": "INFORMATION_REQUEST",
+      "confidence": "HIGH",
+      "classification_source": "rules",
+      "attribution": "AMBIGUOUS",
+      "application_id": null,
+      "status": "NEEDS_REVIEW",
+      "status_reason": "several applications to this company; no title evidence",
+      "verdicts": {
+        "category_ok": true,
+        "attribution_ok": false
+      }
+    },
+    {
+      "kind": "withdrawal",
+      "created": true,
+      "category": "WITHDRAWAL",
+      "confidence": "HIGH",
+      "classification_source": "rules",
+      "attribution": "AMBIGUOUS",
+      "application_id": null,
+      "status": "NEEDS_REVIEW",
+      "status_reason": "several applications to this company; no title evidence",
+      "verdicts": {
+        "category_ok": true,
+        "attribution_ok": false
+      }
+    },
+    {
+      "kind": "html_email",
+      "created": true,
+      "category": "APPLICATION_RECEIVED",
+      "confidence": "HIGH",
+      "classification_source": "rules",
+      "attribution": "AMBIGUOUS",
+      "application_id": null,
+      "status": "NEEDS_REVIEW",
+      "status_reason": "several applications to this company; no title evidence",
+      "verdicts": {
+        "category_ok": true,
+        "attribution_ok": false
+      }
+    },
+    {
+      "kind": "same_company_two_applications",
+      "created": true,
+      "category": "APPLICATION_RECEIVED",
+      "confidence": "HIGH",
+      "classification_source": "rules",
+      "attribution": "AMBIGUOUS",
+      "application_id": null,
+      "status": "NEEDS_REVIEW",
+      "status_reason": "several applications to this company; no title evidence",
+      "verdicts": {
+        "attribution_status_ok": true
+      }
+    },
+    {
+      "kind": "same_company_with_title",
+      "created": true,
+      "category": "APPLICATION_RECEIVED",
+      "confidence": "HIGH",
+      "classification_source": "rules",
+      "attribution": "AMBIGUOUS",
+      "application_id": null,
+      "status": "NEEDS_REVIEW",
+      "status_reason": "several applications to this company; no title evidence",
+      "verdicts": {
+        "attribution_ok": false
+      }
+    }
+  ],
+  "checks_passed": 18,
+  "checks_total": 28,
+  "inbox_summary": {
+    "tenant_id": "validation-p13",
+    "by_status": {
+      "APPLIED": 1,
+      "IGNORED": 1,
+      "NEEDS_REVIEW": 12,
+      "UNMATCHED": 1
+    },
+    "by_source": {
+      "EMAIL": 15
+    },
+    "by_category": {
+      "APPLICATION_CONFIRMATION": 1,
+      "APPLICATION_RECEIVED": 4,
+      "ASSESSMENT": 1,
+      "INFORMATION_REQUEST": 1,
+      "INTERVIEW_INVITATION": 2,
+      "OTHER": 1,
+      "RECRUITER_CONTACT": 1,
+      "REJECTION": 1,
+      "STATUS_UPDATE": 1,
+      "UNKNOWN": 1,
+      "WITHDRAWAL": 1
+    },
+    "outcomes_by_current": {
+      "APPLICATION_RECEIVED": 1
+    },
+    "review_queue": 13,
+    "unmatched": 1
+  },
+  "learning": {
+    "snapshot_id": "eedd44ba-60b8-487e-a50f-04ddeef478e6",
+    "dataset_size": 12,
+    "evidence": {
+      "STRONG": 1,
+      "NONE": 11
+    },
+    "completeness": {
+      "terminal": 0,
+      "progress": 1,
+      "submitted_only": 0,
+      "unverified": 11
+    },
+    "responded": 1,
+    "recommendations": 22,
+    "sample_rows": [
+      {
+        "company": "Spotify",
+        "responded": true,
+        "interviewed": false,
+        "rejected": false,
+        "evidence_quality": "STRONG",
+        "events_counted": 1,
+        "days_to_response": 0.048
+      },
+      {
+        "company": "Discord",
+        "responded": false,
+        "interviewed": false,
+        "rejected": false,
+        "evidence_quality": "NONE",
+        "events_counted": 0,
+        "days_to_response": null
+      },
+      {
+        "company": "Discord",
+        "responded": false,
+        "interviewed": false,
+        "rejected": false,
+        "evidence_quality": "NONE",
+        "events_counted": 0,
+        "days_to_response": null
+      },
+      {
+        "company": "Spotify",
+        "responded": false,
+        "interviewed": false,
+        "rejected": false,
+        "evidence_quality": "NONE",
+        "events_counted": 0,
+        "days_to_response": null
+      },
+      {
+        "company": "Spotify",
+        "responded": false,
+        "interviewed": false,
+        "rejected": false,
+        "evidence_quality": "NONE",
+        "events_counted": 0,
+        "days_to_response": null
+      },
+      {
+        "company": "Spotify",
+        "responded": false,
+        "interviewed": false,
+        "rejected": false,
+        "evidence_quality": "NONE",
+        "events_counted": 0,
+        "days_to_response": null
+      }
+    ]
+  }
+}

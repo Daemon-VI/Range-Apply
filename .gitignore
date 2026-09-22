@@ -82,6 +82,20 @@ browser_profiles/
 cookies/
 
 # ================================
+# Local browser execution (Blueprint Phase 7) — never commit these:
+# persistent browser profiles hold cookies and signed-in sessions;
+# handoff screenshots/traces can contain candidate data.
+# ================================
+data/browser/
+data/browser_profile/
+data/execution_artifacts/
+# Rendered candidate documents (Blueprint Phase 8): personal data, local only.
+data/documents/
+playwright-traces/
+*.trace.zip
+test-results/
+
+# ================================
 # Logs
 # ================================
 *.log
@@ -106,3 +120,6 @@ Thumbs.db
 *.db-shm
 .migrate_tmp.db
 test_api_runner.db
+
+# Local database backups and dumps (personal data)
+backups/
